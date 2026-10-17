@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd1bd27e6939d9e4482b24d91a707b9b, type: 3}
-  m_Name: item_04_Cable_Electrico
+  m_Name: item_f2_t1_Cable_Simple
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
-  ItemId: item_04
-  ItemName: Cable Electrico
-  Icon: {fileID: 511563903383975435, guid: 02c19ceef8f7eb74395a96008b51d9e5, type: 3}
+  ItemId: item_f2_t1
+  ItemName: Cable Simple
+  Icon: {fileID: -7451574120533608554, guid: f4f892c692231b3478e2e46938255dff, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
-  Attributes: 10
+  Attributes: 9
+  Tier: 10
+  BasePrice: 10
+  FamilyName: Electricidad

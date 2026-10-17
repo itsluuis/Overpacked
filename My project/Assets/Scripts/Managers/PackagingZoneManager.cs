@@ -20,7 +20,7 @@ namespace LogiPack.Managers
 
         private readonly PackageBox[] _slots = new PackageBox[TOTAL_SLOTS];
 
-        public event Action<PackageBox, Order> OnOrderDispatched;
+        public event Action<PackageBox, Order, int> OnOrderDispatched;
 
         public bool PlaceBoxInSlot(PackageBox box, int targetSlot)
         {
@@ -82,11 +82,12 @@ namespace LogiPack.Managers
                 // Si encontramos coincidencia, se despacha automáticamente
                 if (candidateOrder != null)
                 {
-                    Debug.Log($"[PackagingZone] ¡DESPACHO AUTOMÁTICO! Ranura {i} despachó orden '{candidateOrder.OrderId}'.");
+                    int tip = candidateOrder.GetTipAmount();
+                    Debug.Log($"[PackagingZone] ¡DESPACHO AUTOMÁTICO! Ranura {i} despachó orden '{candidateOrder.OrderId}'. Base: ${candidateOrder.MonetaryReward}, Propina ({candidateOrder.GetTipPercent() * 100:0}%): +${tip}");
                     _slots[i] = null;
                     box.SlotIndex = -1;
                     box.SetState(BoxState.Dispatched);
-                    OnOrderDispatched?.Invoke(box, candidateOrder);
+                    OnOrderDispatched?.Invoke(box, candidateOrder, tip);
                     Destroy(box.gameObject);
                 }
             }

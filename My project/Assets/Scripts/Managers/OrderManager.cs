@@ -82,13 +82,24 @@ namespace LogiPack.Managers
             Debug.Log($"[OrderManager] Nuevo pedido entrante: {newOrder.OrderId} ({newOrder.Condition.NaturalLanguageText}) - Recompensa: ${newOrder.MonetaryReward}");
         }
 
-        private void HandleOrderDispatched(Gameplay.PackageBox box, Order order)
+        private void HandleOrderDispatched(Gameplay.PackageBox box, Order order, int tip)
         {
             ActiveOrders.Remove(order);
             if (Economy != null)
             {
-                Economy.AddEarnings(order.MonetaryReward);
+                Economy.AddEarnings(order.MonetaryReward, tip);
             }
+        }
+
+        /// <summary>
+        /// Limpia los pedidos activos al reiniciar o comenzar una nueva jornada laboral.
+        /// </summary>
+        public void ClearAllOrders()
+        {
+            ActiveOrders.Clear();
+            _spawnTimer = 0f;
+            SpawnNewOrder();
+            Debug.Log("[OrderManager] Pedidos reiniciados para la nueva jornada.");
         }
     }
 }

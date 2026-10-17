@@ -28,7 +28,7 @@ namespace LogiPack.Gameplay
             // Si Spawner no está asignado, buscarlo automáticamente en la escena
             if (Spawner == null)
             {
-                Spawner = FindFirstObjectByType<BoxSpawner>();
+                Spawner = FindAnyObjectByType<BoxSpawner>();
             }
         }
 
@@ -84,13 +84,13 @@ namespace LogiPack.Gameplay
                     // Si estaba en una ranura de embalaje, liberar la ranura
                     if (previousSlot >= 0)
                     {
-                        var zone = FindFirstObjectByType<PackagingZoneManager>();
+                        var zone = FindAnyObjectByType<PackagingZoneManager>();
                         if (zone != null) zone.RemoveBoxFromSlot(previousSlot);
                     }
                     else
                     {
                         // Si estaba en la mesa de armado, solicitar una nueva caja
-                        if (Spawner == null) Spawner = FindFirstObjectByType<BoxSpawner>();
+                        if (Spawner == null) Spawner = FindAnyObjectByType<BoxSpawner>();
                         if (Spawner != null) Spawner.NotifyBoxMovedFromTable();
                     }
 
@@ -115,7 +115,7 @@ namespace LogiPack.Gameplay
                         // Si vino de la mesa, solicitar una nueva caja vacía para la mesa
                         if (previousSlot == -1)
                         {
-                            if (Spawner == null) Spawner = FindFirstObjectByType<BoxSpawner>();
+                            if (Spawner == null) Spawner = FindAnyObjectByType<BoxSpawner>();
                             if (Spawner != null) Spawner.NotifyBoxMovedFromTable();
                         }
                         break;

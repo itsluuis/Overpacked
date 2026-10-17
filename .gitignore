@@ -10,6 +10,8 @@ GUIA_CONTINUIDAD_PROYECTO.md
 CONTINUIDAD_SESIONES.md
 *.log
 *.tmp
+scratch/
+**/Screenshots/
 
 # --- Unity Generated & Cache Directories ---
 **/[Ll]ibrary/

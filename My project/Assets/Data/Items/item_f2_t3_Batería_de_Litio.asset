@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd1bd27e6939d9e4482b24d91a707b9b, type: 3}
-  m_Name: item_02_Plancha_de_Metal
+  m_Name: "item_f2_t3_Bater\xEDa_de_Litio"
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
-  ItemId: item_02
-  ItemName: Plancha de Metal
-  Icon: {fileID: -5866079068782734381, guid: 1ff05520d703efd458268bb9471c39fc, type: 3}
+  ItemId: item_f2_t3
+  ItemName: "Bater\xEDa de Litio"
+  Icon: {fileID: 6728719105241064179, guid: f9ed6328836f04d4d8f78107cc52aebe, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
-  Attributes: 2
+  Attributes: 9
+  Tier: 28
+  BasePrice: 28
+  FamilyName: Electricidad

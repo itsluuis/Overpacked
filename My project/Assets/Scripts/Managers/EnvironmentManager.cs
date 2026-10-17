@@ -25,6 +25,7 @@ namespace LogiPack.Managers
         public TemperatureType NextTemperature;
 
         public bool IsDayOver { get; private set; }
+        public int CurrentDayNumber { get; private set; } = 1;
 
         public event Action<EnvironmentState> OnEnvironmentChanged;
         public event Action OnDayCompleted;
@@ -78,6 +79,33 @@ namespace LogiPack.Managers
                 OnEnvironmentChanged?.Invoke(CurrentState);
                 OnDayCompleted?.Invoke();
             }
+        }
+
+        /// <summary>
+        /// Reinicia la jornada laboral a las 06:00 AM para un nuevo turno o reintento.
+        /// </summary>
+        public void RestartDay(bool advanceDayCount = true)
+        {
+            if (advanceDayCount)
+            {
+                CurrentDayNumber++;
+            }
+
+            _elapsedRealTime = 0f;
+            _currentHourInt = START_HOUR;
+            IsDayOver = false;
+
+            // Restablecer estado inicial
+            CurrentState.CurrentHour = START_HOUR;
+            CurrentState.TimeOfDay = TimeOfDay.Morning;
+            CurrentState.Weather = WeatherType.Clear;
+            CurrentState.Temperature = TemperatureType.Normal;
+
+            NextWeather = PickNextWeather(CurrentState.Weather);
+            NextTemperature = PickNextTemperature(CurrentState.Temperature);
+
+            OnEnvironmentChanged?.Invoke(CurrentState);
+            Debug.Log($"<color=cyan><b>[EnvironmentManager]</b></color> Nueva jornada iniciada (Día {CurrentDayNumber}) a las {START_HOUR:D2}:00.");
         }
 
         private void AdvanceHour(int newHour)

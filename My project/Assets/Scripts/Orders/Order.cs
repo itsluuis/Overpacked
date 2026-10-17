@@ -15,7 +15,9 @@ namespace LogiPack.Orders
 
     /// <summary>
     /// Modelo de datos de un Pedido activo en el almacén.
+    /// Incluye desglose económico (Ítems + Embalaje + Lógica) y propinas por agilidad.
     /// </summary>
+    [Serializable]
     public class Order
     {
         public string OrderId;
@@ -24,19 +26,57 @@ namespace LogiPack.Orders
         
         public float MaxTime;
         public float RemainingTime;
+
+        // Desglose económico modular
+        public int ItemsCost;
+        public int PackagingBonus;
+        public int LogicBonus;
         public int MonetaryReward;
 
         public bool IsExpired => RemainingTime <= 0;
         public float TimeNormalized => Mathf.Clamp01(RemainingTime / MaxTime);
 
-        public Order(string id, EnvironmentalCondition condition, List<OrderItemRequirement> reqs, float duration, int reward)
+        /// <summary>
+        /// Porcentaje de propina según la zona del temporizador:
+        /// Verde (>= 60% tiempo): +25%
+        /// Amarillo (25% a 60% tiempo): +10%
+        /// Rojo (< 25% tiempo): +0% (solo valor base)
+        /// </summary>
+        public float GetTipPercent()
+        {
+            float ratio = TimeNormalized;
+            if (ratio >= 0.60f) return 0.25f; // Zona Verde: +25%
+            if (ratio >= 0.25f) return 0.10f; // Zona Amarilla: +10%
+            return 0f;                       // Zona Roja: +0%
+        }
+
+        public int GetTipAmount()
+        {
+            return Mathf.RoundToInt(MonetaryReward * GetTipPercent());
+        }
+
+        public int GetTotalPayment()
+        {
+            return MonetaryReward + GetTipAmount();
+        }
+
+        public Order(string id, EnvironmentalCondition condition, List<OrderItemRequirement> reqs, float duration, int itemsCost, int packagingBonus, int logicBonus)
         {
             OrderId = id;
             Condition = condition;
             Requirements = reqs;
             MaxTime = duration;
             RemainingTime = duration;
-            MonetaryReward = reward;
+            ItemsCost = itemsCost;
+            PackagingBonus = packagingBonus;
+            LogicBonus = logicBonus;
+            MonetaryReward = itemsCost + packagingBonus + logicBonus;
+        }
+
+        // Sobrecarga de compatibilidad
+        public Order(string id, EnvironmentalCondition condition, List<OrderItemRequirement> reqs, float duration, int reward)
+            : this(id, condition, reqs, duration, reward, 0, 0)
+        {
         }
 
         /// <summary>

@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd1bd27e6939d9e4482b24d91a707b9b, type: 3}
-  m_Name: item_01_Tornillo
+  m_Name: item_f4_t2_Lona_Impermeable
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
-  ItemId: item_01
-  ItemName: Tornillo
-  Icon: {fileID: 7653679393658770840, guid: daf34dca7884a57478b91f2f6efa4eb1, type: 3}
+  ItemId: item_f4_t2
+  ItemName: Lona Impermeable
+  Icon: {fileID: 5115662124506789780, guid: df920a3aa8ccaf9458c4c461892b8807, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
-  Attributes: 3
+  Attributes: 16
+  Tier: 18
+  BasePrice: 18
+  FamilyName: Textiles

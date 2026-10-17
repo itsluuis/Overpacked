@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd1bd27e6939d9e4482b24d91a707b9b, type: 3}
+  m_Name: "item_f4_t1_Tela_de_Algod\xF3n"
+  m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
+  ItemId: item_f4_t1
+  ItemName: "Tela de Algod\xF3n"
+  Icon: {fileID: -8866133602427026878, guid: 40918500e0e1ad34db0af04d33f1a587, type: 3}
+  BaseColor: {r: 1, g: 1, b: 1, a: 1}
+  Attributes: 16
+  Tier: 10
+  BasePrice: 10
+  FamilyName: Textiles

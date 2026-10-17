@@ -107,31 +107,30 @@ namespace LogiPack.Editor
             boxSpawner.SpawnPoint = tableGO.transform;
             boxSpawner.BoxPrefab = boxPrefab;
 
-            // 6. Estantería de Items: 4 columnas para los 4 items, repetidas en 3 filas verticales
+            // 6. Estantería de Items: 4 columnas (Familias temáticas) x 3 filas (Tiers: Avanzado, Medio, Básico)
             GameObject shelfGO = new GameObject("=== ESTANTERIA_ITEMS ===");
-            Sprite screwSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_screw.png");
-            Sprite plateSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_plate.png");
-            Sprite fabricSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_fabric.png");
-            Sprite wireSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_wire.png");
-            Sprite[] itemSprites = { screwSprite, plateSprite, fabricSprite, wireSprite };
-
             float[] colX = { -3.6f, -1.2f, 1.2f, 3.6f };
-            float[] rowY = { 2.1f, 0.7f, -0.7f };
+            float[] rowY = { 2.1f, 0.7f, -0.7f }; // r=0: Tier 3 (Arriba, $28) | r=1: Tier 2 (Centro, $18) | r=2: Tier 1 (Abajo, $10)
 
             for (int c = 0; c < 4; c++)
             {
-                var itemData = (c < orderMgr.AvailableItems.Count) ? orderMgr.AvailableItems[c] : null;
-                Sprite sp = (c < itemSprites.Length) ? itemSprites[c] : null;
-
                 for (int r = 0; r < 3; r++)
                 {
-                    string itemName = itemData != null ? itemData.ItemName : $"Item_{c}";
+                    int tierNumber = 3 - r; // r=0 -> t3, r=1 -> t2, r=2 -> t1
+                    string targetId = $"item_f{c + 1}_t{tierNumber}";
+                    var itemData = orderMgr.AvailableItems.Find(it => it.ItemId == targetId);
+
+                    string itemName = itemData != null ? itemData.ItemName : $"Item_F{c + 1}_T{tierNumber}";
                     GameObject itemSlot = new GameObject($"ShelfItem_C{c}R{r}_{itemName}");
                     itemSlot.transform.parent = shelfGO.transform;
                     itemSlot.transform.position = new Vector3(colX[c], rowY[r], 0);
 
                     var sr = itemSlot.AddComponent<SpriteRenderer>();
-                    if (sp != null) sr.sprite = sp;
+                    if (itemData != null && itemData.Icon != null)
+                    {
+                        sr.sprite = itemData.Icon;
+                        sr.color = itemData.BaseColor;
+                    }
 
                     var col = itemSlot.AddComponent<BoxCollider2D>();
                     col.size = new Vector2(1.2f, 1.2f);
@@ -402,12 +401,131 @@ namespace LogiPack.Editor
             stationUI.ThermalFilmButtonImage = filmImg;
             stationUI.ThermalFilmButtonText = filmTxt;
 
+            // 11. Modal de Evaluación de Fin de Jornada (Estilo Papers Please / Overcooked)
+            GameObject modalRootGO = new GameObject("DayEndSummaryModal");
+            modalRootGO.transform.SetParent(canvasGO.transform, false);
+            var modalRootRT = modalRootGO.AddComponent<RectTransform>();
+            modalRootRT.anchorMin = Vector2.zero;
+            modalRootRT.anchorMax = Vector2.one;
+            modalRootRT.offsetMin = Vector2.zero;
+            modalRootRT.offsetMax = Vector2.zero;
+
+            // Overlay oscuro de fondo que bloquea clics al almacén
+            var modalOverlayImg = modalRootGO.AddComponent<Image>();
+            modalOverlayImg.color = new Color(0.04f, 0.06f, 0.09f, 0.85f);
+            modalOverlayImg.raycastTarget = true;
+
+            // Panel Central tipo Ficha de Reporte / Portapapeles
+            GameObject cardPanelGO = new GameObject("SummaryCardPanel");
+            cardPanelGO.transform.SetParent(modalRootGO.transform, false);
+            var cardPanelRT = cardPanelGO.AddComponent<RectTransform>();
+            cardPanelRT.anchorMin = new Vector2(0.5f, 0.5f);
+            cardPanelRT.anchorMax = new Vector2(0.5f, 0.5f);
+            cardPanelRT.pivot = new Vector2(0.5f, 0.5f);
+            cardPanelRT.sizeDelta = new Vector2(720, 680);
+
+            var cardPanelImg = cardPanelGO.AddComponent<Image>();
+            cardPanelImg.color = new Color(0.09f, 0.12f, 0.18f, 0.98f);
+
+            var dayEndUI = modalRootGO.AddComponent<DayEndSummaryUI>();
+            dayEndUI.Environment = envMgr;
+            dayEndUI.Economy = ecoMgr;
+            dayEndUI.Orders = orderMgr;
+            dayEndUI.ContentPanel = cardPanelGO;
+            dayEndUI.OverlayBackground = modalOverlayImg;
+
+            // 1. Header Title Text
+            dayEndUI.HeaderTitleText = CreateModalText(cardPanelGO.transform, "HeaderTitleText", new Vector2(0, 275), new Vector2(660, 60), 22, font, Color.white, TextAnchor.MiddleCenter);
+
+            // 2. Stars Display Text
+            dayEndUI.StarsDisplayText = CreateModalText(cardPanelGO.transform, "StarsDisplayText", new Vector2(0, 205), new Vector2(660, 65), 50, font, new Color(1.0f, 0.84f, 0.0f), TextAnchor.MiddleCenter);
+
+            // 3. Rating Title Text
+            dayEndUI.RatingTitleText = CreateModalText(cardPanelGO.transform, "RatingTitleText", new Vector2(0, 145), new Vector2(660, 45), 26, font, Color.white, TextAnchor.MiddleCenter);
+
+            // 4. Prestige Badge Text
+            dayEndUI.PrestigeBadgeText = CreateModalText(cardPanelGO.transform, "PrestigeBadgeText", new Vector2(0, 95), new Vector2(660, 36), 18, font, new Color(0.4f, 0.85f, 1f), TextAnchor.MiddleCenter);
+
+            // 5. Financial Breakdown Box (Panel interno con fondo contrastado)
+            GameObject breakdownBoxGO = new GameObject("BreakdownBox");
+            breakdownBoxGO.transform.SetParent(cardPanelGO.transform, false);
+            var boxRT = breakdownBoxGO.AddComponent<RectTransform>();
+            boxRT.anchorMin = new Vector2(0.5f, 0.5f);
+            boxRT.anchorMax = new Vector2(0.5f, 0.5f);
+            boxRT.pivot = new Vector2(0.5f, 0.5f);
+            boxRT.anchoredPosition = new Vector2(0, -35);
+            boxRT.sizeDelta = new Vector2(640, 190);
+            var boxImg = breakdownBoxGO.AddComponent<Image>();
+            boxImg.color = new Color(0.05f, 0.07f, 0.11f, 0.95f);
+
+            dayEndUI.FinancialBreakdownText = CreateModalText(breakdownBoxGO.transform, "FinancialBreakdownText", Vector2.zero, new Vector2(600, 170), 18, font, Color.white, TextAnchor.MiddleLeft);
+
+            // 6. Quotas Status Text
+            dayEndUI.QuotasStatusText = CreateModalText(cardPanelGO.transform, "QuotasStatusText", new Vector2(0, -170), new Vector2(640, 70), 16, font, new Color(0.85f, 0.88f, 0.92f), TextAnchor.MiddleCenter);
+
+            // 7. Botón Siguiente Turno
+            GameObject nextDayBtnGO = new GameObject("NextDayButton");
+            nextDayBtnGO.transform.SetParent(cardPanelGO.transform, false);
+            var btnRT = nextDayBtnGO.AddComponent<RectTransform>();
+            btnRT.anchorMin = new Vector2(0.5f, 0.5f);
+            btnRT.anchorMax = new Vector2(0.5f, 0.5f);
+            btnRT.pivot = new Vector2(0.5f, 0.5f);
+            btnRT.anchoredPosition = new Vector2(0, -260);
+            btnRT.sizeDelta = new Vector2(480, 56);
+
+            var nextBtnImg = nextDayBtnGO.AddComponent<Image>();
+            nextBtnImg.color = new Color(0.12f, 0.55f, 0.28f, 1.0f);
+
+            var nextBtn = nextDayBtnGO.AddComponent<Button>();
+            nextBtn.targetGraphic = nextBtnImg;
+            dayEndUI.NextDayButton = nextBtn;
+
+            GameObject btnTxtGO = new GameObject("Text");
+            btnTxtGO.transform.SetParent(nextDayBtnGO.transform, false);
+            var btnTxtRT = btnTxtGO.AddComponent<RectTransform>();
+            btnTxtRT.anchorMin = Vector2.zero;
+            btnTxtRT.anchorMax = Vector2.one;
+            btnTxtRT.offsetMin = Vector2.zero;
+            btnTxtRT.offsetMax = Vector2.zero;
+
+            var btnTxt = btnTxtGO.AddComponent<Text>();
+            btnTxt.font = font;
+            btnTxt.fontSize = 18;
+            btnTxt.fontStyle = FontStyle.Bold;
+            btnTxt.color = Color.white;
+            btnTxt.alignment = TextAnchor.MiddleCenter;
+            btnTxt.text = "▶ INICIAR SIGUIENTE JORNADA (06:00 AM)";
+            dayEndUI.NextDayButtonText = btnTxt;
+
+            modalOverlayImg.enabled = false;
+            cardPanelGO.SetActive(false);
+
             // Guardar Escena
             EditorSceneManager.SaveScene(scene, scenePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log("<color=green><b>[LogiPack] ¡Escena de Gameplay reconstruida con UI completa, Estación de Embalaje y HUD!</b></color>");
+            Debug.Log("<color=green><b>[LogiPack] ¡Escena de Gameplay reconstruida con UI completa, Estación de Embalaje, HUD y Modal de Fin de Jornada!</b></color>");
+        }
+
+        private static Text CreateModalText(Transform parent, string name, Vector2 pos, Vector2 size, int fontSize, Font font, Color color, TextAnchor alignment)
+        {
+            GameObject go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rt = go.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            var txt = go.AddComponent<Text>();
+            txt.font = font;
+            txt.fontSize = fontSize;
+            txt.fontStyle = FontStyle.Bold;
+            txt.color = color;
+            txt.alignment = alignment;
+            return txt;
         }
 
         private static void fillOrigin(Image img)

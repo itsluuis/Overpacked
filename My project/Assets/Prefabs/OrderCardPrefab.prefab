@@ -580,6 +580,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c72556e3f6f24d540a581416f10a0382, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.UI.OrderCardUI
+  LinkedOrder:
+    OrderId: 
+    Condition:
+      NaturalLanguageText: Enviar en cualquier momento
+      LeftPredicate: 0
+      InvertLeft: 0
+      Operator: 0
+      RightPredicate: 0
+      InvertRight: 0
+    Requirements: []
+    MaxTime: 0
+    RemainingTime: 0
+    ItemsCost: 0
+    PackagingBonus: 0
+    LogicBonus: 0
+    MonetaryReward: 0
   OrderIdText: {fileID: 4034742506416558751}
   RewardText: {fileID: 1916331383183969414}
   TimeBarFill: {fileID: 5879864099960684816}

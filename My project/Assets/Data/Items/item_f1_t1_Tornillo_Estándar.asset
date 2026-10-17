@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cd1bd27e6939d9e4482b24d91a707b9b, type: 3}
-  m_Name: item_03_Tela_Rosa
+  m_Name: "item_f1_t1_Tornillo_Est\xE1ndar"
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
-  ItemId: item_03
-  ItemName: Tela Rosa
-  Icon: {fileID: 1998488467243364639, guid: 3399410ef57f1f441b0dd5cc25e98578, type: 3}
+  ItemId: item_f1_t1
+  ItemName: "Tornillo Est\xE1ndar"
+  Icon: {fileID: 5745658811247924244, guid: 2e3906fa13ae52c45a271054f450bedf, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
-  Attributes: 20
+  Attributes: 2
+  Tier: 10
+  BasePrice: 10
+  FamilyName: "Fijaci\xF3n / Metales"

@@ -108,7 +108,40 @@ namespace LogiPack.Orders
                     break;
             }
 
-            return new Order(orderId, condition, reqs, duration, reward);
+            // 3. Cálculo Modular de Recompensa (GDD Oficial)
+            // A. Costo por ítems requeridos
+            int itemsCost = 0;
+            foreach (var req in reqs)
+            {
+                int unitPrice = (req.Item != null && req.Item.BasePrice > 0) ? req.Item.BasePrice : 10;
+                itemsCost += unitPrice * req.RequiredCount;
+            }
+
+            // B. Bonus por Material de Embalaje Solicitado:
+            // Estándar: +$0 | 1 Material (Espuma o Film): +$15 | Doble Material (Espuma Y Film): +$35
+            int packagingBonus = 0;
+            if (conditionType == 3)
+            {
+                packagingBonus = 35; // Doble material
+            }
+            else if (conditionType == 0 || conditionType == 1 || conditionType == 4 || conditionType == 6)
+            {
+                packagingBonus = 15; // 1 material
+            }
+
+            // C. Bonus por Complejidad Lógica:
+            // Proposición Atómica: +$10 | Molecular con Conectivo: +$20 | Bicondicional: +$35
+            int logicBonus = 10;
+            if (condition.Operator == LogicOperator.Biconditional)
+            {
+                logicBonus = 35;
+            }
+            else if (condition.Operator != LogicOperator.None)
+            {
+                logicBonus = 20;
+            }
+
+            return new Order(orderId, condition, reqs, duration, itemsCost, packagingBonus, logicBonus);
         }
     }
 }
