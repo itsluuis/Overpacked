@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LogiPack.Logic;
 using UnityEngine;
 
@@ -6,84 +7,144 @@ namespace LogiPack.Managers
 {
     /// <summary>
     /// Controlador del entorno y del reloj de la jornada (6:00 AM a 22:00 PM).
-    /// Genera eventos aleatorios climáticos y de temperatura.
+    /// Jornada de 4 minutos reales (240s): avanza 1 hora exacta cada 15 segundos reales.
+    /// Sincroniza el clima y la temperatura al cambio de hora, generando un pronóstico
+    /// dinámico con probabilidad de repetición decayente.
     /// </summary>
     public class EnvironmentManager : MonoBehaviour
     {
-        [Header("Configuración del Tiempo")]
-        [Tooltip("Duración de la jornada completa (6:00 a 22:00 = 16 horas) en segundos reales.")]
-        public float RealDayDurationSeconds = 180f; // 3 minutos por día laboral
+        public const float REAL_DAY_DURATION = 240f; // 4 minutos en la vida real
+        public const float SECONDS_PER_HOUR = 15f;   // 15 segundos reales por hora de juego
+        public const int START_HOUR = 6;
+        public const int END_HOUR = 22;
 
         public EnvironmentState CurrentState;
+
+        [Header("Pronóstico para la Próxima Hora")]
+        public WeatherType NextWeather;
+        public TemperatureType NextTemperature;
+
         public bool IsDayOver { get; private set; }
 
         public event Action<EnvironmentState> OnEnvironmentChanged;
         public event Action OnDayCompleted;
 
-        private float _timer;
-        private float _eventTimer;
-        private float _nextEventInterval = 20f;
+        private float _elapsedRealTime = 0f;
+        private int _currentHourInt = START_HOUR;
+        private int _consecutiveWeatherRepeats = 0;
+        private int _consecutiveTempRepeats = 0;
 
         private void Start()
         {
-            // Inicialización de la jornada a las 6:00 AM
-            CurrentState.CurrentHour = 6.0f;
+            _elapsedRealTime = 0f;
+            _currentHourInt = START_HOUR;
+            IsDayOver = false;
+
+            // Estado inicial a las 06:00
+            CurrentState.CurrentHour = START_HOUR;
             CurrentState.TimeOfDay = TimeOfDay.Morning;
             CurrentState.Weather = WeatherType.Clear;
             CurrentState.Temperature = TemperatureType.Normal;
 
+            // Pronóstico inicial para las 07:00
+            NextWeather = PickNextWeather(CurrentState.Weather);
+            NextTemperature = PickNextTemperature(CurrentState.Temperature);
+
             OnEnvironmentChanged?.Invoke(CurrentState);
+            Debug.Log($"[EnvironmentManager] Jornada iniciada a las {START_HOUR:D2}:00. Clima: {CurrentState.Weather}, Temp: {CurrentState.Temperature}. Pronóstico: {NextWeather}, {NextTemperature}.");
         }
 
         private void Update()
         {
             if (IsDayOver) return;
 
-            _timer += Time.deltaTime;
-            _eventTimer += Time.deltaTime;
+            _elapsedRealTime += Time.deltaTime;
 
-            // Progresión de la hora: de 6.0f a 22.0f
-            float progress = Mathf.Clamp01(_timer / RealDayDurationSeconds);
-            CurrentState.CurrentHour = Mathf.Lerp(6.0f, 22.0f, progress);
+            // Calcular hora de juego actual (discreta, de hora en hora: 6, 7, 8... 22)
+            int targetHour = START_HOUR + Mathf.FloorToInt(_elapsedRealTime / SECONDS_PER_HOUR);
 
-            // Actualizar rango horario
-            if (CurrentState.CurrentHour < 12.0f)
-                CurrentState.TimeOfDay = TimeOfDay.Morning;
-            else if (CurrentState.CurrentHour < 18.0f)
-                CurrentState.TimeOfDay = TimeOfDay.Afternoon;
-            else
-                CurrentState.TimeOfDay = TimeOfDay.Night;
-
-            // Eventos climáticos aleatorios periódicos
-            if (_eventTimer >= _nextEventInterval)
+            if (targetHour > _currentHourInt && targetHour <= END_HOUR)
             {
-                _eventTimer = 0f;
-                _nextEventInterval = UnityEngine.Random.Range(15f, 30f);
-                RandomizeWeatherAndTemp();
+                AdvanceHour(targetHour);
             }
 
-            OnEnvironmentChanged?.Invoke(CurrentState);
-
-            // Fin de la jornada a las 22:00 PM
-            if (_timer >= RealDayDurationSeconds)
+            // Fin de jornada a las 22:00 PM (al completarse los 240s)
+            if (_elapsedRealTime >= REAL_DAY_DURATION)
             {
+                _elapsedRealTime = REAL_DAY_DURATION;
+                CurrentState.CurrentHour = END_HOUR;
                 IsDayOver = true;
                 Debug.Log("[EnvironmentManager] ¡Fin de la jornada laboral a las 22:00 PM!");
+                OnEnvironmentChanged?.Invoke(CurrentState);
                 OnDayCompleted?.Invoke();
             }
         }
 
-        private void RandomizeWeatherAndTemp()
+        private void AdvanceHour(int newHour)
         {
-            // Clima aleatorio
-            Array weathers = Enum.GetValues(typeof(WeatherType));
-            CurrentState.Weather = (WeatherType)weathers.GetValue(UnityEngine.Random.Range(0, weathers.Length));
+            _currentHourInt = newHour;
+            CurrentState.CurrentHour = _currentHourInt;
 
-            // Temperatura aleatoria
-            Array temps = Enum.GetValues(typeof(TemperatureType));
-            CurrentState.Temperature = (TemperatureType)temps.GetValue(UnityEngine.Random.Range(0, temps.Length));
+            // Actualizar franja pasiva
+            if (_currentHourInt < 12)
+                CurrentState.TimeOfDay = TimeOfDay.Morning;
+            else if (_currentHourInt < 18)
+                CurrentState.TimeOfDay = TimeOfDay.Afternoon;
+            else
+                CurrentState.TimeOfDay = TimeOfDay.Night;
 
-            Debug.Log($"[EnvironmentManager] Cambio ambiental: Clima = {CurrentState.Weather}, Temp = {CurrentState.Temperature}, Hora = {CurrentState.CurrentHour:F1}h");
+            // El pronóstico de la hora anterior se convierte en el estado actual
+            CurrentState.Weather = NextWeather;
+            CurrentState.Temperature = NextTemperature;
+
+            // Generar nuevo pronóstico para la hora siguiente con decaimiento de repetición
+            NextWeather = PickNextWeather(CurrentState.Weather);
+            NextTemperature = PickNextTemperature(CurrentState.Temperature);
+
+            OnEnvironmentChanged?.Invoke(CurrentState);
+            Debug.Log($"<color=green><b>[EnvironmentManager]</b></color> Nueva hora: {_currentHourInt:D2}:00. Clima actual: {CurrentState.Weather} | Pronóstico: {NextWeather}. Temp actual: {CurrentState.Temperature} | Pronóstico: {NextTemperature}.");
+        }
+
+        private WeatherType PickNextWeather(WeatherType current)
+        {
+            // Probabilidad baja de repetir (20%), decayendo drásticamente si se repite consecutivamente
+            float repeatChance = 0.20f / (_consecutiveWeatherRepeats + 1);
+
+            if (UnityEngine.Random.value < repeatChance)
+            {
+                _consecutiveWeatherRepeats++;
+                return current;
+            }
+
+            _consecutiveWeatherRepeats = 0;
+            var available = new List<WeatherType>();
+            foreach (WeatherType w in Enum.GetValues(typeof(WeatherType)))
+            {
+                if (w != current) available.Add(w);
+            }
+
+            return available[UnityEngine.Random.Range(0, available.Count)];
+        }
+
+        private TemperatureType PickNextTemperature(TemperatureType current)
+        {
+            // Probabilidad baja de repetir (20%), decayendo drásticamente si se repite consecutivamente
+            float repeatChance = 0.20f / (_consecutiveTempRepeats + 1);
+
+            if (UnityEngine.Random.value < repeatChance)
+            {
+                _consecutiveTempRepeats++;
+                return current;
+            }
+
+            _consecutiveTempRepeats = 0;
+            var available = new List<TemperatureType>();
+            foreach (TemperatureType t in Enum.GetValues(typeof(TemperatureType)))
+            {
+                if (t != current) available.Add(t);
+            }
+
+            return available[UnityEngine.Random.Range(0, available.Count)];
         }
     }
 }

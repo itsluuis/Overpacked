@@ -234,31 +234,59 @@ namespace LogiPack.Gameplay
 
             foreach (Transform child in ItemContainer)
             {
+                child.SetParent(null);
                 Destroy(child.gameObject);
             }
 
-            int index = 0;
+            var itemsList = new List<ItemData>();
             foreach (var kvp in Contents)
             {
-                ItemData item = kvp.Key;
-                int count = kvp.Value;
-
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < kvp.Value; i++)
                 {
-                    GameObject iconGO = new GameObject($"Icon_{item.ItemName}_{i}");
-                    iconGO.transform.parent = ItemContainer;
-
-                    float xOffset = ((index % 3) - 1f) * 0.45f;
-                    float yOffset = ((index / 3) * 0.45f) - 0.2f;
-                    iconGO.transform.localPosition = new Vector3(xOffset, yOffset, -0.1f);
-                    iconGO.transform.localScale = Vector3.one * 0.4f;
-
-                    var sr = iconGO.AddComponent<SpriteRenderer>();
-                    sr.sprite = item.Icon;
-                    sr.sortingOrder = 10;
-
-                    index++;
+                    itemsList.Add(kvp.Key);
                 }
+            }
+
+            int count = itemsList.Count;
+            if (count == 0) return;
+
+            for (int i = 0; i < count; i++)
+            {
+                ItemData item = itemsList[i];
+                GameObject iconGO = new GameObject($"Icon_{item.ItemName}_{i}");
+                iconGO.transform.parent = ItemContainer;
+
+                Vector3 localPos = Vector3.zero;
+                if (count == 1)
+                {
+                    localPos = new Vector3(0f, 0f, -0.1f);
+                }
+                else if (count == 2)
+                {
+                    float x = (i == 0) ? -0.32f : 0.32f;
+                    localPos = new Vector3(x, 0f, -0.1f);
+                }
+                else if (count == 3)
+                {
+                    float x = (i - 1) * 0.40f;
+                    localPos = new Vector3(x, 0f, -0.1f);
+                }
+                else
+                {
+                    int cols = 3;
+                    int col = i % cols;
+                    int row = i / cols;
+                    float x = (col - 1f) * 0.38f;
+                    float y = -(row * 0.38f) + 0.18f;
+                    localPos = new Vector3(x, y, -0.1f);
+                }
+
+                iconGO.transform.localPosition = localPos;
+                iconGO.transform.localScale = Vector3.one * 0.45f;
+
+                var sr = iconGO.AddComponent<SpriteRenderer>();
+                sr.sprite = item.Icon;
+                sr.sortingOrder = 10;
             }
         }
 

@@ -1,3 +1,4 @@
+using LogiPack.Logic;
 using LogiPack.Managers;
 using UnityEngine;
 using UnityEngine.UI;
@@ -5,8 +6,11 @@ using UnityEngine.UI;
 namespace LogiPack.UI
 {
     /// <summary>
-    /// Muestra en pantalla el reloj de la jornada (6:00 a 22:00),
-    /// el clima actual, la temperatura y el dinero acumulado.
+    /// Muestra en pantalla el panel HUD (Zona Roja):
+    /// - Reloj de jornada (06:00 AM a 22:00 PM avanzando de hora en hora).
+    /// - Dinero acumulado.
+    /// - Clima actual y pronóstico para la siguiente hora.
+    /// - Temperatura actual y pronóstico para la siguiente hora.
     /// </summary>
     public class HUDManagerUI : MonoBehaviour
     {
@@ -27,31 +31,55 @@ namespace LogiPack.UI
                 Economy.OnMoneyChanged += UpdateMoneyDisplay;
                 UpdateMoneyDisplay(Economy.CurrentMoney);
             }
+
+            if (Environment != null)
+            {
+                Environment.OnEnvironmentChanged += UpdateEnvironmentDisplay;
+                UpdateEnvironmentDisplay(Environment.CurrentState);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Economy != null)
+            {
+                Economy.OnMoneyChanged -= UpdateMoneyDisplay;
+            }
+
+            if (Environment != null)
+            {
+                Environment.OnEnvironmentChanged -= UpdateEnvironmentDisplay;
+            }
         }
 
         private void Update()
         {
             if (Environment != null)
             {
-                // Reloj: formatear hora decimal (ej. 6.5 = 06:30)
-                float hour = Environment.CurrentState.CurrentHour;
-                int h = Mathf.FloorToInt(hour);
-                int m = Mathf.FloorToInt((hour - h) * 60f);
+                int h = Mathf.RoundToInt(Environment.CurrentState.CurrentHour);
                 if (ClockText != null)
                 {
-                    ClockText.text = $"🕒 {h:D2}:{m:D2} {(h >= 12 ? "PM" : "AM")}";
+                    ClockText.text = $"🕒 {h:D2}:00 {(h >= 12 ? "PM" : "AM")}";
                 }
+            }
+        }
 
-                // Clima y Temperatura
-                if (WeatherText != null)
-                {
-                    WeatherText.text = $"🌤️ {Environment.CurrentState.Weather}";
-                }
+        private void UpdateEnvironmentDisplay(EnvironmentState state)
+        {
+            if (Environment == null) return;
 
-                if (TemperatureText != null)
-                {
-                    TemperatureText.text = $"🌡️ {Environment.CurrentState.Temperature}";
-                }
+            if (WeatherText != null)
+            {
+                string currW = FormatWeather(state.Weather);
+                string nextW = FormatWeather(Environment.NextWeather);
+                WeatherText.text = $"🌤️ {currW} (Próx: {nextW})";
+            }
+
+            if (TemperatureText != null)
+            {
+                string currT = FormatTemp(state.Temperature);
+                string nextT = FormatTemp(Environment.NextTemperature);
+                TemperatureText.text = $"🌡️ {currT} (Próx: {nextT})";
             }
         }
 
@@ -61,6 +89,29 @@ namespace LogiPack.UI
             {
                 MoneyText.text = $"💰 ${money}";
             }
+        }
+
+        private string FormatWeather(WeatherType w)
+        {
+            return w switch
+            {
+                WeatherType.Clear => "Despejado ☀️",
+                WeatherType.Rain => "Lluvia 🌧️",
+                WeatherType.Cloudy => "Nublado ☁️",
+                WeatherType.Storm => "Tormenta ⛈️",
+                _ => w.ToString()
+            };
+        }
+
+        private string FormatTemp(TemperatureType t)
+        {
+            return t switch
+            {
+                TemperatureType.Cold => "Frío ❄️",
+                TemperatureType.Normal => "Templado 🍃",
+                TemperatureType.Hot => "Calor 🔥",
+                _ => t.ToString()
+            };
         }
     }
 }

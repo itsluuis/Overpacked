@@ -29,6 +29,7 @@ namespace LogiPack.Editor
                 mainCam.orthographicSize = 6.0f;
                 mainCam.transform.position = new Vector3(0, 0, -10);
                 mainCam.backgroundColor = new Color(0.12f, 0.15f, 0.20f);
+                mainCam.clearFlags = CameraClearFlags.SolidColor;
             }
 
             // 2. EventSystem (con InputSystemUIInputModule de Unity 6)
@@ -89,7 +90,7 @@ namespace LogiPack.Editor
             orderMgr.Economy = ecoMgr;
             orderMgr.PackagingZone = packMgr;
 
-            // Cargar Items
+            // Cargar Items y ordenar por ItemId para garantizar consistencia
             string[] guids = AssetDatabase.FindAssets("t:ItemData", new[] { "Assets/Data/Items" });
             orderMgr.AvailableItems = new List<ItemData>();
             foreach (var guid in guids)
@@ -98,49 +99,61 @@ namespace LogiPack.Editor
                 var item = AssetDatabase.LoadAssetAtPath<ItemData>(path);
                 if (item != null) orderMgr.AvailableItems.Add(item);
             }
+            orderMgr.AvailableItems.Sort((a, b) => a.ItemId.CompareTo(b.ItemId));
 
-            // 5. Mesa de Armado
+            // 5. Mesa de Armado (Zona inferior con amplio espacio)
             GameObject tableGO = new GameObject("=== MESA_ARMADO ===");
-            tableGO.transform.position = new Vector3(0f, -2.5f, 0);
+            tableGO.transform.position = new Vector3(2.4f, -4.0f, 0);
             boxSpawner.SpawnPoint = tableGO.transform;
             boxSpawner.BoxPrefab = boxPrefab;
 
-            // 6. Estantería de Items
+            // 6. Estantería de Items: 4 columnas para los 4 items, repetidas en 3 filas verticales
             GameObject shelfGO = new GameObject("=== ESTANTERIA_ITEMS ===");
             Sprite screwSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_screw.png");
             Sprite plateSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_plate.png");
             Sprite fabricSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_fabric.png");
             Sprite wireSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/item_wire.png");
-            Sprite[] sprites = { screwSprite, plateSprite, fabricSprite, wireSprite };
+            Sprite[] itemSprites = { screwSprite, plateSprite, fabricSprite, wireSprite };
 
-            for (int i = 0; i < orderMgr.AvailableItems.Count; i++)
+            float[] colX = { -3.6f, -1.2f, 1.2f, 3.6f };
+            float[] rowY = { 2.1f, 0.7f, -0.7f };
+
+            for (int c = 0; c < 4; c++)
             {
-                var itemData = orderMgr.AvailableItems[i];
-                GameObject itemSlot = new GameObject($"ShelfItem_{itemData.ItemName}");
-                itemSlot.transform.parent = shelfGO.transform;
-                itemSlot.transform.position = new Vector3(-6.5f, 2.0f - (i * 1.6f), 0);
+                var itemData = (c < orderMgr.AvailableItems.Count) ? orderMgr.AvailableItems[c] : null;
+                Sprite sp = (c < itemSprites.Length) ? itemSprites[c] : null;
 
-                var sr = itemSlot.AddComponent<SpriteRenderer>();
-                if (i < sprites.Length && sprites[i] != null) sr.sprite = sprites[i];
+                for (int r = 0; r < 3; r++)
+                {
+                    string itemName = itemData != null ? itemData.ItemName : $"Item_{c}";
+                    GameObject itemSlot = new GameObject($"ShelfItem_C{c}R{r}_{itemName}");
+                    itemSlot.transform.parent = shelfGO.transform;
+                    itemSlot.transform.position = new Vector3(colX[c], rowY[r], 0);
 
-                var col = itemSlot.AddComponent<BoxCollider2D>();
-                col.size = new Vector2(1.6f, 1.6f);
+                    var sr = itemSlot.AddComponent<SpriteRenderer>();
+                    if (sp != null) sr.sprite = sp;
 
-                var dragSource = itemSlot.AddComponent<DraggableItemSource>();
-                dragSource.Item = itemData;
-                dragSource.VisualRenderer = sr;
+                    var col = itemSlot.AddComponent<BoxCollider2D>();
+                    col.size = new Vector2(1.2f, 1.2f);
+
+                    var dragSource = itemSlot.AddComponent<DraggableItemSource>();
+                    dragSource.Item = itemData;
+                    dragSource.VisualRenderer = sr;
+                }
             }
 
-            // 7. Zona de Embalaje (5 Slots)
+            // 7. Zona de Embalaje (5 Slots con clara separación física entre ellos)
             GameObject packingGO = new GameObject("=== ZONA_EMBALAJE ===");
             packMgr.SlotTransforms = new Transform[5];
             Sprite slotSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/slot_packaging.png");
 
+            float[] slotX = { -8.1f, -6.15f, -4.2f, -2.25f, -0.3f };
             for (int i = 0; i < 5; i++)
             {
                 GameObject slotGO = new GameObject($"Slot_Packaging_{i}");
                 slotGO.transform.parent = packingGO.transform;
-                slotGO.transform.position = new Vector3(-3.5f + (i * 1.75f), 2.2f, 0);
+                slotGO.transform.position = new Vector3(slotX[i], -4.0f, 0);
+                slotGO.transform.localScale = Vector3.one * 0.85f; // Separación física clara de 0.5 unidades
 
                 var slotSR = slotGO.AddComponent<SpriteRenderer>();
                 slotSR.sprite = slotSprite;
@@ -157,10 +170,11 @@ namespace LogiPack.Editor
                 packMgr.SlotTransforms[i] = slotGO.transform;
             }
 
-            // 8. Basurero
+            // 8. Basurero (Esquina inferior derecha)
             GameObject trashGO = new GameObject("TrashBin");
             trashGO.tag = "TrashBin";
-            trashGO.transform.position = new Vector3(6.5f, -3.5f, 0);
+            trashGO.transform.position = new Vector3(7.8f, -4.0f, 0);
+            trashGO.transform.localScale = Vector3.one * 0.9f;
             var trashSR = trashGO.AddComponent<SpriteRenderer>();
             trashSR.sprite = slotSprite;
             trashSR.color = new Color(0.85f, 0.25f, 0.25f);
@@ -172,10 +186,18 @@ namespace LogiPack.Editor
             // 9. Construir Prefab de OrderCardUI
             GameObject tempCard = new GameObject("OrderCardPrefab");
             var cardRT = tempCard.AddComponent<RectTransform>();
-            cardRT.sizeDelta = new Vector2(160, 70);
+            cardRT.sizeDelta = new Vector2(175, 75);
+
+            var layoutElem = tempCard.AddComponent<LayoutElement>();
+            layoutElem.minWidth = 175;
+            layoutElem.preferredWidth = 175;
+            layoutElem.flexibleWidth = 0;
+            layoutElem.minHeight = 75;
+            layoutElem.preferredHeight = 75;
+            layoutElem.flexibleHeight = 0;
 
             var cardBG = tempCard.AddComponent<Image>();
-            cardBG.color = new Color(0.18f, 0.24f, 0.32f, 0.95f);
+            cardBG.color = new Color(0.14f, 0.18f, 0.25f, 0.95f);
 
             var cardUI = tempCard.AddComponent<OrderCardUI>();
 
@@ -184,14 +206,14 @@ namespace LogiPack.Editor
             idGO.transform.SetParent(tempCard.transform, false);
             var idText = idGO.AddComponent<Text>();
             idText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            idText.fontSize = 13;
+            idText.fontSize = 17;
             idText.fontStyle = FontStyle.Bold;
             idText.color = Color.white;
             idText.alignment = TextAnchor.MiddleLeft;
             var idRT = idGO.GetComponent<RectTransform>();
-            idRT.anchorMin = new Vector2(0, 0.5f);
+            idRT.anchorMin = new Vector2(0, 0.45f);
             idRT.anchorMax = new Vector2(0.6f, 1f);
-            idRT.offsetMin = new Vector2(8, 0);
+            idRT.offsetMin = new Vector2(10, 0);
             idRT.offsetMax = new Vector2(0, -6);
             cardUI.OrderIdText = idText;
 
@@ -200,27 +222,27 @@ namespace LogiPack.Editor
             rewGO.transform.SetParent(tempCard.transform, false);
             var rewText = rewGO.AddComponent<Text>();
             rewText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            rewText.fontSize = 13;
+            rewText.fontSize = 17;
             rewText.fontStyle = FontStyle.Bold;
-            rewText.color = new Color(0.3f, 0.9f, 0.4f);
+            rewText.color = new Color(0.3f, 0.95f, 0.4f);
             rewText.alignment = TextAnchor.MiddleRight;
             var rewRT = rewGO.GetComponent<RectTransform>();
-            rewRT.anchorMin = new Vector2(0.6f, 0.5f);
+            rewRT.anchorMin = new Vector2(0.6f, 0.45f);
             rewRT.anchorMax = new Vector2(1f, 1f);
             rewRT.offsetMin = new Vector2(0, 0);
-            rewRT.offsetMax = new Vector2(-8, -6);
+            rewRT.offsetMax = new Vector2(-10, -6);
             cardUI.RewardText = rewText;
 
             // Time Bar BG & Fill
             GameObject timeBgGO = new GameObject("TimeBarBG");
             timeBgGO.transform.SetParent(tempCard.transform, false);
             var timeBgImg = timeBgGO.AddComponent<Image>();
-            timeBgImg.color = new Color(0.1f, 0.1f, 0.12f, 0.8f);
+            timeBgImg.color = new Color(0.1f, 0.1f, 0.14f, 0.9f);
             var timeBgRT = timeBgGO.GetComponent<RectTransform>();
             timeBgRT.anchorMin = new Vector2(0, 0);
-            timeBgRT.anchorMax = new Vector2(1, 0.3f);
-            timeBgRT.offsetMin = new Vector2(6, 6);
-            timeBgRT.offsetMax = new Vector2(-6, 0);
+            timeBgRT.anchorMax = new Vector2(1, 0.28f);
+            timeBgRT.offsetMin = new Vector2(8, 8);
+            timeBgRT.offsetMax = new Vector2(-8, 0);
 
             GameObject timeFillGO = new GameObject("TimeBarFill");
             timeFillGO.transform.SetParent(timeBgGO.transform, false);
@@ -228,7 +250,7 @@ namespace LogiPack.Editor
             fillImg.color = new Color(0.2f, 0.85f, 0.3f);
             fillImg.type = Image.Type.Filled;
             fillImg.fillMethod = Image.FillMethod.Horizontal;
-            fillImg.fillOrigin = 0; // Izquierda a derecha
+            fillOrigin(fillImg);
             var fillRT = timeFillGO.GetComponent<RectTransform>();
             fillRT.anchorMin = Vector2.zero;
             fillRT.anchorMax = Vector2.one;
@@ -240,28 +262,28 @@ namespace LogiPack.Editor
             GameObject detailsGO = new GameObject("DetailsPanel");
             detailsGO.transform.SetParent(tempCard.transform, false);
             var detBG = detailsGO.AddComponent<Image>();
-            detBG.color = new Color(0.1f, 0.13f, 0.18f, 0.98f);
+            detBG.color = new Color(0.08f, 0.11f, 0.16f, 0.98f);
             var detRT = detailsGO.GetComponent<RectTransform>();
             detRT.anchorMin = new Vector2(0, 0);
             detRT.anchorMax = new Vector2(1, 0);
             detRT.pivot = new Vector2(0.5f, 1f);
             detRT.anchoredPosition = new Vector2(0, -6);
-            detRT.sizeDelta = new Vector2(240, 140);
+            detRT.sizeDelta = new Vector2(280, 150);
 
             // Condición Lógica Text
             GameObject condGO = new GameObject("ConditionText");
             condGO.transform.SetParent(detailsGO.transform, false);
             var condText = condGO.AddComponent<Text>();
             condText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            condText.fontSize = 11;
+            condText.fontSize = 15;
             condText.fontStyle = FontStyle.Bold;
-            condText.color = new Color(0.4f, 0.8f, 1f);
+            condText.color = new Color(0.4f, 0.85f, 1f);
             condText.alignment = TextAnchor.UpperLeft;
             var condRT = condGO.GetComponent<RectTransform>();
-            condRT.anchorMin = new Vector2(0, 0.6f);
+            condRT.anchorMin = new Vector2(0, 0.55f);
             condRT.anchorMax = new Vector2(1, 1);
-            condRT.offsetMin = new Vector2(8, 4);
-            condRT.offsetMax = new Vector2(-8, -4);
+            condRT.offsetMin = new Vector2(10, 6);
+            condRT.offsetMax = new Vector2(-10, -6);
             cardUI.ConditionText = condText;
 
             // Items Requeridos Text
@@ -269,14 +291,14 @@ namespace LogiPack.Editor
             reqsGO.transform.SetParent(detailsGO.transform, false);
             var reqsText = reqsGO.AddComponent<Text>();
             reqsText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            reqsText.fontSize = 11;
+            reqsText.fontSize = 15;
             reqsText.color = Color.white;
             reqsText.alignment = TextAnchor.UpperLeft;
             var reqsRT = reqsGO.GetComponent<RectTransform>();
             reqsRT.anchorMin = new Vector2(0, 0);
-            reqsRT.anchorMax = new Vector2(1, 0.6f);
-            reqsRT.offsetMin = new Vector2(8, 4);
-            reqsRT.offsetMax = new Vector2(-8, -2);
+            reqsRT.anchorMax = new Vector2(1, 0.55f);
+            reqsRT.offsetMin = new Vector2(10, 6);
+            reqsRT.offsetMax = new Vector2(-10, -2);
             cardUI.ItemsListText = reqsText;
 
             cardUI.DetailsPanel = detailsGO;
@@ -290,39 +312,48 @@ namespace LogiPack.Editor
             GameObject canvasGO = new GameObject("Canvas");
             var canvas = canvasGO.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvasGO.AddComponent<CanvasScaler>();
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+            scaler.dynamicPixelsPerUnit = 2.5f; // Genera fuentes a alta resolución para nitidez
             canvasGO.AddComponent<GraphicRaycaster>();
 
-            // Barra Superior de Pedidos (OrderBarUI)
+            // Zona Verde: Barra Superior Derecha de Pedidos (Acumulación Compacta de derecha a izquierda)
             GameObject orderBarGO = new GameObject("OrderBar");
             orderBarGO.transform.SetParent(canvasGO.transform, false);
             var orderBarRT = orderBarGO.AddComponent<RectTransform>();
-            orderBarRT.anchorMin = new Vector2(0, 1);
+            orderBarRT.anchorMin = new Vector2(1, 1);
             orderBarRT.anchorMax = new Vector2(1, 1);
-            orderBarRT.pivot = new Vector2(0.5f, 1);
-            orderBarRT.anchoredPosition = new Vector2(0, -10);
-            orderBarRT.sizeDelta = new Vector2(0, 80);
+            orderBarRT.pivot = new Vector2(1, 1);
+            orderBarRT.anchoredPosition = new Vector2(-25, -20);
+            orderBarRT.sizeDelta = new Vector2(950, 85);
 
             var hlg = orderBarGO.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 15;
-            hlg.childAlignment = TextAnchor.MiddleCenter;
+            hlg.spacing = 10;
+            hlg.childAlignment = TextAnchor.MiddleRight;
             hlg.childControlWidth = false;
             hlg.childControlHeight = false;
+            hlg.childForceExpandWidth = false;
+            hlg.childForceExpandHeight = false;
 
             var orderBarUI = orderBarGO.AddComponent<OrderBarUI>();
             orderBarUI.OrdersManager = orderMgr;
             orderBarUI.OrderCardPrefab = cardPrefab;
             orderBarUI.CardsContainer = orderBarGO.transform;
 
-            // Panel Superior Izquierdo: HUD (Reloj, Clima, Dinero)
+            // Zona Roja: Panel Superior Izquierdo HUD (Reloj, Dinero, Clima/Temp con Pronóstico)
             GameObject hudGO = new GameObject("HUDPanel");
             hudGO.transform.SetParent(canvasGO.transform, false);
             var hudRT = hudGO.AddComponent<RectTransform>();
             hudRT.anchorMin = new Vector2(0, 1);
             hudRT.anchorMax = new Vector2(0, 1);
             hudRT.pivot = new Vector2(0, 1);
-            hudRT.anchoredPosition = new Vector2(16, -16);
-            hudRT.sizeDelta = new Vector2(200, 100);
+            hudRT.anchoredPosition = new Vector2(25, -20);
+            hudRT.sizeDelta = new Vector2(460, 150);
+
+            var hudBG = hudGO.AddComponent<Image>();
+            hudBG.color = new Color(0.08f, 0.11f, 0.16f, 0.95f);
 
             var hudManager = hudGO.AddComponent<HUDManagerUI>();
             hudManager.Environment = envMgr;
@@ -330,27 +361,32 @@ namespace LogiPack.Editor
 
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
-            // Textos del HUD
-            hudManager.ClockText = CreateHudText(hudGO.transform, "ClockText", new Vector2(0, 0), "🕒 06:00 AM", 15, font, Color.white);
-            hudManager.WeatherText = CreateHudText(hudGO.transform, "WeatherText", new Vector2(0, -25), "🌤️ Clear", 14, font, new Color(0.9f, 0.9f, 0.5f));
-            hudManager.TemperatureText = CreateHudText(hudGO.transform, "TempText", new Vector2(0, -48), "🌡️ Normal", 14, font, new Color(0.5f, 0.85f, 1f));
-            hudManager.MoneyText = CreateHudText(hudGO.transform, "MoneyText", new Vector2(0, -72), "💰 $0", 16, font, new Color(0.3f, 0.95f, 0.4f));
+            // Textos del HUD con tamaño nítido y legible
+            hudManager.ClockText = CreateHudText(hudGO.transform, "ClockText", new Vector2(16, -10), "🕒 06:00 AM", 22, font, Color.white);
+            hudManager.MoneyText = CreateHudText(hudGO.transform, "MoneyText", new Vector2(16, -42), "💰 $0", 22, font, new Color(0.3f, 0.95f, 0.4f));
+            hudManager.WeatherText = CreateHudText(hudGO.transform, "WeatherText", new Vector2(16, -78), "🌤️ Despejado ☀️ (Próx: 🌧️ Lluvia)", 18, font, new Color(0.95f, 0.90f, 0.5f));
+            hudManager.TemperatureText = CreateHudText(hudGO.transform, "TempText", new Vector2(16, -112), "🌡️ Templado 🍃 (Próx: ❄️ Frío)", 18, font, new Color(0.5f, 0.85f, 1f));
 
-            // Estación de Embalaje UI (Botones de Espuma y Film Térmico)
+            // Estación de Embalaje UI (Colocada a la DERECHA de la estantería de items)
             GameObject stationGO = new GameObject("PackagingStation");
             stationGO.transform.SetParent(canvasGO.transform, false);
             var stationRT = stationGO.AddComponent<RectTransform>();
-            stationRT.anchorMin = new Vector2(0.5f, 0);
-            stationRT.anchorMax = new Vector2(0.5f, 0);
-            stationRT.pivot = new Vector2(0.5f, 0);
-            stationRT.anchoredPosition = new Vector2(0, 20);
-            stationRT.sizeDelta = new Vector2(330, 50);
+            stationRT.anchorMin = new Vector2(0.5f, 0.5f);
+            stationRT.anchorMax = new Vector2(0.5f, 0.5f);
+            stationRT.pivot = new Vector2(0f, 0.5f);
+            stationRT.anchoredPosition = new Vector2(490, 75); // A la derecha de la columna 3 (+3.6 world x)
+            stationRT.sizeDelta = new Vector2(210, 170);
 
-            var stationHLG = stationGO.AddComponent<HorizontalLayoutGroup>();
-            stationHLG.spacing = 15;
-            stationHLG.childAlignment = TextAnchor.MiddleCenter;
-            stationHLG.childControlWidth = false;
-            stationHLG.childControlHeight = false;
+            var stationBG = stationGO.AddComponent<Image>();
+            stationBG.color = new Color(0.08f, 0.11f, 0.16f, 0.95f);
+
+            var stationVLG = stationGO.AddComponent<VerticalLayoutGroup>();
+            stationVLG.spacing = 14;
+            stationVLG.childAlignment = TextAnchor.MiddleCenter;
+            stationVLG.childControlWidth = false;
+            stationVLG.childControlHeight = false;
+            stationVLG.childForceExpandWidth = false;
+            stationVLG.childForceExpandHeight = false;
 
             var stationUI = stationGO.AddComponent<PackagingStationUI>();
 
@@ -374,15 +410,26 @@ namespace LogiPack.Editor
             Debug.Log("<color=green><b>[LogiPack] ¡Escena de Gameplay reconstruida con UI completa, Estación de Embalaje y HUD!</b></color>");
         }
 
+        private static void fillOrigin(Image img)
+        {
+            img.fillOrigin = 0;
+        }
+
         private static GameObject CreateStationButton(Transform parent, string name, string label, Font font, out Button btn, out Image img, out Text txt)
         {
             GameObject btnGO = new GameObject(name);
             btnGO.transform.SetParent(parent, false);
             var rt = btnGO.AddComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(150, 44);
+            rt.sizeDelta = new Vector2(180, 52);
+
+            var layout = btnGO.AddComponent<LayoutElement>();
+            layout.minWidth = 180;
+            layout.preferredWidth = 180;
+            layout.minHeight = 52;
+            layout.preferredHeight = 52;
 
             img = btnGO.AddComponent<Image>();
-            img.color = new Color(0.22f, 0.26f, 0.32f, 0.95f);
+            img.color = new Color(0.20f, 0.25f, 0.33f, 0.95f);
 
             btn = btnGO.AddComponent<Button>();
             btn.targetGraphic = img;
@@ -397,7 +444,7 @@ namespace LogiPack.Editor
 
             txt = textGO.AddComponent<Text>();
             txt.font = font;
-            txt.fontSize = 14;
+            txt.fontSize = 17;
             txt.fontStyle = FontStyle.Bold;
             txt.color = Color.white;
             txt.alignment = TextAnchor.MiddleCenter;
@@ -415,7 +462,7 @@ namespace LogiPack.Editor
             rt.anchorMax = new Vector2(1, 1);
             rt.pivot = new Vector2(0, 1);
             rt.anchoredPosition = pos;
-            rt.sizeDelta = new Vector2(190, 24);
+            rt.sizeDelta = new Vector2(420, 28);
 
             var txt = textGO.AddComponent<Text>();
             txt.font = font;
