@@ -48,8 +48,31 @@ namespace LogiPack.Editor
             var tempCol = tempBox.AddComponent<BoxCollider2D>();
             tempCol.size = new Vector2(2.2f, 2.2f);
 
-            tempBox.AddComponent<PackageBox>();
+            var pBox = tempBox.AddComponent<PackageBox>();
             tempBox.AddComponent<DraggableBox>();
+
+            // Overlays visuales para materiales de embalaje
+            GameObject foamGO = new GameObject("FoamOverlay");
+            foamGO.transform.parent = tempBox.transform;
+            foamGO.transform.localPosition = new Vector3(0, 0, -0.05f);
+            foamGO.transform.localScale = Vector3.one * 1.05f;
+            var foamSR = foamGO.AddComponent<SpriteRenderer>();
+            foamSR.sprite = tempSR.sprite;
+            foamSR.color = new Color(1.0f, 0.92f, 0.35f, 0.55f);
+            foamSR.sortingOrder = 5;
+            foamGO.SetActive(false);
+            pBox.FoamOverlay = foamGO;
+
+            GameObject filmGO = new GameObject("ThermalFilmOverlay");
+            filmGO.transform.parent = tempBox.transform;
+            filmGO.transform.localPosition = new Vector3(0, 0, -0.08f);
+            filmGO.transform.localScale = Vector3.one * 1.10f;
+            var filmSR = filmGO.AddComponent<SpriteRenderer>();
+            filmSR.sprite = tempSR.sprite;
+            filmSR.color = new Color(0.25f, 0.85f, 1.0f, 0.50f);
+            filmSR.sortingOrder = 6;
+            filmGO.SetActive(false);
+            pBox.ThermalFilmOverlay = filmGO;
 
             GameObject boxPrefab = PrefabUtility.SaveAsPrefabAsset(tempBox, boxPrefabPath);
             GameObject.DestroyImmediate(tempBox);
@@ -136,6 +159,7 @@ namespace LogiPack.Editor
 
             // 8. Basurero
             GameObject trashGO = new GameObject("TrashBin");
+            trashGO.tag = "TrashBin";
             trashGO.transform.position = new Vector3(6.5f, -3.5f, 0);
             var trashSR = trashGO.AddComponent<SpriteRenderer>();
             trashSR.sprite = slotSprite;
@@ -312,12 +336,74 @@ namespace LogiPack.Editor
             hudManager.TemperatureText = CreateHudText(hudGO.transform, "TempText", new Vector2(0, -48), "🌡️ Normal", 14, font, new Color(0.5f, 0.85f, 1f));
             hudManager.MoneyText = CreateHudText(hudGO.transform, "MoneyText", new Vector2(0, -72), "💰 $0", 16, font, new Color(0.3f, 0.95f, 0.4f));
 
+            // Estación de Embalaje UI (Botones de Espuma y Film Térmico)
+            GameObject stationGO = new GameObject("PackagingStation");
+            stationGO.transform.SetParent(canvasGO.transform, false);
+            var stationRT = stationGO.AddComponent<RectTransform>();
+            stationRT.anchorMin = new Vector2(0.5f, 0);
+            stationRT.anchorMax = new Vector2(0.5f, 0);
+            stationRT.pivot = new Vector2(0.5f, 0);
+            stationRT.anchoredPosition = new Vector2(0, 20);
+            stationRT.sizeDelta = new Vector2(330, 50);
+
+            var stationHLG = stationGO.AddComponent<HorizontalLayoutGroup>();
+            stationHLG.spacing = 15;
+            stationHLG.childAlignment = TextAnchor.MiddleCenter;
+            stationHLG.childControlWidth = false;
+            stationHLG.childControlHeight = false;
+
+            var stationUI = stationGO.AddComponent<PackagingStationUI>();
+
+            // Botón Espuma
+            CreateStationButton(stationGO.transform, "FoamButton", "🧽 Espuma", font, out Button foamBtn, out Image foamImg, out Text foamTxt);
+            stationUI.FoamButton = foamBtn;
+            stationUI.FoamButtonImage = foamImg;
+            stationUI.FoamButtonText = foamTxt;
+
+            // Botón Film Térmico
+            CreateStationButton(stationGO.transform, "ThermalFilmButton", "❄️ Film Térmico", font, out Button filmBtn, out Image filmImg, out Text filmTxt);
+            stationUI.ThermalFilmButton = filmBtn;
+            stationUI.ThermalFilmButtonImage = filmImg;
+            stationUI.ThermalFilmButtonText = filmTxt;
+
             // Guardar Escena
             EditorSceneManager.SaveScene(scene, scenePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log("<color=green><b>[LogiPack] ¡Escena de Gameplay reconstruida con UI completa de Pedidos estilo Overcooked y HUD en pantalla!</b></color>");
+            Debug.Log("<color=green><b>[LogiPack] ¡Escena de Gameplay reconstruida con UI completa, Estación de Embalaje y HUD!</b></color>");
+        }
+
+        private static GameObject CreateStationButton(Transform parent, string name, string label, Font font, out Button btn, out Image img, out Text txt)
+        {
+            GameObject btnGO = new GameObject(name);
+            btnGO.transform.SetParent(parent, false);
+            var rt = btnGO.AddComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(150, 44);
+
+            img = btnGO.AddComponent<Image>();
+            img.color = new Color(0.22f, 0.26f, 0.32f, 0.95f);
+
+            btn = btnGO.AddComponent<Button>();
+            btn.targetGraphic = img;
+
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(btnGO.transform, false);
+            var textRT = textGO.AddComponent<RectTransform>();
+            textRT.anchorMin = Vector2.zero;
+            textRT.anchorMax = Vector2.one;
+            textRT.offsetMin = Vector2.zero;
+            textRT.offsetMax = Vector2.zero;
+
+            txt = textGO.AddComponent<Text>();
+            txt.font = font;
+            txt.fontSize = 14;
+            txt.fontStyle = FontStyle.Bold;
+            txt.color = Color.white;
+            txt.alignment = TextAnchor.MiddleCenter;
+            txt.text = label;
+
+            return btnGO;
         }
 
         private static Text CreateHudText(Transform parent, string name, Vector2 pos, string defaultText, int size, Font font, Color color)

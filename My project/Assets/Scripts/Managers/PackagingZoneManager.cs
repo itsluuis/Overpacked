@@ -29,6 +29,7 @@ namespace LogiPack.Managers
 
             _slots[targetSlot] = box;
             box.SlotIndex = targetSlot;
+            box.SetState(BoxState.InPackagingSlot);
             box.transform.position = SlotTransforms[targetSlot].position;
             return true;
         }
@@ -67,8 +68,8 @@ namespace LogiPack.Managers
                     // 1. Debe coincidir la lista de items
                     if (!order.MatchesItems(box.Contents)) continue;
 
-                    // 2. La fórmula ambiental debe ser Verdadera en este instante
-                    if (!order.Condition.Evaluate(envState)) continue;
+                    // 2. La fórmula ambiental y de embalaje debe ser Verdadera en este instante
+                    if (!order.Condition.Evaluate(envState, box)) continue;
 
                     // 3. Tomar el más urgente
                     if (order.RemainingTime < minTime)
@@ -84,6 +85,7 @@ namespace LogiPack.Managers
                     Debug.Log($"[PackagingZone] ¡DESPACHO AUTOMÁTICO! Ranura {i} despachó orden '{candidateOrder.OrderId}'.");
                     _slots[i] = null;
                     box.SlotIndex = -1;
+                    box.SetState(BoxState.Dispatched);
                     OnOrderDispatched?.Invoke(box, candidateOrder);
                     Destroy(box.gameObject);
                 }

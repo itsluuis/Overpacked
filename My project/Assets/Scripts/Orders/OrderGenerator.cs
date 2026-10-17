@@ -44,47 +44,67 @@ namespace LogiPack.Orders
                 }
             }
 
-            // 2. Generar Condición Ambiental Justa
+            // 2. Generar Condición Lógica (Clima, Temperatura y Materiales de Embalaje)
             var condition = new EnvironmentalCondition();
-            int conditionType = UnityEngine.Random.Range(0, 4);
+            int conditionType = UnityEngine.Random.Range(0, 8);
 
             switch (conditionType)
             {
-                case 0: // Clima simple
-                    condition.LeftPredicate = AtomicPredicate.IsRaining;
-                    condition.NaturalLanguageText = "Enviar mientras esté lloviendo";
+                case 0: // Embalaje simple: Espuma
+                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
+                    condition.Operator = LogicOperator.None;
+                    condition.NaturalLanguageText = "Embalar con Relleno de Espuma";
                     break;
 
-                case 1: // Rango horario futuro o actual válido
-                    if (currentState.CurrentHour < 12.0f)
-                    {
-                        condition.LeftPredicate = AtomicPredicate.IsMorning;
-                        condition.NaturalLanguageText = "Enviar durante la mañana";
-                    }
-                    else if (currentState.CurrentHour < 18.0f)
-                    {
-                        condition.LeftPredicate = AtomicPredicate.IsAfternoon;
-                        condition.NaturalLanguageText = "Enviar durante la tarde";
-                    }
-                    else
-                    {
-                        condition.LeftPredicate = AtomicPredicate.IsNight;
-                        condition.NaturalLanguageText = "Enviar durante la noche";
-                    }
+                case 1: // Embalaje simple: Film Térmico
+                    condition.LeftPredicate = AtomicPredicate.BoxHasThermalFilm;
+                    condition.Operator = LogicOperator.None;
+                    condition.NaturalLanguageText = "Embalar con Film Térmico";
                     break;
 
-                case 2: // Conjunción (Lluvia ∧ Frío)
-                    condition.LeftPredicate = AtomicPredicate.IsRaining;
+                case 2: // Sin embalaje especial (¬r ∧ ¬s)
+                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
+                    condition.InvertLeft = true;
                     condition.Operator = LogicOperator.And;
-                    condition.RightPredicate = AtomicPredicate.IsCold;
-                    condition.NaturalLanguageText = "Enviar si llueve Y hace frío";
+                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
+                    condition.InvertRight = true;
+                    condition.NaturalLanguageText = "Enviar SIN embalaje especial";
                     break;
 
-                case 3: // Disyunción / Bicondicional
-                    condition.LeftPredicate = AtomicPredicate.IsClear;
+                case 3: // Conjunción: Espuma Y Film Térmico (r ∧ s)
+                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
+                    condition.Operator = LogicOperator.And;
+                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
+                    condition.NaturalLanguageText = "Embalar con Relleno de Espuma Y Film Térmico";
+                    break;
+
+                case 4: // Implicación: Si hace frío -> Film Térmico
+                    condition.LeftPredicate = AtomicPredicate.IsCold;
+                    condition.Operator = LogicOperator.Implication;
+                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
+                    condition.NaturalLanguageText = "Si hace frío, embalar con Film Térmico";
+                    break;
+
+                case 5: // Implicación con Negación: Si hace calor -> NO Film Térmico
+                    condition.LeftPredicate = AtomicPredicate.IsHot;
+                    condition.Operator = LogicOperator.Implication;
+                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
+                    condition.InvertRight = true;
+                    condition.NaturalLanguageText = "Si hace calor, NO embalar en Film Térmico";
+                    break;
+
+                case 6: // Bicondicional: Espuma <-> Tormenta
+                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
                     condition.Operator = LogicOperator.Biconditional;
-                    condition.RightPredicate = AtomicPredicate.IsHot;
-                    condition.NaturalLanguageText = "Enviar si está despejado SI Y SOLO SI hace calor";
+                    condition.RightPredicate = AtomicPredicate.IsStorming;
+                    condition.NaturalLanguageText = "Embalar con Espuma SI Y SOLO SI hay tormenta";
+                    break;
+
+                case 7: // Clima y Temperatura: Despejado o Normal
+                    condition.LeftPredicate = AtomicPredicate.IsClear;
+                    condition.Operator = LogicOperator.Or;
+                    condition.RightPredicate = AtomicPredicate.IsRaining;
+                    condition.NaturalLanguageText = "Enviar si está despejado O lloviendo";
                     break;
             }
 

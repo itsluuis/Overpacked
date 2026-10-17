@@ -14,7 +14,16 @@ namespace LogiPack.Managers
         public GameObject BoxPrefab;
         public Transform SpawnPoint;
 
+        public static BoxSpawner Instance { get; private set; }
+
         public PackageBox CurrentActiveBox { get; private set; }
+
+        public event System.Action<PackageBox> OnBoxSpawned;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         private void Start()
         {
@@ -34,6 +43,8 @@ namespace LogiPack.Managers
             {
                 draggable.Spawner = this;
             }
+
+            OnBoxSpawned?.Invoke(CurrentActiveBox);
         }
 
         /// <summary>

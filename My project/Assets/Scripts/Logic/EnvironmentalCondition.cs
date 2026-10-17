@@ -1,4 +1,5 @@
 using System;
+using LogiPack.Gameplay;
 using UnityEngine;
 
 namespace LogiPack.Logic
@@ -18,7 +19,7 @@ namespace LogiPack.Logic
     }
 
     /// <summary>
-    /// Identificadores de las proposiciones atómicas observables en el almacén.
+    /// Identificadores de las proposiciones atómicas observables en el almacén y en la caja.
     /// </summary>
     public enum AtomicPredicate
     {
@@ -28,9 +29,11 @@ namespace LogiPack.Logic
         IsStorming,         // Hay tormenta eléctrica
         IsCold,             // Hace frío
         IsHot,              // Hace calor
-        IsMorning,          // Es por la mañana
-        IsAfternoon,        // Es por la tarde
-        IsNight             // Es por la noche
+        BoxHasFoam,         // ¿La caja tiene Relleno de Espuma? (r)
+        BoxHasThermalFilm,  // ¿La caja tiene Film Térmico? (s)
+        IsMorning,          // [Deprecado - Informativo pasivo]
+        IsAfternoon,        // [Deprecado - Informativo pasivo]
+        IsNight             // [Deprecado - Informativo pasivo]
     }
 
     /// <summary>
@@ -54,11 +57,11 @@ namespace LogiPack.Logic
 
         /// <summary>
         /// Evalúa si la proposición molecular es Verdadera (True) o Falsa (False)
-        /// dado el estado actual del almacén en tiempo de ejecución.
+        /// dado el estado ambiental actual y el estado de embalaje de la caja evaluada.
         /// </summary>
-        public bool Evaluate(EnvironmentState state)
+        public bool Evaluate(EnvironmentState state, PackageBox box = null)
         {
-            bool leftVal = EvalPredicate(LeftPredicate, state);
+            bool leftVal = EvalPredicate(LeftPredicate, state, box);
             if (InvertLeft) leftVal = !leftVal;
 
             if (Operator == LogicOperator.None)
@@ -66,7 +69,7 @@ namespace LogiPack.Logic
                 return leftVal;
             }
 
-            bool rightVal = EvalPredicate(RightPredicate, state);
+            bool rightVal = EvalPredicate(RightPredicate, state, box);
             if (InvertRight) rightVal = !rightVal;
 
             return Operator switch
@@ -81,7 +84,7 @@ namespace LogiPack.Logic
             };
         }
 
-        private bool EvalPredicate(AtomicPredicate predicate, EnvironmentState state)
+        private bool EvalPredicate(AtomicPredicate predicate, EnvironmentState state, PackageBox box)
         {
             return predicate switch
             {
@@ -91,6 +94,8 @@ namespace LogiPack.Logic
                 AtomicPredicate.IsStorming => state.IsStorming,
                 AtomicPredicate.IsCold => state.IsCold,
                 AtomicPredicate.IsHot => state.IsHot,
+                AtomicPredicate.BoxHasFoam => box != null && box.HasFoamPadding,
+                AtomicPredicate.BoxHasThermalFilm => box != null && box.HasThermalFilm,
                 AtomicPredicate.IsMorning => state.IsMorning,
                 AtomicPredicate.IsAfternoon => state.IsAfternoon,
                 AtomicPredicate.IsNight => state.IsNight,

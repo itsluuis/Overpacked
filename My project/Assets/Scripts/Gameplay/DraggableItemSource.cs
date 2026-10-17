@@ -85,7 +85,7 @@ namespace LogiPack.Gameplay
                 if (hit != null)
                 {
                     PackageBox targetBox = hit.GetComponent<PackageBox>();
-                    if (targetBox != null)
+                    if (targetBox != null && targetBox.State == BoxState.Assembling)
                     {
                         targetBox.AddItem(Item);
                     }
