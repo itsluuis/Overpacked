@@ -17,6 +17,7 @@ namespace LogiPack.UI
         public Order LinkedOrder;
 
         [Header("Referencias Visuales Compactas")]
+        public Image CardBackground;
         public Text OrderIdText;
         public Text RewardText;
         public Image TimeBarFill;
@@ -30,20 +31,99 @@ namespace LogiPack.UI
         {
             LinkedOrder = order;
 
-            if (OrderIdText != null) OrderIdText.text = order.OrderId;
-            if (RewardText != null) RewardText.text = $"${order.MonetaryReward}";
+            // 1. Distinción visual de fondo
+            if (CardBackground == null) CardBackground = GetComponent<Image>();
+            if (CardBackground != null)
+            {
+                if (order.IsCompanyOrder)
+                {
+                    CardBackground.color = new Color(0.35f, 0.26f, 0.08f, 0.98f); // Tinte Ámbar / Dorado corporativo
+                }
+                else
+                {
+                    CardBackground.color = new Color(0.14f, 0.18f, 0.25f, 0.95f); // Tinte Azul Oscuro estándar
+                }
+            }
 
-            if (ConditionText != null) ConditionText.text = order.Condition.NaturalLanguageText;
+            // 2. Encabezado / Título
+            if (OrderIdText != null)
+            {
+                if (order.IsCompanyOrder && !string.IsNullOrEmpty(order.CompanyName))
+                {
+                    OrderIdText.text = $"★ {order.CompanyName}";
+                    OrderIdText.color = new Color(1f, 0.92f, 0.45f); // Dorado brillante
+                }
+                else
+                {
+                    OrderIdText.text = order.OrderId;
+                    OrderIdText.color = Color.white;
+                }
+            }
 
-            // Armar texto de requerimientos
+            // 3. Recompensa (Limpia, sin especulaciones de propina)
+            if (RewardText != null)
+            {
+                RewardText.text = $"${order.MonetaryReward}";
+                RewardText.color = order.IsCompanyOrder ? new Color(1f, 0.85f, 0.25f) : new Color(0.3f, 0.95f, 0.4f);
+            }
+
+            // 4. Condición y encabezado en el panel hover
+            if (ConditionText != null)
+            {
+                if (order.IsCompanyOrder)
+                {
+                    string pkg = order.Condition != null ? order.Condition.NaturalLanguageText : "";
+                    if (pkg == "Embalaje estándar" || string.IsNullOrEmpty(pkg))
+                    {
+                        ConditionText.text = $"<b>{order.CompanyName}</b>\n<color=#A0E0FF>Solicitud de Lote Empresarial</color>";
+                    }
+                    else
+                    {
+                        ConditionText.text = $"<b>{order.CompanyName}</b>\n<color=#FFD700>• {pkg}</color>";
+                    }
+                }
+                else
+                {
+                    ConditionText.text = order.Condition != null ? order.Condition.NaturalLanguageText : "";
+                }
+            }
+
+            // 5. Requerimientos / Fórmula Simbólica y Candidatos Válidos
             if (ItemsListText != null)
             {
-                string reqStr = "";
-                foreach (var req in order.Requirements)
+                if (order.IsCompanyOrder && order.SetRule != null)
                 {
-                    reqStr += $"• {req.RequiredCount}x {req.Item.ItemName}\n";
+                    // Ajuste 4: Notación Simbólica Formal para evaluación académica
+                    string formal = $"<color=#00FFFF><b>Fórmula de Lote:</b></color> {order.SetRule.FormalFormula}\n";
+                    string desc = $"<b>Objetivo:</b> Empacar {order.TargetItemCount}x {order.SetRule.NaturalLanguageDescription}\n";
+
+                    // Ajuste 3: Lista de Candidatos Válidos del Almacén
+                    string validStr = "<color=#98FB98><b>Ítems Válidos:</b></color> ";
+                    if (order.CachedValidItems != null && order.CachedValidItems.Count > 0)
+                    {
+                        var names = new System.Collections.Generic.List<string>();
+                        foreach (var it in order.CachedValidItems)
+                        {
+                            names.Add(it.ItemName);
+                        }
+                        validStr += string.Join(", ", names);
+                    }
+                    else
+                    {
+                        validStr += "Ver estantería";
+                    }
+
+                    ItemsListText.text = $"{formal}{desc}{validStr}";
                 }
-                ItemsListText.text = reqStr;
+                else
+                {
+                    string reqStr = "";
+                    foreach (var req in order.Requirements)
+                    {
+                        reqStr += $"• {req.RequiredCount}x {req.Item.ItemName}\n";
+                    }
+                    ItemsListText.text = reqStr;
+                }
             }
 
             if (DetailsPanel != null) DetailsPanel.SetActive(false);

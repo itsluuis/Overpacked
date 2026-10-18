@@ -199,6 +199,7 @@ namespace LogiPack.Editor
             cardBG.color = new Color(0.14f, 0.18f, 0.25f, 0.95f);
 
             var cardUI = tempCard.AddComponent<OrderCardUI>();
+            cardUI.CardBackground = cardBG;
 
             // ID Text
             GameObject idGO = new GameObject("OrderIdText");
@@ -267,9 +268,9 @@ namespace LogiPack.Editor
             detRT.anchorMax = new Vector2(1, 0);
             detRT.pivot = new Vector2(0.5f, 1f);
             detRT.anchoredPosition = new Vector2(0, -6);
-            detRT.sizeDelta = new Vector2(280, 150);
+            detRT.sizeDelta = new Vector2(340, 210);
 
-            // Condición Lógica Text
+            // Condición Lógica Text / Encabezado
             GameObject condGO = new GameObject("ConditionText");
             condGO.transform.SetParent(detailsGO.transform, false);
             var condText = condGO.AddComponent<Text>();
@@ -278,24 +279,28 @@ namespace LogiPack.Editor
             condText.fontStyle = FontStyle.Bold;
             condText.color = new Color(0.4f, 0.85f, 1f);
             condText.alignment = TextAnchor.UpperLeft;
+            condText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            condText.verticalOverflow = VerticalWrapMode.Truncate;
             var condRT = condGO.GetComponent<RectTransform>();
-            condRT.anchorMin = new Vector2(0, 0.55f);
+            condRT.anchorMin = new Vector2(0, 0.65f);
             condRT.anchorMax = new Vector2(1, 1);
-            condRT.offsetMin = new Vector2(10, 6);
+            condRT.offsetMin = new Vector2(10, 4);
             condRT.offsetMax = new Vector2(-10, -6);
             cardUI.ConditionText = condText;
 
-            // Items Requeridos Text
+            // Items Requeridos / Fórmula de Conjuntos Text
             GameObject reqsGO = new GameObject("ItemsListText");
             reqsGO.transform.SetParent(detailsGO.transform, false);
             var reqsText = reqsGO.AddComponent<Text>();
             reqsText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            reqsText.fontSize = 15;
+            reqsText.fontSize = 14;
             reqsText.color = Color.white;
             reqsText.alignment = TextAnchor.UpperLeft;
+            reqsText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            reqsText.verticalOverflow = VerticalWrapMode.Truncate;
             var reqsRT = reqsGO.GetComponent<RectTransform>();
             reqsRT.anchorMin = new Vector2(0, 0);
-            reqsRT.anchorMax = new Vector2(1, 0.55f);
+            reqsRT.anchorMax = new Vector2(1, 0.65f);
             reqsRT.offsetMin = new Vector2(10, 6);
             reqsRT.offsetMax = new Vector2(-10, -2);
             cardUI.ItemsListText = reqsText;

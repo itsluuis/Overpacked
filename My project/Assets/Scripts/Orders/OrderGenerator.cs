@@ -14,8 +14,25 @@ namespace LogiPack.Orders
     {
         private static int _orderSequence = 1;
 
+        private static readonly string[] CompanyNames = new string[]
+        {
+            "Ferretería Pim Pom Pim",
+            "Chispitas & Voltios Bip-Bop",
+            "Telas Pom Pón",
+            "Cristales Glup-Glup",
+            "Taller Tuerca Loca",
+            "Industrias Patapúm",
+            "Laboratorio Burbujitas"
+        };
+
         public static Order GenerateRandomOrder(EnvironmentState currentState, List<ItemData> availableItems)
         {
+            // 15% de probabilidad: Orden Especial de Empresa (Teoría de Conjuntos)
+            if (UnityEngine.Random.value < 0.15f && availableItems != null && availableItems.Count > 0)
+            {
+                return GenerateCompanyOrder(availableItems);
+            }
+
             string orderId = $"ORD-#{_orderSequence++:D3}";
             int reward = UnityEngine.Random.Range(30, 75);
             float duration = UnityEngine.Random.Range(35f, 60f);
@@ -142,6 +159,145 @@ namespace LogiPack.Orders
             }
 
             return new Order(orderId, condition, reqs, duration, itemsCost, packagingBonus, logicBonus);
+        }
+
+        private static Order GenerateCompanyOrder(List<ItemData> availableItems)
+        {
+            string orderId = $"EMP-#{_orderSequence++:D3}";
+            string companyName = CompanyNames[UnityEngine.Random.Range(0, CompanyNames.Length)];
+            float duration = UnityEngine.Random.Range(70f, 81f);
+            int reward = UnityEngine.Random.Range(100, 151);
+            int penalty = UnityEngine.Random.Range(35, 46);
+            int targetCount = UnityEngine.Random.Range(2, 4); // 2 o 3 piezas en total
+
+            // 1. Generar Regla de Teoría de Conjuntos
+            SetTheoryRule rule = GenerateRandomSetRule();
+            HashSet<ItemData> validItems = rule.ResolveValidItems(availableItems);
+
+            // Garantía de no vacuidad: si por algún motivo la regla resolviera 0 ítems, usar unión segura
+            if (validItems.Count == 0)
+            {
+                rule = new SetTheoryRule(
+                    SetOperator.Union,
+                    SetCriterion.CreateFamily("Metales", "Metales"),
+                    SetCriterion.CreateFamily("Textiles", "Textiles"),
+                    "Insumos de metales o telas suaves"
+                );
+                validItems = rule.ResolveValidItems(availableItems);
+            }
+
+            // 2. Condición opcional de embalaje (Espuma / Film Térmico)
+            var condition = new EnvironmentalCondition();
+            int pkgRoll = UnityEngine.Random.Range(0, 4);
+            if (pkgRoll == 1)
+            {
+                condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
+                condition.Operator = LogicOperator.None;
+                condition.NaturalLanguageText = "Embalar con Relleno de Espuma";
+            }
+            else if (pkgRoll == 2)
+            {
+                condition.LeftPredicate = AtomicPredicate.BoxHasThermalFilm;
+                condition.Operator = LogicOperator.None;
+                condition.NaturalLanguageText = "Embalar con Film Térmico";
+            }
+            else
+            {
+                condition.LeftPredicate = AtomicPredicate.AlwaysTrue;
+                condition.Operator = LogicOperator.None;
+                condition.NaturalLanguageText = "Embalaje estándar";
+            }
+
+            // Crear la orden con CachedValidItems asignado inmediatamente (Ajuste 1 de arquitectura)
+            return new Order(orderId, companyName, rule, validItems, targetCount, condition, duration, reward, penalty);
+        }
+
+        private static SetTheoryRule GenerateRandomSetRule()
+        {
+            int ruleType = UnityEngine.Random.Range(0, 10);
+            switch (ruleType)
+            {
+                case 0:
+                    return new SetTheoryRule(
+                        SetOperator.Union,
+                        SetCriterion.CreateFamily("Metales", "Metales"),
+                        SetCriterion.CreateFamily("Textiles", "Textiles"),
+                        "Piezas de fijación metálica O telas suaves"
+                    );
+
+                case 1:
+                    return new SetTheoryRule(
+                        SetOperator.Union,
+                        SetCriterion.CreateFamily("Electricidad", "Eléctricos"),
+                        SetCriterion.CreateFamily("Óptica", "Óptica"),
+                        "Componentes eléctricos O cristales ópticos"
+                    );
+
+                case 2:
+                    return new SetTheoryRule(
+                        SetOperator.Intersection,
+                        SetCriterion.CreateFamily("Electricidad", "Eléctricos"),
+                        SetCriterion.CreateAttribute(ItemAttributes.Tool, "Herramientas"),
+                        "Insumos eléctricos utilizables como herramientas"
+                    );
+
+                case 3:
+                    return new SetTheoryRule(
+                        SetOperator.Intersection,
+                        SetCriterion.CreateFamily("Óptica", "Óptica"),
+                        SetCriterion.CreateAttribute(ItemAttributes.Electrical, "Eléctricos"),
+                        "Piezas ópticas con propiedades eléctricas"
+                    );
+
+                case 4:
+                    return new SetTheoryRule(
+                        SetOperator.Intersection,
+                        SetCriterion.CreateFamily("Metales", "Metales"),
+                        SetCriterion.CreateTier(ItemTier.Tier2_Medium, "Tier 2"),
+                        "Fijaciones metálicas de calidad intermedia (Tier 2)"
+                    );
+
+                case 5:
+                    return new SetTheoryRule(
+                        SetOperator.Difference,
+                        SetCriterion.CreateFamily("Electricidad", "Eléctricos"),
+                        SetCriterion.CreateAttribute(ItemAttributes.Fragile, "Frágiles"),
+                        "Componentes eléctricos resistentes (NO frágiles)"
+                    );
+
+                case 6:
+                    return new SetTheoryRule(
+                        SetOperator.Difference,
+                        SetCriterion.CreateFamily("Metales", "Metales"),
+                        SetCriterion.CreateTier(ItemTier.Tier3_Advanced, "Tier 3"),
+                        "Herrajes metálicos ligeros (NO de titanio pesado)"
+                    );
+
+                case 7:
+                    return new SetTheoryRule(
+                        SetOperator.Difference,
+                        SetCriterion.CreateFamily("Óptica", "Óptica"),
+                        SetCriterion.CreateAttribute(ItemAttributes.Tool, "Herramientas"),
+                        "Cristalería óptica pura (sin instrumental de lab)"
+                    );
+
+                case 8:
+                    return new SetTheoryRule(
+                        SetOperator.Complement,
+                        SetCriterion.CreateFamily("Metales", "Metales"),
+                        null,
+                        "Cualquier producto del almacén EXCEPTO fijaciones metálicas"
+                    );
+
+                case 9:
+                default:
+                    return new SetTheoryRule(
+                        SetOperator.Complement,
+                        SetCriterion.CreateAttribute(ItemAttributes.Fragile, "Frágiles"),
+                        null,
+                        "Cualquier insumo del almacén que NO sea frágil"
+                    );
+            }
         }
     }
 }

@@ -33,6 +33,14 @@ namespace LogiPack.Orders
         public int LogicBonus;
         public int MonetaryReward;
 
+        // Órdenes Especiales de Empresas (Teoría de Conjuntos)
+        public bool IsCompanyOrder;
+        public string CompanyName;
+        public SetTheoryRule SetRule;
+        public int TargetItemCount;
+        public int CustomPenalty;
+        public HashSet<ItemData> CachedValidItems { get; set; } = new HashSet<ItemData>();
+
         public bool IsExpired => RemainingTime <= 0;
         public float TimeNormalized => Mathf.Clamp01(RemainingTime / MaxTime);
 
@@ -79,6 +87,25 @@ namespace LogiPack.Orders
         {
         }
 
+        // Constructor para Órdenes Especiales de Empresa (Teoría de Conjuntos)
+        public Order(string id, string companyName, SetTheoryRule setRule, HashSet<ItemData> validItems, int targetCount, EnvironmentalCondition condition, float duration, int reward, int penalty)
+        {
+            OrderId = id;
+            IsCompanyOrder = true;
+            CompanyName = companyName;
+            SetRule = setRule;
+            CachedValidItems = validItems ?? new HashSet<ItemData>();
+            TargetItemCount = targetCount;
+            Condition = condition;
+            MaxTime = duration;
+            RemainingTime = duration;
+            MonetaryReward = reward;
+            CustomPenalty = penalty;
+            ItemsCost = reward;
+            PackagingBonus = 0;
+            LogicBonus = 0;
+        }
+
         /// <summary>
         /// Comprueba si un conjunto de items empacados satisface exactamente la orden.
         /// </summary>
@@ -86,7 +113,31 @@ namespace LogiPack.Orders
         {
             if (packedItems == null) return false;
 
-            // Verificar que cada requerimiento esté cubierto exactamente
+            // 1. Caso Órdenes de Empresa (Teoría de Conjuntos con Cardinalidad Flexible)
+            if (IsCompanyOrder)
+            {
+                if (CachedValidItems == null || CachedValidItems.Count == 0) return false;
+
+                int totalCount = 0;
+                foreach (var kvp in packedItems)
+                {
+                    ItemData item = kvp.Key;
+                    int count = kvp.Value;
+                    if (count <= 0) continue;
+
+                    // Validación O(1) con el HashSet cacheado
+                    if (!CachedValidItems.Contains(item))
+                    {
+                        return false; // Contiene un ítem fuera del conjunto permitido
+                    }
+
+                    totalCount += count;
+                }
+
+                return totalCount == TargetItemCount;
+            }
+
+            // 2. Caso Estándar: Verificar que cada requerimiento esté cubierto exactamente
             foreach (var req in Requirements)
             {
                 if (!packedItems.TryGetValue(req.Item, out int count) || count != req.RequiredCount)

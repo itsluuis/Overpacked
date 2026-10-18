@@ -55,13 +55,14 @@ namespace LogiPack.Managers
                 Order order = ActiveOrders[i];
                 order.RemainingTime -= Time.deltaTime;
 
-                // Si caduca: penalización monetaria
+                // Si caduca: penalización monetaria (usando CustomPenalty para órdenes especiales)
                 if (order.IsExpired)
                 {
-                    Debug.Log($"[OrderManager] ¡PEDIDO CADUCADO! Orden '{order.OrderId}' expiró. Restando -${order.MonetaryReward}");
+                    int penalty = (order.CustomPenalty > 0) ? order.CustomPenalty : order.MonetaryReward;
+                    Debug.Log($"[OrderManager] ¡PEDIDO CADUCADO! Orden '{order.OrderId}' expiró. Restando penalización -${penalty}");
                     if (Economy != null)
                     {
-                        Economy.DeductPenalty(order.MonetaryReward);
+                        Economy.DeductPenalty(penalty);
                     }
                     ActiveOrders.RemoveAt(i);
                 }
