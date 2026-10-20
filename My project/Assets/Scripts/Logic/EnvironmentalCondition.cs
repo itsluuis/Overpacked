@@ -46,6 +46,9 @@ namespace LogiPack.Logic
         [Header("Fórmula en Lenguaje Natural")]
         public string NaturalLanguageText = "Enviar en cualquier momento";
 
+        [Header("Fórmula Simbólica Formal")]
+        public string FormalFormula = "p";
+
         [Header("Estructura de la Proposición Molecular")]
         public AtomicPredicate LeftPredicate = AtomicPredicate.AlwaysTrue;
         public bool InvertLeft = false; // ¬p
@@ -56,11 +59,23 @@ namespace LogiPack.Logic
         public bool InvertRight = false; // ¬q
 
         /// <summary>
+        /// Evaluador personalizado opcional para proposiciones moleculares compuestas
+        /// de más de dos variables (ej: (p ∧ q) → ¬s).
+        /// </summary>
+        [NonSerialized]
+        public Func<EnvironmentState, PackageBox, bool> CustomEvaluator = null;
+
+        /// <summary>
         /// Evalúa si la proposición molecular es Verdadera (True) o Falsa (False)
         /// dado el estado ambiental actual y el estado de embalaje de la caja evaluada.
         /// </summary>
         public bool Evaluate(EnvironmentState state, PackageBox box = null)
         {
+            if (CustomEvaluator != null)
+            {
+                return CustomEvaluator(state, box);
+            }
+
             bool leftVal = EvalPredicate(LeftPredicate, state, box);
             if (InvertLeft) leftVal = !leftVal;
 

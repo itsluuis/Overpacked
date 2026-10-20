@@ -38,6 +38,14 @@ namespace LogiPack.UI
         public Sprite WindowWeatherRainy;
         public Sprite WindowWeatherStormy;
 
+        [Header("Animación en Bucle de Ventana (Lluvia y Tormenta)")]
+        public Sprite[] WindowRainFrames;  // 4 frames: clima_lloviendo_fase_1..4
+        public Sprite[] WindowStormFrames; // 4 frames: clima_tormenta_fase_1..4
+
+        private float _weatherAnimTimer = 0f;
+        private int _weatherFrameIndex = 0;
+        private const float WEATHER_FRAME_DURATION = 0.15f; // ~6.6 FPS
+
         private void Start()
         {
             if (Environment != null)
@@ -57,18 +65,66 @@ namespace LogiPack.UI
 
         private void Update()
         {
-            // Sincronización continua de la hora actual
             if (Environment != null)
             {
+                // Sincronización continua de la hora actual
                 UpdateClock(Mathf.RoundToInt(Environment.CurrentState.CurrentHour));
+
+                // Animación en bucle de lluvia o tormenta
+                AnimateWindowWeather(Environment.CurrentState.Weather);
             }
         }
 
         public void UpdateVisuals(EnvironmentState state)
         {
             UpdateClock(Mathf.RoundToInt(state.CurrentHour));
-            UpdateWindowWeather(state.Weather);
             UpdateForecastTVs();
+
+            // Si es clima estático, asignar de inmediato
+            if (state.Weather == WeatherType.Clear || state.Weather == WeatherType.Cloudy)
+            {
+                _weatherAnimTimer = 0f;
+                _weatherFrameIndex = 0;
+                UpdateWindowWeather(state.Weather);
+            }
+        }
+
+        private void AnimateWindowWeather(WeatherType weather)
+        {
+            if (WindowWeatherRenderer == null) return;
+
+            if (weather == WeatherType.Rain && WindowRainFrames != null && WindowRainFrames.Length > 0)
+            {
+                _weatherAnimTimer += Time.deltaTime;
+                if (_weatherAnimTimer >= WEATHER_FRAME_DURATION)
+                {
+                    _weatherAnimTimer = 0f;
+                    _weatherFrameIndex = (_weatherFrameIndex + 1) % WindowRainFrames.Length;
+                    if (WindowRainFrames[_weatherFrameIndex] != null)
+                    {
+                        WindowWeatherRenderer.sprite = WindowRainFrames[_weatherFrameIndex];
+                    }
+                }
+            }
+            else if (weather == WeatherType.Storm && WindowStormFrames != null && WindowStormFrames.Length > 0)
+            {
+                _weatherAnimTimer += Time.deltaTime;
+                if (_weatherAnimTimer >= WEATHER_FRAME_DURATION)
+                {
+                    _weatherAnimTimer = 0f;
+                    _weatherFrameIndex = (_weatherFrameIndex + 1) % WindowStormFrames.Length;
+                    if (WindowStormFrames[_weatherFrameIndex] != null)
+                    {
+                        WindowWeatherRenderer.sprite = WindowStormFrames[_weatherFrameIndex];
+                    }
+                }
+            }
+            else
+            {
+                _weatherAnimTimer = 0f;
+                _weatherFrameIndex = 0;
+                UpdateWindowWeather(weather);
+            }
         }
 
         private void UpdateClock(int hour)
@@ -91,8 +147,8 @@ namespace LogiPack.UI
             {
                 WeatherType.Clear => WindowWeatherSunny,
                 WeatherType.Cloudy => WindowWeatherCloudy,
-                WeatherType.Rain => WindowWeatherRainy,
-                WeatherType.Storm => WindowWeatherStormy,
+                WeatherType.Rain => (WindowRainFrames != null && WindowRainFrames.Length > 0) ? WindowRainFrames[0] : WindowWeatherRainy,
+                WeatherType.Storm => (WindowStormFrames != null && WindowStormFrames.Length > 0) ? WindowStormFrames[0] : WindowWeatherStormy,
                 _ => WindowWeatherSunny
             };
         }

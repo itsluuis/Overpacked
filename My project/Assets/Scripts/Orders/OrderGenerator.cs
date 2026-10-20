@@ -61,67 +61,85 @@ namespace LogiPack.Orders
                 }
             }
 
-            // 2. Generar Condición Lógica (Clima, Temperatura y Materiales de Embalaje)
+            // 2. Generar Condición Lógica (Clima, Temperatura y Materiales de Embalaje con Lógica Proposicional Molecular)
             var condition = new EnvironmentalCondition();
             int conditionType = UnityEngine.Random.Range(0, 8);
 
             switch (conditionType)
             {
-                case 0: // Embalaje simple: Espuma
-                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
+                case 0: // Conjunción e Implicación: (Lluvia ∧ Frío) → ¬Film
+                    condition.FormalFormula = "(p ∧ q) → ¬s";
+                    condition.NaturalLanguageText = "No enviar con Film Térmico si llueve y hace frío";
+                    condition.CustomEvaluator = (env, box) =>
+                    {
+                        bool premise = (env.IsRaining || env.IsStorming) && env.IsCold;
+                        if (!premise) return true; // Premisa falsa -> implicación verdadera
+                        return box != null && !box.HasThermalFilm;
+                    };
+                    break;
+
+                case 1: // Bicondicional con Negaciones: Calor ↔ (¬Espuma ∧ ¬Film)
+                    condition.FormalFormula = "p ↔ (¬r ∧ ¬s)";
+                    condition.NaturalLanguageText = "Enviar sin ningún embalaje si y solo si hace calor";
+                    condition.CustomEvaluator = (env, box) =>
+                    {
+                        bool noPackaging = (box != null && !box.HasFoamPadding && !box.HasThermalFilm);
+                        return env.IsHot == noPackaging;
+                    };
+                    break;
+
+                case 2: // Atómica: Despejado / Soleado
+                    condition.FormalFormula = "p";
+                    condition.LeftPredicate = AtomicPredicate.IsClear;
                     condition.Operator = LogicOperator.None;
-                    condition.NaturalLanguageText = "Embalar con Relleno de Espuma";
+                    condition.NaturalLanguageText = "Enviar si está soleado / despejado";
                     break;
 
-                case 1: // Embalaje simple: Film Térmico
-                    condition.LeftPredicate = AtomicPredicate.BoxHasThermalFilm;
-                    condition.Operator = LogicOperator.None;
-                    condition.NaturalLanguageText = "Embalar con Film Térmico";
-                    break;
-
-                case 2: // Sin embalaje especial (¬r ∧ ¬s)
-                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
-                    condition.InvertLeft = true;
-                    condition.Operator = LogicOperator.And;
-                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
-                    condition.InvertRight = true;
-                    condition.NaturalLanguageText = "Enviar SIN embalaje especial";
-                    break;
-
-                case 3: // Conjunción: Espuma Y Film Térmico (r ∧ s)
-                    condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
-                    condition.Operator = LogicOperator.And;
-                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
-                    condition.NaturalLanguageText = "Embalar con Relleno de Espuma Y Film Térmico";
-                    break;
-
-                case 4: // Implicación: Si hace frío -> Film Térmico
+                case 3: // Implicación directa: Frío → Film Térmico
+                    condition.FormalFormula = "p → s";
                     condition.LeftPredicate = AtomicPredicate.IsCold;
                     condition.Operator = LogicOperator.Implication;
                     condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
                     condition.NaturalLanguageText = "Si hace frío, embalar con Film Térmico";
                     break;
 
-                case 5: // Implicación con Negación: Si hace calor -> NO Film Térmico
-                    condition.LeftPredicate = AtomicPredicate.IsHot;
-                    condition.Operator = LogicOperator.Implication;
-                    condition.RightPredicate = AtomicPredicate.BoxHasThermalFilm;
-                    condition.InvertRight = true;
-                    condition.NaturalLanguageText = "Si hace calor, NO embalar en Film Térmico";
-                    break;
-
-                case 6: // Bicondicional: Espuma <-> Tormenta
+                case 4: // Bicondicional: Espuma ↔ Tormenta
+                    condition.FormalFormula = "r ↔ p";
                     condition.LeftPredicate = AtomicPredicate.BoxHasFoam;
                     condition.Operator = LogicOperator.Biconditional;
                     condition.RightPredicate = AtomicPredicate.IsStorming;
-                    condition.NaturalLanguageText = "Embalar con Espuma SI Y SOLO SI hay tormenta";
+                    condition.NaturalLanguageText = "Embalar con Espuma si y solo si hay tormenta";
                     break;
 
-                case 7: // Clima y Temperatura: Despejado o Normal
-                    condition.LeftPredicate = AtomicPredicate.IsClear;
-                    condition.Operator = LogicOperator.Or;
-                    condition.RightPredicate = AtomicPredicate.IsRaining;
-                    condition.NaturalLanguageText = "Enviar si está despejado O lloviendo";
+                case 5: // Disyunción en Premisa: (Lluvia ∨ Tormenta) → Espuma
+                    condition.FormalFormula = "(p ∨ q) → r";
+                    condition.NaturalLanguageText = "Si llueve o hay tormenta, embalar con Espuma";
+                    condition.CustomEvaluator = (env, box) =>
+                    {
+                        bool rainOrStorm = env.IsRaining || env.IsStorming;
+                        if (!rainOrStorm) return true;
+                        return box != null && box.HasFoamPadding;
+                    };
+                    break;
+
+                case 6: // Implicación Compuesta: Tormenta → (Espuma ∧ Film)
+                    condition.FormalFormula = "p → (r ∧ s)";
+                    condition.NaturalLanguageText = "Si hay tormenta, embalar con Espuma Y Film Térmico";
+                    condition.CustomEvaluator = (env, box) =>
+                    {
+                        if (!env.IsStorming) return true;
+                        return box != null && box.HasFoamPadding && box.HasThermalFilm;
+                    };
+                    break;
+
+                case 7: // Negación de Conjunción: ¬(Calor ∧ Espuma)
+                    condition.FormalFormula = "¬(p ∧ r)";
+                    condition.NaturalLanguageText = "No embalar con Espuma si hace calor";
+                    condition.CustomEvaluator = (env, box) =>
+                    {
+                        bool hotAndFoam = env.IsHot && (box != null && box.HasFoamPadding);
+                        return !hotAndFoam;
+                    };
                     break;
             }
 
@@ -137,25 +155,25 @@ namespace LogiPack.Orders
             // B. Bonus por Material de Embalaje Solicitado:
             // Estándar: +$0 | 1 Material (Espuma o Film): +$15 | Doble Material (Espuma Y Film): +$35
             int packagingBonus = 0;
-            if (conditionType == 3)
+            if (condition.FormalFormula.Contains("r ∧ s") || condition.NaturalLanguageText.Contains("Espuma Y Film"))
             {
                 packagingBonus = 35; // Doble material
             }
-            else if (conditionType == 0 || conditionType == 1 || conditionType == 4 || conditionType == 6)
+            else if (condition.NaturalLanguageText.Contains("Espuma") || condition.NaturalLanguageText.Contains("Film"))
             {
                 packagingBonus = 15; // 1 material
             }
 
             // C. Bonus por Complejidad Lógica:
             // Proposición Atómica: +$10 | Molecular con Conectivo: +$20 | Bicondicional: +$35
-            int logicBonus = 10;
-            if (condition.Operator == LogicOperator.Biconditional)
+            int logicBonus = 20;
+            if (condition.FormalFormula == "p" || (condition.Operator == LogicOperator.None && condition.CustomEvaluator == null))
+            {
+                logicBonus = 10;
+            }
+            else if (condition.FormalFormula.Contains("↔") || condition.Operator == LogicOperator.Biconditional)
             {
                 logicBonus = 35;
-            }
-            else if (condition.Operator != LogicOperator.None)
-            {
-                logicBonus = 20;
             }
 
             return new Order(orderId, condition, reqs, duration, itemsCost, packagingBonus, logicBonus);

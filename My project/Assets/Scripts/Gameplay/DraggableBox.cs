@@ -17,6 +17,7 @@ namespace LogiPack.Gameplay
 
         private Camera _mainCamera;
         private Vector3 _startDragPos;
+        private Vector3 _baseScale = Vector3.one * 0.20f;
         private bool _isDragging;
         private PackageBox _box;
 
@@ -24,6 +25,7 @@ namespace LogiPack.Gameplay
         {
             _mainCamera = Camera.main;
             _box = GetComponent<PackageBox>();
+            _baseScale = transform.localScale;
 
             // Si Spawner no está asignado, buscarlo automáticamente en la escena
             if (Spawner == null)
@@ -46,7 +48,8 @@ namespace LogiPack.Gameplay
             if (_mainCamera == null) return;
             _isDragging = true;
             _startDragPos = transform.position; // Guardar posición actual
-            transform.localScale = Vector3.one * 1.15f; // Feedback visual
+            if (_baseScale.sqrMagnitude < 0.001f) _baseScale = transform.localScale;
+            transform.localScale = _baseScale * 1.02f; // Feedback visual sutil sin deformar
         }
 
         private void OnMouseDrag()
@@ -64,7 +67,7 @@ namespace LogiPack.Gameplay
         {
             if (!_isDragging) return;
             _isDragging = false;
-            transform.localScale = Vector3.one;
+            transform.localScale = _baseScale;
 
             int previousSlot = _box.SlotIndex; // -1 si estaba en la mesa, 0-4 si estaba en embalaje
 

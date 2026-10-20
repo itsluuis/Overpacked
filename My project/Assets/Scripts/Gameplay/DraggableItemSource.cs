@@ -68,7 +68,7 @@ namespace LogiPack.Gameplay
             var sr = _dragInstance.AddComponent<SpriteRenderer>();
             sr.sprite = Item.Icon != null ? Item.Icon : (VisualRenderer != null ? VisualRenderer.sprite : null);
             sr.sortingOrder = 50; // Visible por encima de todo
-            _dragInstance.transform.localScale = transform.localScale * 1.2f;
+            _dragInstance.transform.localScale = transform.lossyScale;
 
             UpdateDragPosition();
         }

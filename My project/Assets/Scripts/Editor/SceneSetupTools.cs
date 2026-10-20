@@ -167,6 +167,18 @@ namespace LogiPack.Editor
             envVisuals.WindowWeatherRainy = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps/clima_lloviendo.png");
             envVisuals.WindowWeatherStormy = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps/clima_tormenta.png");
 
+            envVisuals.WindowRainFrames = new Sprite[4];
+            for (int f = 1; f <= 4; f++)
+            {
+                envVisuals.WindowRainFrames[f - 1] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Art/Maps/clima_lloviendo_frames/clima_lloviendo_fase_{f}.png");
+            }
+
+            envVisuals.WindowStormFrames = new Sprite[4];
+            for (int f = 1; f <= 4; f++)
+            {
+                envVisuals.WindowStormFrames[f - 1] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Art/Maps/clima_tormenta_frames/clima_tormenta_fase_{f}.png");
+            }
+
             // Cargar los 12 Ítems
             string[] guids = AssetDatabase.FindAssets("t:ItemData", new[] { "Assets/Data/Items" });
             orderMgr.AvailableItems = new List<ItemData>();
@@ -257,14 +269,14 @@ namespace LogiPack.Editor
             conveyorLeftGO.transform.localScale = new Vector3(0.85f, 0.65f, 1f);
             var convLeftSR = conveyorLeftGO.AddComponent<SpriteRenderer>();
             convLeftSR.sprite = conveyorSprite;
-            convLeftSR.sortingOrder = 1;
+            convLeftSR.sortingOrder = 2; // Cintas por delante de los carteles
 
             GameObject signDespachoGO = new GameObject("Cartel_Despacho");
             signDespachoGO.transform.position = new Vector3(-3.6f, -3.4f, 0);
             signDespachoGO.transform.localScale = Vector3.one * 0.42f;
             var signDespSR = signDespachoGO.AddComponent<SpriteRenderer>();
             signDespSR.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/cartel_despacho.png");
-            signDespSR.sortingOrder = 3;
+            signDespSR.sortingOrder = 1; // Carteles por detrás de la cinta transportadora
 
             packMgr.SlotTransforms = new Transform[5];
             GameObject slotsDespachoRoot = new GameObject("Slots_Despacho");
@@ -279,7 +291,7 @@ namespace LogiPack.Editor
                 var slotSR = slotGO.AddComponent<SpriteRenderer>();
                 slotSR.sprite = selectorSprite;
                 slotSR.color = new Color(1f, 1f, 1f, 0.45f); // 45% opacidad solicitada
-                slotSR.sortingOrder = 2;
+                slotSR.sortingOrder = 3;
 
                 var slotCol = slotGO.AddComponent<BoxCollider2D>();
                 slotCol.isTrigger = true;
@@ -298,14 +310,14 @@ namespace LogiPack.Editor
             conveyorRightGO.transform.localScale = new Vector3(0.85f, 0.65f, 1f);
             var convRightSR = conveyorRightGO.AddComponent<SpriteRenderer>();
             convRightSR.sprite = conveyorSprite;
-            convRightSR.sortingOrder = 1;
+            convRightSR.sortingOrder = 2; // Cintas por delante de los carteles
 
             GameObject signRevisionGO = new GameObject("Cartel_Revision");
             signRevisionGO.transform.position = new Vector3(3.6f, -3.4f, 0);
             signRevisionGO.transform.localScale = Vector3.one * 0.42f;
             var signRevSR = signRevisionGO.AddComponent<SpriteRenderer>();
             signRevSR.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/cartel_revision.png");
-            signRevSR.sortingOrder = 3;
+            signRevSR.sortingOrder = 1; // Carteles por detrás de la cinta transportadora
 
             GameObject slotsRevisionRoot = new GameObject("Slots_Revision");
             GameObject revisionSlotGO = new GameObject("Slot_Revision_Descarte");
@@ -317,7 +329,7 @@ namespace LogiPack.Editor
             var revSlotSR = revisionSlotGO.AddComponent<SpriteRenderer>();
             revSlotSR.sprite = selectorSprite;
             revSlotSR.color = new Color(1f, 1f, 1f, 0.45f); // 45% opacidad
-            revSlotSR.sortingOrder = 2;
+            revSlotSR.sortingOrder = 3;
 
             var revCol = revisionSlotGO.AddComponent<BoxCollider2D>();
             revCol.isTrigger = true;
@@ -429,62 +441,62 @@ namespace LogiPack.Editor
             detRT.anchorMin = new Vector2(0.5f, 0f);
             detRT.anchorMax = new Vector2(0.5f, 0f);
             detRT.pivot = new Vector2(1f, 1f);
-            detRT.anchoredPosition = new Vector2(70, -10);
-            detRT.sizeDelta = new Vector2(360, 360);
+            detRT.anchoredPosition = new Vector2(90, -10);
+            detRT.sizeDelta = new Vector2(440, 440);
 
             var detCanvas = detailsGO.AddComponent<Canvas>();
             detCanvas.overrideSorting = true;
             detCanvas.sortingOrder = 25;
             detailsGO.AddComponent<GraphicRaycaster>();
 
-            // Header Título Text en el Post-it Grande
+            // Header Título Text en el Post-it Grande (+10px)
             GameObject detHeaderGO = new GameObject("DetailsHeaderText");
             detHeaderGO.transform.SetParent(detailsGO.transform, false);
             var detHeaderText = detHeaderGO.AddComponent<Text>();
             detHeaderText.font = fredokaBold;
-            detHeaderText.fontSize = 20;
+            detHeaderText.fontSize = 28; // +10px (era 18-20)
             detHeaderText.fontStyle = FontStyle.Bold;
             detHeaderText.color = new Color(0.18f, 0.12f, 0.08f);
             detHeaderText.alignment = TextAnchor.UpperLeft;
             detHeaderText.horizontalOverflow = HorizontalWrapMode.Wrap;
             var detHeaderRT = detHeaderGO.GetComponent<RectTransform>();
-            detHeaderRT.anchorMin = new Vector2(0, 0.74f);
-            detHeaderRT.anchorMax = new Vector2(1, 0.95f);
-            detHeaderRT.offsetMin = new Vector2(36, 0);
-            detHeaderRT.offsetMax = new Vector2(-36, -10);
+            detHeaderRT.anchorMin = new Vector2(0, 0.72f);
+            detHeaderRT.anchorMax = new Vector2(1, 0.94f);
+            detHeaderRT.offsetMin = new Vector2(40, 0);
+            detHeaderRT.offsetMax = new Vector2(-40, -10);
             cardUI.DetailsHeaderText = detHeaderText;
 
-            // Condición Lógica Text
+            // Condición Lógica Text (+10px)
             GameObject condGO = new GameObject("ConditionText");
             condGO.transform.SetParent(detailsGO.transform, false);
             var condText = condGO.AddComponent<Text>();
             condText.font = fredokaBold;
-            condText.fontSize = 18;
+            condText.fontSize = 26; // +10px (era 16-18)
             condText.fontStyle = FontStyle.Bold;
             condText.color = new Color(0.16f, 0.12f, 0.08f);
             condText.alignment = TextAnchor.UpperLeft;
             condText.horizontalOverflow = HorizontalWrapMode.Wrap;
             var condRT = condGO.GetComponent<RectTransform>();
-            condRT.anchorMin = new Vector2(0, 0.44f);
-            condRT.anchorMax = new Vector2(1, 0.74f);
-            condRT.offsetMin = new Vector2(36, 0);
-            condRT.offsetMax = new Vector2(-36, -5);
+            condRT.anchorMin = new Vector2(0, 0.40f);
+            condRT.anchorMax = new Vector2(1, 0.72f);
+            condRT.offsetMin = new Vector2(40, 0);
+            condRT.offsetMax = new Vector2(-40, -5);
             cardUI.ConditionText = condText;
 
-            // Items Requeridos / Fórmula Text
+            // Items Requeridos / Fórmula Text (+10px)
             GameObject reqsGO = new GameObject("ItemsListText");
             reqsGO.transform.SetParent(detailsGO.transform, false);
             var reqsText = reqsGO.AddComponent<Text>();
             reqsText.font = fredokaBold;
-            reqsText.fontSize = 17;
+            reqsText.fontSize = 25; // +10px (era 15-17)
             reqsText.color = new Color(0.20f, 0.15f, 0.10f);
             reqsText.alignment = TextAnchor.UpperLeft;
             reqsText.horizontalOverflow = HorizontalWrapMode.Wrap;
             var reqsRT = reqsGO.GetComponent<RectTransform>();
-            reqsRT.anchorMin = new Vector2(0, 0.06f);
-            reqsRT.anchorMax = new Vector2(1, 0.44f);
-            reqsRT.offsetMin = new Vector2(36, 10);
-            reqsRT.offsetMax = new Vector2(-36, -5);
+            reqsRT.anchorMin = new Vector2(0, 0.05f);
+            reqsRT.anchorMax = new Vector2(1, 0.40f);
+            reqsRT.offsetMin = new Vector2(40, 10);
+            reqsRT.offsetMax = new Vector2(-40, -5);
             cardUI.ItemsListText = reqsText;
 
             cardUI.DetailsPanel = detailsGO;

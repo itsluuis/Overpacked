@@ -129,7 +129,8 @@ namespace LogiPack.UI
                 else
                 {
                     string cond = order.Condition != null ? order.Condition.NaturalLanguageText : "Envío normal";
-                    ConditionText.text = $"<b><color=#004477>Condición de Despacho:</color></b>\n{cond}";
+                    string formula = order.Condition != null ? order.Condition.FormalFormula : "p";
+                    ConditionText.text = $"<b><color=#004477>Regla Lógica:</color></b> {cond}\n<color=#882200><b>Fórmula Formal:</b> {formula}</color>";
                 }
             }
 
