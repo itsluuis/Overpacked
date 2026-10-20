@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f2_t3
   ItemName: "Bater\xEDa de Litio"
-  Icon: {fileID: 6728719105241064179, guid: f9ed6328836f04d4d8f78107cc52aebe, type: 3}
+  Icon: {fileID: -5642112304815673677, guid: 5290ea5fbe73b9c469b2c3d221acc8f9, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 9
   Tier: 28

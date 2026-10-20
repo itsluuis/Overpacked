@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f3_t1
   ItemName: Vidrio Plano
-  Icon: {fileID: -6420338935667391344, guid: f2a613e137cefbe4ea28cd6704a7c025, type: 3}
+  Icon: {fileID: 120351492229278000, guid: 7b9598006603d994298702f2a9748877, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 4
   Tier: 10

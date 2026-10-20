@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f1_t2
   ItemName: Perno Galvanizado
-  Icon: {fileID: 8994146872853389977, guid: 2cd9afd8d8e0c51428a765b1318014ff, type: 3}
+  Icon: {fileID: -4215868432353573932, guid: af749940f5e87334699bab99539b5aaf, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 2
   Tier: 18

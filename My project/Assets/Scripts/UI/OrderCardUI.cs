@@ -6,99 +6,143 @@ using UnityEngine.UI;
 namespace LogiPack.UI
 {
     /// <summary>
-    /// Representa la tarjeta visual de un pedido en la barra superior (estilo Overcooked).
-    /// Muestra barra de expiración con color progresivo (Verde -> Amarillo -> Rojo).
-    /// Al pasar el mouse por encima (hover), expande el portapapeles con la condición
-    /// ambiental lógica y los items requeridos.
+    /// Representa la tarjeta visual de un pedido en forma de Post-it con tachuela física.
+    /// Pedidos estándar: Post-it amarillo con tachuela roja.
+    /// Pedidos especiales: Post-it fucsia con tachuela amarilla.
+    /// Al hacer hover, se despliega la versión grande del post-it con la información detallada.
     /// </summary>
     public class OrderCardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("Datos Vinculados")]
         public Order LinkedOrder;
 
-        [Header("Referencias Visuales Compactas")]
+        [Header("Referencias Visuales de Post-it")]
         public Image CardBackground;
+        public Image ThumbtackImage;
         public Text OrderIdText;
         public Text RewardText;
         public Image TimeBarFill;
 
-        [Header("Panel Expandido al Hover")]
+        [Header("Panel Expandido al Hover (Post-it Grande)")]
         public GameObject DetailsPanel;
+        public Image BigDetailsBackground;
+        public Text DetailsHeaderText;
         public Text ConditionText;
         public Text ItemsListText;
+
+        [Header("Sprites de Post-its y Tachuelas")]
+        public Sprite SmallYellowPostit;
+        public Sprite SmallFuchsiaPostit;
+        public Sprite BigYellowPostit;
+        public Sprite BigFuchsiaPostit;
+        public Sprite RedThumbtack;
+        public Sprite YellowThumbtack;
 
         public void BindOrder(Order order)
         {
             LinkedOrder = order;
 
-            // 1. Distinción visual de fondo
-            if (CardBackground == null) CardBackground = GetComponent<Image>();
+            bool isSpecial = order != null && order.IsCompanyOrder;
+
+            // 1. Asignar Sprite del Post-it y Tachuela
             if (CardBackground != null)
             {
-                if (order.IsCompanyOrder)
-                {
-                    CardBackground.color = new Color(0.35f, 0.26f, 0.08f, 0.98f); // Tinte Ámbar / Dorado corporativo
-                }
-                else
-                {
-                    CardBackground.color = new Color(0.14f, 0.18f, 0.25f, 0.95f); // Tinte Azul Oscuro estándar
-                }
+                CardBackground.color = Color.white;
+                CardBackground.sprite = isSpecial ? SmallFuchsiaPostit : SmallYellowPostit;
             }
 
-            // 2. Encabezado / Título
+            if (ThumbtackImage != null)
+            {
+                ThumbtackImage.sprite = isSpecial ? YellowThumbtack : RedThumbtack;
+                ThumbtackImage.color = Color.white;
+            }
+
+            if (BigDetailsBackground != null)
+            {
+                BigDetailsBackground.color = Color.white;
+                BigDetailsBackground.sprite = isSpecial ? BigFuchsiaPostit : BigYellowPostit;
+            }
+
+            // 2. Encabezado / Título (Texto oscuro de tinta legible sobre papel)
+            Color inkColor = new Color(0.16f, 0.12f, 0.08f); // Tinta carbón cálido
             if (OrderIdText != null)
             {
-                if (order.IsCompanyOrder && !string.IsNullOrEmpty(order.CompanyName))
+                if (isSpecial && !string.IsNullOrEmpty(order.CompanyName))
                 {
                     OrderIdText.text = $"★ {order.CompanyName}";
-                    OrderIdText.color = new Color(1f, 0.92f, 0.45f); // Dorado brillante
+                    OrderIdText.color = new Color(0.38f, 0.06f, 0.22f); // Tinta borgoña/fucsia oscuro
                 }
                 else
                 {
                     OrderIdText.text = order.OrderId;
-                    OrderIdText.color = Color.white;
+                    OrderIdText.color = inkColor;
                 }
             }
 
-            // 3. Recompensa (Limpia, sin especulaciones de propina)
+            // 3. Recompensa monetaria
             if (RewardText != null)
             {
                 RewardText.text = $"${order.MonetaryReward}";
-                RewardText.color = order.IsCompanyOrder ? new Color(1f, 0.85f, 0.25f) : new Color(0.3f, 0.95f, 0.4f);
+                RewardText.color = isSpecial ? new Color(0.55f, 0.15f, 0.0f) : new Color(0.10f, 0.48f, 0.15f);
             }
 
-            // 4. Condición y encabezado en el panel hover
+            // 4. Configurar Barra de Tiempo horizontal (se encoge de derecha a izquierda)
+            if (TimeBarFill != null)
+            {
+                TimeBarFill.type = Image.Type.Filled;
+                TimeBarFill.fillMethod = Image.FillMethod.Horizontal;
+                TimeBarFill.fillOrigin = (int)Image.OriginHorizontal.Left;
+                TimeBarFill.fillAmount = 1f;
+            }
+
+            // 5. Encabezado en el Post-it Grande
+            if (DetailsHeaderText != null)
+            {
+                if (isSpecial)
+                {
+                    DetailsHeaderText.text = $"★ {order.CompanyName}\n<color=#116622><size=18>Lote Especial • Recompensa: ${order.MonetaryReward}</size></color>";
+                    DetailsHeaderText.color = new Color(0.38f, 0.06f, 0.22f);
+                }
+                else
+                {
+                    DetailsHeaderText.text = $"PEDIDO: {order.OrderId}   <color=#106020><size=19>+${order.MonetaryReward}</size></color>";
+                    DetailsHeaderText.color = inkColor;
+                }
+            }
+
+            // 6. Condición lógica en el Post-it Grande
             if (ConditionText != null)
             {
-                if (order.IsCompanyOrder)
+                ConditionText.color = inkColor;
+                if (isSpecial)
                 {
                     string pkg = order.Condition != null ? order.Condition.NaturalLanguageText : "";
-                    if (pkg == "Embalaje estándar" || string.IsNullOrEmpty(pkg))
+                    if (string.IsNullOrEmpty(pkg) || pkg == "Embalaje estándar")
                     {
-                        ConditionText.text = $"<b>{order.CompanyName}</b>\n<color=#A0E0FF>Solicitud de Lote Empresarial</color>";
+                        ConditionText.text = "<b><color=#004477>Embalaje Solicitado:</color></b> Estándar (sin protección extra).";
                     }
                     else
                     {
-                        ConditionText.text = $"<b>{order.CompanyName}</b>\n<color=#FFD700>• {pkg}</color>";
+                        ConditionText.text = $"<b><color=#884400>Embalaje Solicitado:</color></b> {pkg}";
                     }
                 }
                 else
                 {
-                    ConditionText.text = order.Condition != null ? order.Condition.NaturalLanguageText : "";
+                    string cond = order.Condition != null ? order.Condition.NaturalLanguageText : "Envío normal";
+                    ConditionText.text = $"<b><color=#004477>Condición de Despacho:</color></b>\n{cond}";
                 }
             }
 
-            // 5. Requerimientos / Fórmula Simbólica y Candidatos Válidos
+            // 7. Requerimientos / Fórmula Simbólica y Candidatos Válidos
             if (ItemsListText != null)
             {
-                if (order.IsCompanyOrder && order.SetRule != null)
+                ItemsListText.color = inkColor;
+                if (isSpecial && order.SetRule != null)
                 {
-                    // Ajuste 4: Notación Simbólica Formal para evaluación académica
-                    string formal = $"<color=#00FFFF><b>Fórmula de Lote:</b></color> {order.SetRule.FormalFormula}\n";
+                    string formal = $"<b>Fórmula de Lote:</b> <color=#003366>{order.SetRule.FormalFormula}</color>\n";
                     string desc = $"<b>Objetivo:</b> Empacar {order.TargetItemCount}x {order.SetRule.NaturalLanguageDescription}\n";
 
-                    // Ajuste 3: Lista de Candidatos Válidos del Almacén
-                    string validStr = "<color=#98FB98><b>Ítems Válidos:</b></color> ";
+                    string validStr = "<b>Candidatos Válidos:</b> ";
                     if (order.CachedValidItems != null && order.CachedValidItems.Count > 0)
                     {
                         var names = new System.Collections.Generic.List<string>();
@@ -113,14 +157,14 @@ namespace LogiPack.UI
                         validStr += "Ver estantería";
                     }
 
-                    ItemsListText.text = $"{formal}{desc}{validStr}";
+                    ItemsListText.text = $"{formal}{desc}<color=#116622>{validStr}</color>";
                 }
                 else
                 {
-                    string reqStr = "";
+                    string reqStr = "<b>Artículos a Empacar:</b>\n";
                     foreach (var req in order.Requirements)
                     {
-                        reqStr += $"• {req.RequiredCount}x {req.Item.ItemName}\n";
+                        reqStr += $"  • {req.RequiredCount}x {req.Item.ItemName}\n";
                     }
                     ItemsListText.text = reqStr;
                 }
@@ -133,28 +177,42 @@ namespace LogiPack.UI
         {
             if (LinkedOrder == null) return;
 
-            // Actualizar barra de tiempo y color progresivo
+            // Barra de tiempo decreciente horizontal y cambio tricolor
             if (TimeBarFill != null)
             {
                 float t = LinkedOrder.TimeNormalized;
                 TimeBarFill.fillAmount = t;
 
-                // Verde (>50%), Amarillo (25-50%), Rojo (<25%)
-                if (t > 0.5f)
-                    TimeBarFill.color = Color.Lerp(Color.yellow, new Color(0.2f, 0.85f, 0.3f), (t - 0.5f) * 2f);
+                // Verde (>=60%), Amarillo (25% a 60%), Rojo (<25%)
+                if (t >= 0.60f)
+                {
+                    TimeBarFill.color = new Color(0.20f, 0.78f, 0.30f); // Verde
+                }
+                else if (t >= 0.25f)
+                {
+                    TimeBarFill.color = new Color(0.95f, 0.75f, 0.15f); // Amarillo
+                }
                 else
-                    TimeBarFill.color = Color.Lerp(new Color(0.9f, 0.2f, 0.2f), Color.yellow, t * 2f);
+                {
+                    TimeBarFill.color = new Color(0.90f, 0.22f, 0.20f); // Rojo
+                }
             }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (DetailsPanel != null) DetailsPanel.SetActive(true);
+            if (DetailsPanel != null)
+            {
+                DetailsPanel.SetActive(true);
+            }
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (DetailsPanel != null) DetailsPanel.SetActive(false);
+            if (DetailsPanel != null)
+            {
+                DetailsPanel.SetActive(false);
+            }
         }
     }
 }

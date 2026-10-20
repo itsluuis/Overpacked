@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f4_t3
   ItemName: "Tejido Ign\xEDfugo"
-  Icon: {fileID: 6292978981886916723, guid: ca2baa5f6d589984d9a5c6bd3544c542, type: 3}
+  Icon: {fileID: 3492434444691987908, guid: b105091ab5bd89043bc7e98f1c712635, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 16
   Tier: 28

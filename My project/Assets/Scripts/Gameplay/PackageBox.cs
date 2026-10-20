@@ -40,6 +40,11 @@ namespace LogiPack.Gameplay
         public BoxState State = BoxState.Assembling;
         public PackagingMaterial Material = PackagingMaterial.None;
 
+        [Header("Sprites de Caja")]
+        public Sprite OpenBoxSprite;
+        public Sprite ClosedBoxSprite;
+        private SpriteRenderer _baseSR;
+
         [Header("Contenedores Visuales")]
         public Transform ItemContainer;
         public GameObject FoamOverlay;
@@ -54,12 +59,19 @@ namespace LogiPack.Gameplay
 
         private void Awake()
         {
+            _baseSR = GetComponent<SpriteRenderer>();
+
             if (ItemContainer == null)
             {
                 GameObject containerGO = new GameObject("BoxItemIcons");
                 containerGO.transform.parent = transform;
                 containerGO.transform.localPosition = Vector3.zero;
                 ItemContainer = containerGO.transform;
+            }
+
+            if (OpenBoxSprite != null && _baseSR != null && State == BoxState.Assembling)
+            {
+                _baseSR.sprite = OpenBoxSprite;
             }
 
             EnsureVisualOverlays();
@@ -70,6 +82,52 @@ namespace LogiPack.Gameplay
         {
             if (State == newState) return;
             State = newState;
+
+            if (_baseSR == null) _baseSR = GetComponent<SpriteRenderer>();
+
+            if (State == BoxState.InPackagingSlot)
+            {
+                if (ClosedBoxSprite != null && _baseSR != null)
+                {
+                    _baseSR.sprite = ClosedBoxSprite;
+                }
+                if (ItemContainer != null)
+                {
+                    ItemContainer.gameObject.SetActive(false);
+                }
+                if (FoamOverlay != null && ClosedBoxSprite != null)
+                {
+                    var sr = FoamOverlay.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.sprite = ClosedBoxSprite;
+                }
+                if (ThermalFilmOverlay != null && ClosedBoxSprite != null)
+                {
+                    var sr = ThermalFilmOverlay.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.sprite = ClosedBoxSprite;
+                }
+            }
+            else if (State == BoxState.Assembling)
+            {
+                if (OpenBoxSprite != null && _baseSR != null)
+                {
+                    _baseSR.sprite = OpenBoxSprite;
+                }
+                if (ItemContainer != null)
+                {
+                    ItemContainer.gameObject.SetActive(true);
+                }
+                if (FoamOverlay != null && OpenBoxSprite != null)
+                {
+                    var sr = FoamOverlay.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.sprite = OpenBoxSprite;
+                }
+                if (ThermalFilmOverlay != null && OpenBoxSprite != null)
+                {
+                    var sr = ThermalFilmOverlay.GetComponent<SpriteRenderer>();
+                    if (sr != null) sr.sprite = OpenBoxSprite;
+                }
+            }
+
             OnStateChanged?.Invoke(State);
             Debug.Log($"<color=orange><b>[PackageBox]</b></color> Caja cambió de estado a: <b>{State}</b>");
         }
@@ -259,30 +317,30 @@ namespace LogiPack.Gameplay
                 Vector3 localPos = Vector3.zero;
                 if (count == 1)
                 {
-                    localPos = new Vector3(0f, 0f, -0.1f);
+                    localPos = new Vector3(0f, 0.4f, -0.1f);
                 }
                 else if (count == 2)
                 {
-                    float x = (i == 0) ? -0.32f : 0.32f;
-                    localPos = new Vector3(x, 0f, -0.1f);
+                    float x = (i == 0) ? -1.0f : 1.0f;
+                    localPos = new Vector3(x, 0.4f, -0.1f);
                 }
                 else if (count == 3)
                 {
-                    float x = (i - 1) * 0.40f;
-                    localPos = new Vector3(x, 0f, -0.1f);
+                    float x = (i - 1) * 1.2f;
+                    localPos = new Vector3(x, 0.4f, -0.1f);
                 }
                 else
                 {
                     int cols = 3;
                     int col = i % cols;
                     int row = i / cols;
-                    float x = (col - 1f) * 0.38f;
-                    float y = -(row * 0.38f) + 0.18f;
+                    float x = (col - 1f) * 1.1f;
+                    float y = -(row * 1.1f) + 0.8f;
                     localPos = new Vector3(x, y, -0.1f);
                 }
 
                 iconGO.transform.localPosition = localPos;
-                iconGO.transform.localScale = Vector3.one * 0.45f;
+                iconGO.transform.localScale = Vector3.one * 0.18f;
 
                 var sr = iconGO.AddComponent<SpriteRenderer>();
                 sr.sprite = item.Icon;

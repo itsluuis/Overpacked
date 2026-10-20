@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f1_t3
   ItemName: Perno de Titanio
-  Icon: {fileID: 7180455659661723136, guid: 2811c96a3f057dd418407746006f14bb, type: 3}
+  Icon: {fileID: 7296519319407906850, guid: 693958dc4d9d53a4fbfa285591c1cd33, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 2
   Tier: 28

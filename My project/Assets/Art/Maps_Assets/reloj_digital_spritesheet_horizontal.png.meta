@@ -1,0 +1,574 @@
+fileFormatVersion: 2
+guid: c0442a663f5b4f6468baec776a437697
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 296281152535933775
+    second: reloj_digital_spritesheet_horizontal_0
+  - first:
+      213: 5169702441820690270
+    second: reloj_digital_spritesheet_horizontal_1
+  - first:
+      213: -512517180045301312
+    second: reloj_digital_spritesheet_horizontal_2
+  - first:
+      213: -7433195443825693794
+    second: reloj_digital_spritesheet_horizontal_3
+  - first:
+      213: -5603263386503609695
+    second: reloj_digital_spritesheet_horizontal_4
+  - first:
+      213: -8170445141326729262
+    second: reloj_digital_spritesheet_horizontal_5
+  - first:
+      213: 4498435129079756849
+    second: reloj_digital_spritesheet_horizontal_6
+  - first:
+      213: -5758673856741102637
+    second: reloj_digital_spritesheet_horizontal_7
+  - first:
+      213: 1580788901741894676
+    second: reloj_digital_spritesheet_horizontal_8
+  - first:
+      213: 3128010691307875666
+    second: reloj_digital_spritesheet_horizontal_9
+  - first:
+      213: 3335902197774127319
+    second: reloj_digital_spritesheet_horizontal_10
+  - first:
+      213: 4881726629623315165
+    second: reloj_digital_spritesheet_horizontal_11
+  - first:
+      213: 4264015692415163408
+    second: reloj_digital_spritesheet_horizontal_12
+  - first:
+      213: -2633836792077065401
+    second: reloj_digital_spritesheet_horizontal_13
+  - first:
+      213: -4525891380925619559
+    second: reloj_digital_spritesheet_horizontal_14
+  - first:
+      213: 1785168415159586188
+    second: reloj_digital_spritesheet_horizontal_15
+  - first:
+      213: 8546264998193365423
+    second: reloj_digital_spritesheet_horizontal_16
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_0
+      rect:
+        serializedVersion: 2
+        x: 6
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f433c82732a9c1400800000000000000
+      internalID: 296281152535933775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_1
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5711370bf87eb740800000000000000
+      internalID: 5169702441820690270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_2
+      rect:
+        serializedVersion: 2
+        x: 710
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c96d16175c23e8f0800000000000000
+      internalID: -512517180045301312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_3
+      rect:
+        serializedVersion: 2
+        x: 1062
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9ba7b8602cf7d890800000000000000
+      internalID: -7433195443825693794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_4
+      rect:
+        serializedVersion: 2
+        x: 1414
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a2008823a53d32b0800000000000000
+      internalID: -5603263386503609695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_5
+      rect:
+        serializedVersion: 2
+        x: 1766
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2df676ece6fbc9e80800000000000000
+      internalID: -8170445141326729262
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_6
+      rect:
+        serializedVersion: 2
+        x: 2118
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 138ffe98ae6ad6e30800000000000000
+      internalID: 4498435129079756849
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_7
+      rect:
+        serializedVersion: 2
+        x: 2470
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3db2e9753a41510b0800000000000000
+      internalID: -5758673856741102637
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_8
+      rect:
+        serializedVersion: 2
+        x: 2822
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41c9439712710f510800000000000000
+      internalID: 1580788901741894676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_9
+      rect:
+        serializedVersion: 2
+        x: 3174
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25da70d962de86b20800000000000000
+      internalID: 3128010691307875666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_10
+      rect:
+        serializedVersion: 2
+        x: 3526
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d095cfdf518b4e20800000000000000
+      internalID: 3335902197774127319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_11
+      rect:
+        serializedVersion: 2
+        x: 3878
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dda334151806fb340800000000000000
+      internalID: 4881726629623315165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_12
+      rect:
+        serializedVersion: 2
+        x: 4230
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 01cd8173ea3dc2b30800000000000000
+      internalID: 4264015692415163408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_13
+      rect:
+        serializedVersion: 2
+        x: 4582
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74364eb646bb27bd0800000000000000
+      internalID: -2633836792077065401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_14
+      rect:
+        serializedVersion: 2
+        x: 4934
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9922deba4cdc031c0800000000000000
+      internalID: -4525891380925619559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_15
+      rect:
+        serializedVersion: 2
+        x: 5286
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8d85d1273136c810800000000000000
+      internalID: 1785168415159586188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: reloj_digital_spritesheet_horizontal_16
+      rect:
+        serializedVersion: 2
+        x: 5638
+        y: 0
+        width: 346
+        height: 206
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa18bad5cbe6a9670800000000000000
+      internalID: 8546264998193365423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      reloj_digital_spritesheet_horizontal_0: 296281152535933775
+      reloj_digital_spritesheet_horizontal_1: 5169702441820690270
+      reloj_digital_spritesheet_horizontal_10: 3335902197774127319
+      reloj_digital_spritesheet_horizontal_11: 4881726629623315165
+      reloj_digital_spritesheet_horizontal_12: 4264015692415163408
+      reloj_digital_spritesheet_horizontal_13: -2633836792077065401
+      reloj_digital_spritesheet_horizontal_14: -4525891380925619559
+      reloj_digital_spritesheet_horizontal_15: 1785168415159586188
+      reloj_digital_spritesheet_horizontal_16: 8546264998193365423
+      reloj_digital_spritesheet_horizontal_2: -512517180045301312
+      reloj_digital_spritesheet_horizontal_3: -7433195443825693794
+      reloj_digital_spritesheet_horizontal_4: -5603263386503609695
+      reloj_digital_spritesheet_horizontal_5: -8170445141326729262
+      reloj_digital_spritesheet_horizontal_6: 4498435129079756849
+      reloj_digital_spritesheet_horizontal_7: -5758673856741102637
+      reloj_digital_spritesheet_horizontal_8: 1580788901741894676
+      reloj_digital_spritesheet_horizontal_9: 3128010691307875666
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

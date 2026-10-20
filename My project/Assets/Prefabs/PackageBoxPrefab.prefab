@@ -79,14 +79,14 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 6
+  m_SortingOrder: 8
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -4302949651632262982, guid: 1538cca17c3e64b49abd5fad797c98c1, type: 3}
+  m_Sprite: {fileID: -4323672224681067311, guid: fe114d55f762c54469bd46e8721a916f, type: 3}
   m_Color: {r: 0.25, g: 0.85, b: 1, a: 0.5}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.43, y: 1.43}
+  m_Size: {x: 9.3, y: 7.73}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -171,14 +171,14 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 5
+  m_SortingOrder: 7
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -4302949651632262982, guid: 1538cca17c3e64b49abd5fad797c98c1, type: 3}
+  m_Sprite: {fileID: -4323672224681067311, guid: fe114d55f762c54469bd46e8721a916f, type: 3}
   m_Color: {r: 1, g: 0.92, b: 0.35, a: 0.55}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.43, y: 1.43}
+  m_Size: {x: 9.3, y: 7.73}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -214,7 +214,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2041575369382423510}
@@ -268,14 +268,14 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -4302949651632262982, guid: 1538cca17c3e64b49abd5fad797c98c1, type: 3}
+  m_Sprite: {fileID: -4323672224681067311, guid: fe114d55f762c54469bd46e8721a916f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.43, y: 1.43}
+  m_Size: {x: 9.3, y: 7.73}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -319,13 +319,13 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.43, y: 1.43}
-    newSize: {x: 1.43, y: 1.43}
+    oldSize: {x: 9.3, y: 7.73}
+    newSize: {x: 9.3, y: 7.73}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 2.2, y: 2.2}
+  m_Size: {x: 10, y: 10}
   m_EdgeRadius: 0
 --- !u!114 &8333126225848265571
 MonoBehaviour:
@@ -342,6 +342,8 @@ MonoBehaviour:
   SlotIndex: -1
   State: 0
   Material: 0
+  OpenBoxSprite: {fileID: -4323672224681067311, guid: fe114d55f762c54469bd46e8721a916f, type: 3}
+  ClosedBoxSprite: {fileID: -6488620118619860271, guid: 8d7889d6ccf04c2439d7542a42a038a5, type: 3}
   ItemContainer: {fileID: 0}
   FoamOverlay: {fileID: 6061689394275225200}
   ThermalFilmOverlay: {fileID: 4392646758515080167}

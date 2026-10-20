@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f2_t1
   ItemName: Cable Simple
-  Icon: {fileID: -7451574120533608554, guid: f4f892c692231b3478e2e46938255dff, type: 3}
+  Icon: {fileID: -1662657706830774646, guid: 723a7b8f85278444f81b4af4678a169d, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 9
   Tier: 10

@@ -29,24 +29,24 @@ namespace LogiPack.Editor
             }
 
             // Familia 1: Fijación / Metales (Metal)
-            CreateItemSO("item_f1_t1", "Tornillo Estándar", "Fijación / Metales", ItemTier.Tier1_Basic, 10, "Assets/Sprites/item_f1_t1_screw.png", ItemAttributes.Metal, Color.white);
-            CreateItemSO("item_f1_t2", "Perno Galvanizado", "Fijación / Metales", ItemTier.Tier2_Medium, 18, "Assets/Sprites/item_f1_t2_galv_bolt.png", ItemAttributes.Metal, Color.white);
-            CreateItemSO("item_f1_t3", "Perno de Titanio", "Fijación / Metales", ItemTier.Tier3_Advanced, 28, "Assets/Sprites/item_f1_t3_titanium_bolt.png", ItemAttributes.Metal, Color.white);
+            CreateItemSO("item_f1_t1", "Tornillo Estándar", "Fijación / Metales", ItemTier.Tier1_Basic, 10, "Assets/Art/Items/tornillo_estandar.png", ItemAttributes.Metal, Color.white);
+            CreateItemSO("item_f1_t2", "Perno Galvanizado", "Fijación / Metales", ItemTier.Tier2_Medium, 18, "Assets/Art/Items/perno_galvanizado.png", ItemAttributes.Metal, Color.white);
+            CreateItemSO("item_f1_t3", "Perno de Titanio", "Fijación / Metales", ItemTier.Tier3_Advanced, 28, "Assets/Art/Items/perno_titanio.png", ItemAttributes.Metal, Color.white);
 
             // Familia 2: Electricidad / Herramientas (Electrical, Tool)
-            CreateItemSO("item_f2_t1", "Cable Simple", "Electricidad", ItemTier.Tier1_Basic, 10, "Assets/Sprites/item_f2_t1_wire.png", ItemAttributes.Electrical | ItemAttributes.Tool, Color.white);
-            CreateItemSO("item_f2_t2", "Enchufe Aislado", "Electricidad", ItemTier.Tier2_Medium, 18, "Assets/Sprites/item_f2_t2_plug.png", ItemAttributes.Electrical | ItemAttributes.Tool, Color.white);
-            CreateItemSO("item_f2_t3", "Batería de Litio", "Electricidad", ItemTier.Tier3_Advanced, 28, "Assets/Sprites/item_f2_t3_battery.png", ItemAttributes.Electrical | ItemAttributes.Tool, Color.white);
+            CreateItemSO("item_f2_t1", "Cable Simple", "Electricidad", ItemTier.Tier1_Basic, 10, "Assets/Art/Items/cable_simple.png", ItemAttributes.Electrical | ItemAttributes.Tool, Color.white);
+            CreateItemSO("item_f2_t2", "Enchufe Aislado", "Electricidad", ItemTier.Tier2_Medium, 18, "Assets/Art/Items/enchufe_aislado.png", ItemAttributes.Electrical | ItemAttributes.Tool, Color.white);
+            CreateItemSO("item_f2_t3", "Batería de Litio", "Electricidad", ItemTier.Tier3_Advanced, 28, "Assets/Art/Items/bateria_litio.png", ItemAttributes.Electrical | ItemAttributes.Tool, Color.white);
 
             // Familia 3: Óptica / Frágiles (Fragile)
-            CreateItemSO("item_f3_t1", "Vidrio Plano", "Óptica / Frágiles", ItemTier.Tier1_Basic, 10, "Assets/Sprites/item_f3_t1_glass_pane.png", ItemAttributes.Fragile, Color.white);
-            CreateItemSO("item_f3_t2", "Lente Halógeno", "Óptica / Frágiles", ItemTier.Tier2_Medium, 18, "Assets/Sprites/item_f3_t2_halogen_lens.png", ItemAttributes.Fragile, Color.white);
-            CreateItemSO("item_f3_t3", "Cristal de Laboratorio", "Óptica / Frágiles", ItemTier.Tier3_Advanced, 28, "Assets/Sprites/item_f3_t3_lab_crystal.png", ItemAttributes.Fragile, Color.white);
+            CreateItemSO("item_f3_t1", "Vidrio Plano", "Óptica / Frágiles", ItemTier.Tier1_Basic, 10, "Assets/Art/Items/vidrio_plano.png", ItemAttributes.Fragile, Color.white);
+            CreateItemSO("item_f3_t2", "Lente Halógeno", "Óptica / Frágiles", ItemTier.Tier2_Medium, 18, "Assets/Art/Items/lente_halogeno.png", ItemAttributes.Fragile, Color.white);
+            CreateItemSO("item_f3_t3", "Cristal de Laboratorio", "Óptica / Frágiles", ItemTier.Tier3_Advanced, 28, "Assets/Art/Items/cristal_laboratorio.png", ItemAttributes.Fragile, Color.white);
 
             // Familia 4: Textiles / Coberturas (Fabric)
-            CreateItemSO("item_f4_t1", "Tela de Algodón", "Textiles", ItemTier.Tier1_Basic, 10, "Assets/Sprites/item_f4_t1_cotton.png", ItemAttributes.Fabric, Color.white);
-            CreateItemSO("item_f4_t2", "Lona Impermeable", "Textiles", ItemTier.Tier2_Medium, 18, "Assets/Sprites/item_f4_t2_tarp.png", ItemAttributes.Fabric, Color.white);
-            CreateItemSO("item_f4_t3", "Tejido Ignífugo", "Textiles", ItemTier.Tier3_Advanced, 28, "Assets/Sprites/item_f4_t3_fireproof.png", ItemAttributes.Fabric, Color.white);
+            CreateItemSO("item_f4_t1", "Tela de Algodón", "Textiles", ItemTier.Tier1_Basic, 10, "Assets/Art/Items/tela_algodon.png", ItemAttributes.Fabric, Color.white);
+            CreateItemSO("item_f4_t2", "Lona Impermeable", "Textiles", ItemTier.Tier2_Medium, 18, "Assets/Art/Items/lona_impermeable.png", ItemAttributes.Fabric, Color.white);
+            CreateItemSO("item_f4_t3", "Tejido Ignífugo", "Textiles", ItemTier.Tier3_Advanced, 28, "Assets/Art/Items/tejido_ignifugo.png", ItemAttributes.Fabric, Color.white);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

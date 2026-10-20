@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f4_t1
   ItemName: "Tela de Algod\xF3n"
-  Icon: {fileID: -8866133602427026878, guid: 40918500e0e1ad34db0af04d33f1a587, type: 3}
+  Icon: {fileID: 8975980203714224284, guid: 30748188f9ba13745adf82b5bc0aac83, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 16
   Tier: 10

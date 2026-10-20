@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f1_t1
   ItemName: "Tornillo Est\xE1ndar"
-  Icon: {fileID: 5745658811247924244, guid: 2e3906fa13ae52c45a271054f450bedf, type: 3}
+  Icon: {fileID: 7480015678031346697, guid: 449a82af40356154f939de201fc53344, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 2
   Tier: 10

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f4_t2
   ItemName: Lona Impermeable
-  Icon: {fileID: 5115662124506789780, guid: df920a3aa8ccaf9458c4c461892b8807, type: 3}
+  Icon: {fileID: -457548917095736704, guid: 0c46ebe1a5d8eff4991285af234bd15f, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 16
   Tier: 18

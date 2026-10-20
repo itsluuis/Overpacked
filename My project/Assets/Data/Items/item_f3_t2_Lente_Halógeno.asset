@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogiPack.Core.ItemData
   ItemId: item_f3_t2
   ItemName: "Lente Hal\xF3geno"
-  Icon: {fileID: -2805678400211348412, guid: 695aebde5d18c8247b51be0688c1156c, type: 3}
+  Icon: {fileID: -5474903266247187676, guid: 5e05931078250294197b04d0cc9e3f41, type: 3}
   BaseColor: {r: 1, g: 1, b: 1, a: 1}
   Attributes: 4
   Tier: 18
