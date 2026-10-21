@@ -81,17 +81,17 @@ namespace LogiPack.Editor
             leftRT.anchorMax = new Vector2(0.5f, 0.5f);
             leftRT.pivot = new Vector2(0.5f, 0.5f);
             leftRT.anchoredPosition = new Vector2(-460, 0);
-            leftRT.sizeDelta = new Vector2(700, 750);
+            leftRT.sizeDelta = new Vector2(850, 950);
 
             var leftCG = leftHemiGO.AddComponent<CanvasGroup>();
             menuController.LeftHemisphereGroup = leftCG;
 
-            // Logo Overpacked (2x y ensanchado para verse natural)
+            // Logo Overpacked (Elevado en el tercio superior, 3x más grande e imponente)
             GameObject logoGO = new GameObject("Logo_Overpacked");
             logoGO.transform.SetParent(leftHemiGO.transform, false);
             var logoRT = logoGO.AddComponent<RectTransform>();
-            logoRT.anchoredPosition = new Vector2(0, 210);
-            logoRT.sizeDelta = new Vector2(650, 270);
+            logoRT.anchoredPosition = new Vector2(0, 320);
+            logoRT.sizeDelta = new Vector2(760, 310);
             var logoImg = logoGO.AddComponent<Image>();
             logoImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/logo_over_packed.png");
             logoImg.preserveAspect = true;
@@ -100,14 +100,15 @@ namespace LogiPack.Editor
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
             Sprite greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
 
-            // Botón 1: JUGAR (Texto negro carbón legible, fuente 38px [+10px])
-            menuController.PlayButton = CreateMenuButton(leftHemiGO.transform, "PlayButton", new Vector2(0, 30), new Vector2(360, 80), yellowBtnSprite, "JUGAR", fredokaBold, 38);
+            // Botones Principales (Ampliados 2x con texto negro carbón legible, fuente 46px)
+            // Botón 1: JUGAR
+            menuController.PlayButton = CreateMenuButton(leftHemiGO.transform, "PlayButton", new Vector2(0, 50), new Vector2(520, 125), yellowBtnSprite, "JUGAR", fredokaBold, 46);
 
             // Botón 2: OPCIONES
-            menuController.OptionsButton = CreateMenuButton(leftHemiGO.transform, "OptionsButton", new Vector2(0, -75), new Vector2(360, 80), yellowBtnSprite, "OPCIONES", fredokaBold, 38);
+            menuController.OptionsButton = CreateMenuButton(leftHemiGO.transform, "OptionsButton", new Vector2(0, -90), new Vector2(520, 125), yellowBtnSprite, "OPCIONES", fredokaBold, 46);
 
             // Botón 3: SALIR
-            menuController.QuitButton = CreateMenuButton(leftHemiGO.transform, "QuitButton", new Vector2(0, -180), new Vector2(360, 80), yellowBtnSprite, "SALIR", fredokaBold, 38);
+            menuController.QuitButton = CreateMenuButton(leftHemiGO.transform, "QuitButton", new Vector2(0, -230), new Vector2(520, 125), yellowBtnSprite, "SALIR", fredokaBold, 46);
 
             // 7. Cuaderno Interactivo de Modos (Hemisferio Derecho)
             GameObject cuadernoRootGO = new GameObject("Cuaderno_Interactivo");

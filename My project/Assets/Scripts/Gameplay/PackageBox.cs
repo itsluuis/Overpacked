@@ -295,15 +295,68 @@ namespace LogiPack.Gameplay
             }
         }
 
+        private SpriteRenderer[] _feedbackSlots;
+
+        private void EnsureFeedbackSlots()
+        {
+            if (ItemContainer == null)
+            {
+                var existing = transform.Find("BoxItemIcons");
+                if (existing != null)
+                {
+                    ItemContainer = existing;
+                }
+                else
+                {
+                    GameObject containerGO = new GameObject("BoxItemIcons");
+                    containerGO.transform.parent = transform;
+                    containerGO.transform.localPosition = Vector3.zero;
+                    ItemContainer = containerGO.transform;
+                }
+            }
+
+            if (_feedbackSlots != null && _feedbackSlots.Length == MAX_CAPACITY)
+            {
+                bool allValid = true;
+                for (int i = 0; i < MAX_CAPACITY; i++)
+                {
+                    if (_feedbackSlots[i] == null) { allValid = false; break; }
+                }
+                if (allValid) return;
+            }
+
+            _feedbackSlots = new SpriteRenderer[MAX_CAPACITY];
+            for (int i = 0; i < MAX_CAPACITY; i++)
+            {
+                string slotName = $"Slot_{i}";
+                Transform existingSlot = ItemContainer.Find(slotName);
+                GameObject slotGO;
+                SpriteRenderer sr;
+
+                if (existingSlot != null)
+                {
+                    slotGO = existingSlot.gameObject;
+                    sr = slotGO.GetComponent<SpriteRenderer>();
+                    if (sr == null) sr = slotGO.AddComponent<SpriteRenderer>();
+                }
+                else
+                {
+                    slotGO = new GameObject(slotName);
+                    slotGO.transform.parent = ItemContainer;
+                    slotGO.transform.localScale = Vector3.one * 0.038f;
+                    sr = slotGO.AddComponent<SpriteRenderer>();
+                }
+
+                sr.sortingOrder = 10;
+                slotGO.SetActive(false);
+                _feedbackSlots[i] = sr;
+            }
+        }
+
         private void UpdateVisualContents()
         {
-            if (ItemContainer == null) return;
-
-            foreach (Transform child in ItemContainer)
-            {
-                child.SetParent(null);
-                Destroy(child.gameObject);
-            }
+            EnsureFeedbackSlots();
+            if (_feedbackSlots == null || ItemContainer == null) return;
 
             var itemsList = new List<ItemData>();
             foreach (var kvp in Contents)
@@ -314,27 +367,41 @@ namespace LogiPack.Gameplay
                 }
             }
 
-            int count = itemsList.Count;
-            if (count == 0) return;
+            int count = Mathf.Min(itemsList.Count, MAX_CAPACITY);
 
-            // Malla horizontal de feedback visual flotando encima de la caja
-            // Espaciado uniforme para hasta 5 items centrados horizontalmente sin encimarse
-            float slotSpacing = 0.40f;
+            if (count == 0)
+            {
+                for (int i = 0; i < MAX_CAPACITY; i++)
+                {
+                    if (_feedbackSlots[i] != null)
+                        _feedbackSlots[i].gameObject.SetActive(false);
+                }
+                return;
+            }
+
+            // Malla horizontal de feedback visual centrada sobre la abertura de la caja
+            // Espaciado uniforme para hasta 5 casillas fijas sin solapamiento ni clones fantasma
+            float slotSpacing = 0.35f;
             float startX = -((count - 1) * slotSpacing) * 0.5f;
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < MAX_CAPACITY; i++)
             {
-                ItemData item = itemsList[i];
-                GameObject iconGO = new GameObject($"FeedbackSlot_{i}_{item.ItemName}");
-                iconGO.transform.parent = ItemContainer;
+                if (i < count)
+                {
+                    var slot = _feedbackSlots[i];
+                    slot.gameObject.SetActive(true);
+                    slot.sprite = itemsList[i].Icon;
+                    slot.sortingOrder = 10;
 
-                float xPos = startX + (i * slotSpacing);
-                iconGO.transform.localPosition = new Vector3(xPos, 0.95f, -0.1f);
-                iconGO.transform.localScale = Vector3.one * 0.055f; // Íconos pequeños respecto a la caja
-
-                var sr = iconGO.AddComponent<SpriteRenderer>();
-                sr.sprite = item.Icon;
-                sr.sortingOrder = 10;
+                    float xPos = startX + (i * slotSpacing);
+                    slot.transform.localPosition = new Vector3(xPos, 0.65f, -0.1f);
+                    slot.transform.localScale = Vector3.one * 0.038f;
+                }
+                else
+                {
+                    if (_feedbackSlots[i] != null)
+                        _feedbackSlots[i].gameObject.SetActive(false);
+                }
             }
         }
 

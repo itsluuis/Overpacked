@@ -447,7 +447,7 @@ namespace LogiPack.Editor
             detRT.anchorMax = new Vector2(0.5f, 0f);
             detRT.pivot = new Vector2(1f, 1f);
             detRT.anchoredPosition = new Vector2(90, -10);
-            detRT.sizeDelta = new Vector2(440, 440);
+            detRT.sizeDelta = new Vector2(450, 460);
 
             var detCanvas = detailsGO.AddComponent<Canvas>();
             detCanvas.overrideSorting = true;
@@ -465,43 +465,45 @@ namespace LogiPack.Editor
             detHeaderText.alignment = TextAnchor.UpperLeft;
             detHeaderText.horizontalOverflow = HorizontalWrapMode.Wrap;
             var detHeaderRT = detHeaderGO.GetComponent<RectTransform>();
-            detHeaderRT.anchorMin = new Vector2(0, 0.72f);
+            detHeaderRT.anchorMin = new Vector2(0, 0.74f);
             detHeaderRT.anchorMax = new Vector2(1, 0.94f);
-            detHeaderRT.offsetMin = new Vector2(40, 0);
-            detHeaderRT.offsetMax = new Vector2(-40, -10);
+            detHeaderRT.offsetMin = new Vector2(35, 0);
+            detHeaderRT.offsetMax = new Vector2(-35, -10);
             cardUI.DetailsHeaderText = detHeaderText;
 
-            // Condición Lógica Text (+10px)
+            // Condición Lógica Text / Embalaje Solicitado
             GameObject condGO = new GameObject("ConditionText");
             condGO.transform.SetParent(detailsGO.transform, false);
             var condText = condGO.AddComponent<Text>();
             condText.font = fredokaBold;
-            condText.fontSize = 26; // +10px (era 16-18)
+            condText.fontSize = 22; // Tamaño armónico para 2-3 líneas
             condText.fontStyle = FontStyle.Bold;
             condText.color = new Color(0.16f, 0.12f, 0.08f);
             condText.alignment = TextAnchor.UpperLeft;
             condText.horizontalOverflow = HorizontalWrapMode.Wrap;
             var condRT = condGO.GetComponent<RectTransform>();
-            condRT.anchorMin = new Vector2(0, 0.40f);
-            condRT.anchorMax = new Vector2(1, 0.72f);
-            condRT.offsetMin = new Vector2(40, 0);
-            condRT.offsetMax = new Vector2(-40, -5);
+            condRT.anchorMin = new Vector2(0, 0.58f);
+            condRT.anchorMax = new Vector2(1, 0.74f);
+            condRT.offsetMin = new Vector2(35, 0);
+            condRT.offsetMax = new Vector2(-35, -5);
             cardUI.ConditionText = condText;
 
-            // Items Requeridos / Fórmula Text (+10px)
+            // Items Requeridos / Fórmula de Lote y Candidatos Válidos
             GameObject reqsGO = new GameObject("ItemsListText");
             reqsGO.transform.SetParent(detailsGO.transform, false);
             var reqsText = reqsGO.AddComponent<Text>();
             reqsText.font = fredokaBold;
-            reqsText.fontSize = 25; // +10px (era 15-17)
+            reqsText.fontSize = 21; // Espacio suficiente para 5-6 líneas sin cortes
+            reqsText.lineSpacing = 1.05f;
             reqsText.color = new Color(0.20f, 0.15f, 0.10f);
             reqsText.alignment = TextAnchor.UpperLeft;
             reqsText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            reqsText.verticalOverflow = VerticalWrapMode.Overflow;
             var reqsRT = reqsGO.GetComponent<RectTransform>();
-            reqsRT.anchorMin = new Vector2(0, 0.05f);
-            reqsRT.anchorMax = new Vector2(1, 0.40f);
-            reqsRT.offsetMin = new Vector2(40, 10);
-            reqsRT.offsetMax = new Vector2(-40, -5);
+            reqsRT.anchorMin = new Vector2(0, 0.04f);
+            reqsRT.anchorMax = new Vector2(1, 0.58f);
+            reqsRT.offsetMin = new Vector2(35, 8);
+            reqsRT.offsetMax = new Vector2(-35, -5);
             cardUI.ItemsListText = reqsText;
 
             cardUI.DetailsPanel = detailsGO;
@@ -748,8 +750,9 @@ namespace LogiPack.Editor
             // 1. Header Title Text (+10px)
             dayEndUI.HeaderTitleText = CreateModalText(cardPanelGO.transform, "HeaderTitleText", new Vector2(0, 215), new Vector2(700, 50), 34, fredokaBold, darkReportColor, TextAnchor.MiddleCenter);
 
-            // 2. Stars Display Text (+10px)
-            dayEndUI.StarsDisplayText = CreateModalText(cardPanelGO.transform, "StarsDisplayText", new Vector2(0, 155), new Vector2(700, 60), 58, fredokaBold, new Color(0.95f, 0.75f, 0.10f), TextAnchor.MiddleCenter);
+            // 2. Stars Display Text (+10px) - Altura 80px y Overflow para soportar glifos dorados de 58px sin truncamiento
+            dayEndUI.StarsDisplayText = CreateModalText(cardPanelGO.transform, "StarsDisplayText", new Vector2(0, 150), new Vector2(700, 80), 58, fredokaBold, new Color(0.95f, 0.75f, 0.10f), TextAnchor.MiddleCenter);
+            dayEndUI.StarsDisplayText.verticalOverflow = VerticalWrapMode.Overflow;
 
             // 3. Rating Title Text (+10px)
             dayEndUI.RatingTitleText = CreateModalText(cardPanelGO.transform, "RatingTitleText", new Vector2(0, 100), new Vector2(700, 40), 32, fredokaBold, darkReportColor, TextAnchor.MiddleCenter);

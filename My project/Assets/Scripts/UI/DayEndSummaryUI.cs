@@ -108,6 +108,7 @@ namespace LogiPack.UI
             if (StarsDisplayText != null)
             {
                 StarsDisplayText.fontSize = 58;
+                StarsDisplayText.verticalOverflow = VerticalWrapMode.Overflow;
                 string starsStr = "";
                 for (int i = 0; i < 3; i++)
                 {
