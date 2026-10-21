@@ -140,10 +140,15 @@ namespace LogiPack.Editor
             var packMgr = managersGO.AddComponent<PackagingZoneManager>();
             var orderMgr = managersGO.AddComponent<OrderManager>();
             var boxSpawner = managersGO.AddComponent<BoxSpawner>();
+            var infiniteCtrl = managersGO.AddComponent<InfiniteModeController>();
 
             orderMgr.Environment = envMgr;
             orderMgr.Economy = ecoMgr;
             orderMgr.PackagingZone = packMgr;
+
+            infiniteCtrl.Economy = ecoMgr;
+            infiniteCtrl.Orders = orderMgr;
+            infiniteCtrl.Packaging = packMgr;
 
             // Controlador de Visuales Ambientales
             var envVisuals = managersGO.AddComponent<HUDEnvironmentVisuals>();
@@ -577,6 +582,95 @@ namespace LogiPack.Editor
             moneyTxt.text = "$0";
             hudManager.MoneyText = moneyTxt;
 
+            // Marco de Cuota para Jornada Infinita (Centro Superior con marco_dinero_plateado)
+            GameObject quotaGO = new GameObject("Marco_Cuota_Infinita");
+            quotaGO.transform.SetParent(canvasGO.transform, false);
+            var quotaRT = quotaGO.AddComponent<RectTransform>();
+            quotaRT.anchorMin = new Vector2(0.5f, 1f);
+            quotaRT.anchorMax = new Vector2(0.5f, 1f);
+            quotaRT.pivot = new Vector2(0.5f, 1f);
+            quotaRT.anchoredPosition = new Vector2(0, -18);
+            quotaRT.sizeDelta = new Vector2(340, 85);
+
+            var quotaImg = quotaGO.AddComponent<Image>();
+            quotaImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/marco_dinero_plateado.png");
+
+            // 1. Ronda Text (zona superior derecha de la moneda)
+            GameObject roundTxtGO = new GameObject("QuotaRoundText");
+            roundTxtGO.transform.SetParent(quotaGO.transform, false);
+            var roundTxtRT = roundTxtGO.AddComponent<RectTransform>();
+            roundTxtRT.anchorMin = new Vector2(0.5f, 0.5f);
+            roundTxtRT.anchorMax = new Vector2(0.5f, 0.5f);
+            roundTxtRT.pivot = new Vector2(0.5f, 0.5f);
+            roundTxtRT.anchoredPosition = new Vector2(-20, 16);
+            roundTxtRT.sizeDelta = new Vector2(130, 24);
+            var roundTxt = roundTxtGO.AddComponent<Text>();
+            roundTxt.font = fredokaBold;
+            roundTxt.fontSize = 15;
+            roundTxt.fontStyle = FontStyle.Bold;
+            roundTxt.color = new Color(1f, 0.85f, 0.2f);
+            roundTxt.alignment = TextAnchor.MiddleCenter;
+            roundTxt.text = "RONDA 1";
+
+            // 2. Temporizador de Ronda (esquina superior derecha del marco)
+            GameObject timerTxtGO = new GameObject("RoundTimerText");
+            timerTxtGO.transform.SetParent(quotaGO.transform, false);
+            var timerTxtRT = timerTxtGO.AddComponent<RectTransform>();
+            timerTxtRT.anchorMin = new Vector2(0.5f, 0.5f);
+            timerTxtRT.anchorMax = new Vector2(0.5f, 0.5f);
+            timerTxtRT.pivot = new Vector2(0.5f, 0.5f);
+            timerTxtRT.anchoredPosition = new Vector2(85, 16);
+            timerTxtRT.sizeDelta = new Vector2(90, 24);
+            var timerTxt = timerTxtGO.AddComponent<Text>();
+            timerTxt.font = fredokaBold;
+            timerTxt.fontSize = 15;
+            timerTxt.fontStyle = FontStyle.Bold;
+            timerTxt.color = Color.white;
+            timerTxt.alignment = TextAnchor.MiddleCenter;
+            timerTxt.text = "60s";
+
+            // 3. Monto de Cuota (centro derecho del marco, libre de la moneda)
+            GameObject quotaAmountTxtGO = new GameObject("QuotaAmountText");
+            quotaAmountTxtGO.transform.SetParent(quotaGO.transform, false);
+            var quotaAmountTxtRT = quotaAmountTxtGO.AddComponent<RectTransform>();
+            quotaAmountTxtRT.anchorMin = new Vector2(0.5f, 0.5f);
+            quotaAmountTxtRT.anchorMax = new Vector2(0.5f, 0.5f);
+            quotaAmountTxtRT.pivot = new Vector2(0.5f, 0.5f);
+            quotaAmountTxtRT.anchoredPosition = new Vector2(30, -12);
+            quotaAmountTxtRT.sizeDelta = new Vector2(230, 32);
+            var quotaAmountTxt = quotaAmountTxtGO.AddComponent<Text>();
+            quotaAmountTxt.font = fredokaBold;
+            quotaAmountTxt.fontSize = 22;
+            quotaAmountTxt.fontStyle = FontStyle.Bold;
+            quotaAmountTxt.color = Color.white;
+            quotaAmountTxt.alignment = TextAnchor.MiddleCenter;
+            quotaAmountTxt.text = "$0 / $500";
+
+            // 4. Badge de Racha (flotando debajo del marco)
+            GameObject streakTxtGO = new GameObject("StreakBadgeText");
+            streakTxtGO.transform.SetParent(quotaGO.transform, false);
+            var streakTxtRT = streakTxtGO.AddComponent<RectTransform>();
+            streakTxtRT.anchorMin = new Vector2(0.5f, 0.5f);
+            streakTxtRT.anchorMax = new Vector2(0.5f, 0.5f);
+            streakTxtRT.pivot = new Vector2(0.5f, 0.5f);
+            streakTxtRT.anchoredPosition = new Vector2(0, -62);
+            streakTxtRT.sizeDelta = new Vector2(250, 26);
+            var streakTxt = streakTxtGO.AddComponent<Text>();
+            streakTxt.font = fredokaBold;
+            streakTxt.fontSize = 15;
+            streakTxt.fontStyle = FontStyle.Bold;
+            streakTxt.color = new Color(1f, 0.6f, 0.1f);
+            streakTxt.alignment = TextAnchor.MiddleCenter;
+            streakTxt.text = "🔥 RACHA x1.5";
+            streakTxtGO.SetActive(false);
+
+            // Conectar referencias a InfiniteModeController
+            infiniteCtrl.QuotaPanel = quotaGO;
+            infiniteCtrl.QuotaRoundText = roundTxt;
+            infiniteCtrl.RoundTimerText = timerTxt;
+            infiniteCtrl.QuotaAmountText = quotaAmountTxt;
+            infiniteCtrl.StreakBadgeText = streakTxt;
+
             // Estación de Botones de Embalaje (En la base de la mesa de armado)
             GameObject stationGO = new GameObject("PackagingStation");
             stationGO.transform.SetParent(canvasGO.transform, false);
@@ -642,6 +736,7 @@ namespace LogiPack.Editor
             dayEndUI.Orders = orderMgr;
             dayEndUI.ContentPanel = cardPanelGO;
             dayEndUI.OverlayBackground = modalOverlayImg;
+            infiniteCtrl.SummaryUI = dayEndUI;
 
             Color darkReportColor = new Color(0.18f, 0.12f, 0.08f);
 
@@ -672,18 +767,22 @@ namespace LogiPack.Editor
             // 6. Quotas Status Text
             dayEndUI.QuotasStatusText = CreateModalText(cardPanelGO.transform, "QuotasStatusText", new Vector2(0, -145), new Vector2(680, 45), 16, fredokaBold, new Color(0.3f, 0.3f, 0.3f), TextAnchor.MiddleCenter);
 
-            // 7. Botón Siguiente Turno (Usando boton_verde_rectangular)
+            // 7. Botones de Acción (Estilo Overpacked)
+            Sprite greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
+            Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
+
+            // Botón A: Siguiente Jornada (Modo Tutorial / Base) - Izquierda
             GameObject nextDayBtnGO = new GameObject("NextDayButton");
             nextDayBtnGO.transform.SetParent(cardPanelGO.transform, false);
             var btnRT = nextDayBtnGO.AddComponent<RectTransform>();
             btnRT.anchorMin = new Vector2(0.5f, 0.5f);
             btnRT.anchorMax = new Vector2(0.5f, 0.5f);
             btnRT.pivot = new Vector2(0.5f, 0.5f);
-            btnRT.anchoredPosition = new Vector2(0, -215);
-            btnRT.sizeDelta = new Vector2(340, 60);
+            btnRT.anchoredPosition = new Vector2(-155, -215);
+            btnRT.sizeDelta = new Vector2(290, 56);
 
             var nextBtnImg = nextDayBtnGO.AddComponent<Image>();
-            nextBtnImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
+            nextBtnImg.sprite = greenBtnSprite;
             nextBtnImg.color = Color.white;
 
             var nextBtn = nextDayBtnGO.AddComponent<Button>();
@@ -700,12 +799,81 @@ namespace LogiPack.Editor
 
             var btnTxt = btnTxtGO.AddComponent<Text>();
             btnTxt.font = fredokaBold;
-            btnTxt.fontSize = 18;
+            btnTxt.fontSize = 17;
             btnTxt.fontStyle = FontStyle.Bold;
             btnTxt.color = Color.white;
             btnTxt.alignment = TextAnchor.MiddleCenter;
             btnTxt.text = "SIGUIENTE JORNADA ▶";
             dayEndUI.NextDayButtonText = btnTxt;
+
+            // Botón B: Volver a Jugar (Modo Infinito) - Izquierda
+            GameObject retryInfBtnGO = new GameObject("RetryInfiniteButton");
+            retryInfBtnGO.transform.SetParent(cardPanelGO.transform, false);
+            var retryRT = retryInfBtnGO.AddComponent<RectTransform>();
+            retryRT.anchorMin = new Vector2(0.5f, 0.5f);
+            retryRT.anchorMax = new Vector2(0.5f, 0.5f);
+            retryRT.pivot = new Vector2(0.5f, 0.5f);
+            retryRT.anchoredPosition = new Vector2(-155, -215);
+            retryRT.sizeDelta = new Vector2(290, 56);
+
+            var retryImg = retryInfBtnGO.AddComponent<Image>();
+            retryImg.sprite = greenBtnSprite;
+            retryImg.color = Color.white;
+
+            var retryBtn = retryInfBtnGO.AddComponent<Button>();
+            retryBtn.targetGraphic = retryImg;
+            dayEndUI.RetryInfiniteButton = retryBtn;
+
+            GameObject retryTxtGO = new GameObject("Text");
+            retryTxtGO.transform.SetParent(retryInfBtnGO.transform, false);
+            var retryTxtRT = retryTxtGO.AddComponent<RectTransform>();
+            retryTxtRT.anchorMin = Vector2.zero;
+            retryTxtRT.anchorMax = Vector2.one;
+            retryTxtRT.offsetMin = Vector2.zero;
+            retryTxtRT.offsetMax = Vector2.zero;
+
+            var retryTxt = retryTxtGO.AddComponent<Text>();
+            retryTxt.font = fredokaBold;
+            retryTxt.fontSize = 17;
+            retryTxt.fontStyle = FontStyle.Bold;
+            retryTxt.color = Color.white;
+            retryTxt.alignment = TextAnchor.MiddleCenter;
+            retryTxt.text = "▶ VOLVER A JUGAR";
+            retryInfBtnGO.SetActive(false);
+
+            // Botón C: Volver al Menú Principal - Derecha
+            GameObject returnMenuBtnGO = new GameObject("ReturnToMenuButton");
+            returnMenuBtnGO.transform.SetParent(cardPanelGO.transform, false);
+            var returnRT = returnMenuBtnGO.AddComponent<RectTransform>();
+            returnRT.anchorMin = new Vector2(0.5f, 0.5f);
+            returnRT.anchorMax = new Vector2(0.5f, 0.5f);
+            returnRT.pivot = new Vector2(0.5f, 0.5f);
+            returnRT.anchoredPosition = new Vector2(155, -215);
+            returnRT.sizeDelta = new Vector2(290, 56);
+
+            var returnImg = returnMenuBtnGO.AddComponent<Image>();
+            returnImg.sprite = yellowBtnSprite;
+            returnImg.color = Color.white;
+
+            var returnBtn = returnMenuBtnGO.AddComponent<Button>();
+            returnBtn.targetGraphic = returnImg;
+            dayEndUI.ReturnToMenuButton = returnBtn;
+
+            GameObject returnTxtGO = new GameObject("Text");
+            returnTxtGO.transform.SetParent(returnMenuBtnGO.transform, false);
+            var returnTxtRT = returnTxtGO.AddComponent<RectTransform>();
+            returnTxtRT.anchorMin = Vector2.zero;
+            returnTxtRT.anchorMax = Vector2.one;
+            returnTxtRT.offsetMin = Vector2.zero;
+            returnTxtRT.offsetMax = Vector2.zero;
+
+            var returnTxt = returnTxtGO.AddComponent<Text>();
+            returnTxt.font = fredokaBold;
+            returnTxt.fontSize = 17;
+            returnTxt.fontStyle = FontStyle.Bold;
+            returnTxt.color = Color.white;
+            returnTxt.alignment = TextAnchor.MiddleCenter;
+            returnTxt.text = "🏠 MENÚ PRINCIPAL";
 
             modalOverlayImg.enabled = false;
             cardPanelGO.SetActive(false);

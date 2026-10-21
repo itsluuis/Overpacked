@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using LogiPack.Core;
 using LogiPack.Logic;
@@ -23,6 +24,8 @@ namespace LogiPack.Managers
         public PackagingZoneManager PackagingZone;
 
         public readonly List<Order> ActiveOrders = new List<Order>();
+
+        public event Action<Order> OnOrderExpired;
 
         private float _spawnTimer;
 
@@ -65,6 +68,7 @@ namespace LogiPack.Managers
                         Economy.DeductPenalty(penalty);
                     }
                     ActiveOrders.RemoveAt(i);
+                    OnOrderExpired?.Invoke(order);
                 }
             }
 

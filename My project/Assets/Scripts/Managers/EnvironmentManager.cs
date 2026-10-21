@@ -61,6 +61,30 @@ namespace LogiPack.Managers
 
             _elapsedRealTime += Time.deltaTime;
 
+            // En Modo Infinito, el ambiente rota dinámicamente sin finalizar a las 22:00 (el fin lo decide InfiniteModeController)
+            if (LogiPack.Core.GameModeManager.IsInfiniteMode)
+            {
+                int currentHourStep = START_HOUR + Mathf.FloorToInt(_elapsedRealTime / SECONDS_PER_HOUR);
+                if (currentHourStep > _currentHourInt)
+                {
+                    _currentHourInt = currentHourStep;
+                    int wrappedHour = START_HOUR + ((currentHourStep - START_HOUR) % (END_HOUR - START_HOUR + 1));
+                    CurrentState.CurrentHour = wrappedHour;
+                    CurrentState.TimeOfDay = wrappedHour switch
+                    {
+                        < 12 => TimeOfDay.Morning,
+                        < 19 => TimeOfDay.Afternoon,
+                        _ => TimeOfDay.Night
+                    };
+                    CurrentState.Weather = NextWeather;
+                    CurrentState.Temperature = NextTemperature;
+                    NextWeather = PickNextWeather(CurrentState.Weather);
+                    NextTemperature = PickNextTemperature(CurrentState.Temperature);
+                    OnEnvironmentChanged?.Invoke(CurrentState);
+                }
+                return;
+            }
+
             // Calcular hora de juego actual (discreta, de hora en hora: 6, 7, 8... 22)
             int targetHour = START_HOUR + Mathf.FloorToInt(_elapsedRealTime / SECONDS_PER_HOUR);
 

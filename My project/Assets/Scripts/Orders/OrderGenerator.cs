@@ -27,15 +27,19 @@ namespace LogiPack.Orders
 
         public static Order GenerateRandomOrder(EnvironmentState currentState, List<ItemData> availableItems)
         {
-            // 15% de probabilidad: Orden Especial de Empresa (Teoría de Conjuntos)
-            if (UnityEngine.Random.value < 0.15f && availableItems != null && availableItems.Count > 0)
+            // Probabilidad de Orden Especial de Empresa: 15% en Tutorial, 30% en Modo Infinito
+            float specialProb = GameModeManager.IsInfiniteMode ? 0.30f : 0.15f;
+            if (UnityEngine.Random.value < specialProb && availableItems != null && availableItems.Count > 0)
             {
-                return GenerateCompanyOrder(availableItems);
+                var specialOrder = GenerateCompanyOrder(availableItems);
+                if (GameModeManager.IsInfiniteMode) specialOrder.RemainingTime *= 1.20f;
+                return specialOrder;
             }
 
             string orderId = $"ORD-#{_orderSequence++:D3}";
             int reward = UnityEngine.Random.Range(30, 75);
             float duration = UnityEngine.Random.Range(35f, 60f);
+            if (GameModeManager.IsInfiniteMode) duration *= 1.20f; // +20% tolerancia de entrega
 
             // 1. Generar Requerimientos de items (entre 1 y 3 tipos de item)
             var reqs = new List<OrderItemRequirement>();

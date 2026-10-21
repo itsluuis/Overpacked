@@ -12,6 +12,7 @@ CONTINUIDAD_SESIONES.md
 *.tmp
 scratch/
 **/Screenshots/
+**/Screenshots.meta
 
 # --- Unity Generated & Cache Directories ---
 **/[Ll]ibrary/

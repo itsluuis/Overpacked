@@ -28,15 +28,25 @@ namespace LogiPack.UI
         public Text FinancialBreakdownText;
         public Text QuotasStatusText;
 
-        [Header("Botón de Acción")]
+        [Header("Botones de Acción")]
         public Button NextDayButton;
         public Text NextDayButtonText;
+        public Button ReturnToMenuButton;
+        public Button RetryInfiniteButton;
 
         private void Awake()
         {
             if (NextDayButton != null)
             {
                 NextDayButton.onClick.AddListener(OnClickNextDay);
+            }
+            if (ReturnToMenuButton != null)
+            {
+                ReturnToMenuButton.onClick.AddListener(OnClickReturnToMenu);
+            }
+            if (RetryInfiniteButton != null)
+            {
+                RetryInfiniteButton.onClick.AddListener(OnClickRetryInfinite);
             }
         }
 
@@ -162,6 +172,61 @@ namespace LogiPack.UI
             {
                 NextDayButtonText.text = "▶ INICIAR SIGUIENTE JORNADA (06:00 AM)";
             }
+
+            if (NextDayButton != null) NextDayButton.gameObject.SetActive(true);
+            if (RetryInfiniteButton != null) RetryInfiniteButton.gameObject.SetActive(false);
+            if (ReturnToMenuButton != null) ReturnToMenuButton.gameObject.SetActive(true);
+        }
+
+        public void RenderInfiniteSummary(int roundsCleared, System.Collections.Generic.List<int> roundEarnings, int totalEarnings)
+        {
+            if (HeaderTitleText != null)
+            {
+                HeaderTitleText.text = "💥 FIN DE LA JORNADA INFINITA\n<size=15>CUOTA NO ALCANZADA A TIEMPO</size>";
+            }
+
+            if (StarsDisplayText != null)
+            {
+                StarsDisplayText.text = $"🏆 RONDAS SUPERADAS: {roundsCleared}";
+            }
+
+            if (RatingTitleText != null)
+            {
+                RatingTitleText.text = roundsCleared >= 5 ? "¡DESEMPEÑO LEGENDARIO!" : (roundsCleared >= 3 ? "¡EXCELENTE RESISTENCIA!" : "TURNO FINALIZADO");
+                RatingTitleText.color = new Color(1f, 0.85f, 0.2f);
+            }
+
+            if (PrestigeBadgeText != null)
+            {
+                PrestigeBadgeText.text = $"Modo Arcade Infinito • Rondas: {roundsCleared}";
+            }
+
+            if (FinancialBreakdownText != null)
+            {
+                string breakdown = "<b>Desglose de Ganancias por Ronda:</b>\n";
+                if (roundEarnings != null && roundEarnings.Count > 0)
+                {
+                    for (int i = 0; i < roundEarnings.Count; i++)
+                    {
+                        breakdown += $"  • Ronda {i + 1}: ${roundEarnings[i]}\n";
+                    }
+                }
+                else
+                {
+                    breakdown += "  • Ronda 1: $0\n";
+                }
+                breakdown += $"\n<b>TOTAL OBTENIDO: <color=#00FF66>${totalEarnings}</color></b>";
+                FinancialBreakdownText.text = breakdown;
+            }
+
+            if (QuotasStatusText != null)
+            {
+                QuotasStatusText.text = $"Rondas totales completadas: {roundsCleared}\n¡Buen intento! Supera tu récord en la próxima partida.";
+            }
+
+            if (NextDayButton != null) NextDayButton.gameObject.SetActive(false);
+            if (RetryInfiniteButton != null) RetryInfiniteButton.gameObject.SetActive(true);
+            if (ReturnToMenuButton != null) ReturnToMenuButton.gameObject.SetActive(true);
         }
 
         public void OnClickNextDay()
@@ -183,6 +248,26 @@ namespace LogiPack.UI
             if (Environment != null)
             {
                 Environment.RestartDay(advanceDayCount: true);
+            }
+        }
+
+        public void OnClickReturnToMenu()
+        {
+            Debug.Log("[DayEndSummaryUI] Regresando al Menú Principal...");
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
+        }
+
+        public void OnClickRetryInfinite()
+        {
+            SetModalVisible(false);
+            var infiniteCtrl = FindAnyObjectByType<Gameplay.InfiniteModeController>();
+            if (infiniteCtrl != null)
+            {
+                infiniteCtrl.InitInfiniteMode();
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("GameplayScene");
             }
         }
     }
