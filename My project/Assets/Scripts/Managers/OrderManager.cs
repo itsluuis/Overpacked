@@ -42,6 +42,7 @@ namespace LogiPack.Managers
 
         private void Update()
         {
+            if (GameModeManager.IsGameplayPaused) return;
             if (Environment != null && Environment.IsDayOver) return;
 
             // 1. Spawner de pedidos

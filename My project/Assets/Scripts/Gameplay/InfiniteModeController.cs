@@ -106,7 +106,7 @@ namespace LogiPack.Gameplay
 
         private void Update()
         {
-            if (!_isModeActive) return;
+            if (!_isModeActive || GameModeManager.IsGameplayPaused) return;
 
             RoundTimeRemaining -= Time.deltaTime;
             if (RoundTimeRemaining <= 0f)

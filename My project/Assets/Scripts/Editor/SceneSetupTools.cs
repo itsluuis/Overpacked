@@ -517,7 +517,7 @@ namespace LogiPack.Editor
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
             canvas.worldCamera = mainCam;
             canvas.planeDistance = 9f;
-            canvas.sortingOrder = 10;
+            canvas.sortingOrder = 50;
             var scaler = canvasGO.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920, 1080);
@@ -717,6 +717,11 @@ namespace LogiPack.Editor
             modalOverlayImg.color = new Color(0.04f, 0.06f, 0.09f, 0.85f);
             modalOverlayImg.raycastTarget = true;
 
+            var modalCanvas = modalRootGO.AddComponent<Canvas>();
+            modalCanvas.overrideSorting = true;
+            modalCanvas.sortingOrder = 100;
+            modalRootGO.AddComponent<GraphicRaycaster>();
+
             // Panel Ficha con sprite pantalla_fin_jornada
             GameObject cardPanelGO = new GameObject("SummaryCardPanel");
             cardPanelGO.transform.SetParent(modalRootGO.transform, false);
@@ -740,17 +745,17 @@ namespace LogiPack.Editor
 
             Color darkReportColor = new Color(0.18f, 0.12f, 0.08f);
 
-            // 1. Header Title Text
-            dayEndUI.HeaderTitleText = CreateModalText(cardPanelGO.transform, "HeaderTitleText", new Vector2(0, 215), new Vector2(700, 50), 24, fredokaBold, darkReportColor, TextAnchor.MiddleCenter);
+            // 1. Header Title Text (+10px)
+            dayEndUI.HeaderTitleText = CreateModalText(cardPanelGO.transform, "HeaderTitleText", new Vector2(0, 215), new Vector2(700, 50), 34, fredokaBold, darkReportColor, TextAnchor.MiddleCenter);
 
-            // 2. Stars Display Text
-            dayEndUI.StarsDisplayText = CreateModalText(cardPanelGO.transform, "StarsDisplayText", new Vector2(0, 155), new Vector2(700, 60), 48, fredokaBold, new Color(0.95f, 0.75f, 0.10f), TextAnchor.MiddleCenter);
+            // 2. Stars Display Text (+10px)
+            dayEndUI.StarsDisplayText = CreateModalText(cardPanelGO.transform, "StarsDisplayText", new Vector2(0, 155), new Vector2(700, 60), 58, fredokaBold, new Color(0.95f, 0.75f, 0.10f), TextAnchor.MiddleCenter);
 
-            // 3. Rating Title Text
-            dayEndUI.RatingTitleText = CreateModalText(cardPanelGO.transform, "RatingTitleText", new Vector2(0, 100), new Vector2(700, 40), 22, fredokaBold, darkReportColor, TextAnchor.MiddleCenter);
+            // 3. Rating Title Text (+10px)
+            dayEndUI.RatingTitleText = CreateModalText(cardPanelGO.transform, "RatingTitleText", new Vector2(0, 100), new Vector2(700, 40), 32, fredokaBold, darkReportColor, TextAnchor.MiddleCenter);
 
-            // 4. Prestige Badge Text
-            dayEndUI.PrestigeBadgeText = CreateModalText(cardPanelGO.transform, "PrestigeBadgeText", new Vector2(0, 60), new Vector2(700, 32), 17, fredokaBold, new Color(0.2f, 0.5f, 0.7f), TextAnchor.MiddleCenter);
+            // 4. Prestige Badge Text (+10px)
+            dayEndUI.PrestigeBadgeText = CreateModalText(cardPanelGO.transform, "PrestigeBadgeText", new Vector2(0, 60), new Vector2(700, 32), 27, fredokaBold, new Color(0.2f, 0.5f, 0.7f), TextAnchor.MiddleCenter);
 
             // 5. Financial Breakdown Box
             GameObject breakdownBoxGO = new GameObject("BreakdownBox");
@@ -762,16 +767,17 @@ namespace LogiPack.Editor
             boxRT.anchoredPosition = new Vector2(0, -45);
             boxRT.sizeDelta = new Vector2(680, 150);
 
-            dayEndUI.FinancialBreakdownText = CreateModalText(breakdownBoxGO.transform, "FinancialBreakdownText", Vector2.zero, new Vector2(660, 140), 17, fredokaBold, darkReportColor, TextAnchor.MiddleLeft);
+            dayEndUI.FinancialBreakdownText = CreateModalText(breakdownBoxGO.transform, "FinancialBreakdownText", Vector2.zero, new Vector2(660, 140), 27, fredokaBold, darkReportColor, TextAnchor.MiddleLeft);
 
-            // 6. Quotas Status Text
-            dayEndUI.QuotasStatusText = CreateModalText(cardPanelGO.transform, "QuotasStatusText", new Vector2(0, -145), new Vector2(680, 45), 16, fredokaBold, new Color(0.3f, 0.3f, 0.3f), TextAnchor.MiddleCenter);
+            // 6. Quotas Status Text (+10px)
+            dayEndUI.QuotasStatusText = CreateModalText(cardPanelGO.transform, "QuotasStatusText", new Vector2(0, -145), new Vector2(680, 45), 26, fredokaBold, new Color(0.3f, 0.3f, 0.3f), TextAnchor.MiddleCenter);
 
-            // 7. Botones de Acción (Estilo Overpacked)
+            // 7. Botones de Acción (Estilo Overpacked con texto negro carbón)
             Sprite greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
+            Color blackInk = new Color(0.1f, 0.1f, 0.1f);
 
-            // Botón A: Siguiente Jornada (Modo Tutorial / Base) - Izquierda
+            // Botón A: Siguiente Jornada / Volver a Intentar (Modo Tutorial / Base) - Izquierda
             GameObject nextDayBtnGO = new GameObject("NextDayButton");
             nextDayBtnGO.transform.SetParent(cardPanelGO.transform, false);
             var btnRT = nextDayBtnGO.AddComponent<RectTransform>();
@@ -799,11 +805,11 @@ namespace LogiPack.Editor
 
             var btnTxt = btnTxtGO.AddComponent<Text>();
             btnTxt.font = fredokaBold;
-            btnTxt.fontSize = 17;
+            btnTxt.fontSize = 20;
             btnTxt.fontStyle = FontStyle.Bold;
-            btnTxt.color = Color.white;
+            btnTxt.color = blackInk;
             btnTxt.alignment = TextAnchor.MiddleCenter;
-            btnTxt.text = "SIGUIENTE JORNADA ▶";
+            btnTxt.text = "VOLVER A INTENTAR";
             dayEndUI.NextDayButtonText = btnTxt;
 
             // Botón B: Volver a Jugar (Modo Infinito) - Izquierda
@@ -834,9 +840,9 @@ namespace LogiPack.Editor
 
             var retryTxt = retryTxtGO.AddComponent<Text>();
             retryTxt.font = fredokaBold;
-            retryTxt.fontSize = 17;
+            retryTxt.fontSize = 20;
             retryTxt.fontStyle = FontStyle.Bold;
-            retryTxt.color = Color.white;
+            retryTxt.color = blackInk;
             retryTxt.alignment = TextAnchor.MiddleCenter;
             retryTxt.text = "▶ VOLVER A JUGAR";
             retryInfBtnGO.SetActive(false);
@@ -869,9 +875,9 @@ namespace LogiPack.Editor
 
             var returnTxt = returnTxtGO.AddComponent<Text>();
             returnTxt.font = fredokaBold;
-            returnTxt.fontSize = 17;
+            returnTxt.fontSize = 20;
             returnTxt.fontStyle = FontStyle.Bold;
-            returnTxt.color = Color.white;
+            returnTxt.color = blackInk;
             returnTxt.alignment = TextAnchor.MiddleCenter;
             returnTxt.text = "🏠 MENÚ PRINCIPAL";
 

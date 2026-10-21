@@ -57,7 +57,7 @@ namespace LogiPack.Managers
 
         private void Update()
         {
-            if (IsDayOver) return;
+            if (IsDayOver || LogiPack.Core.GameModeManager.IsGameplayPaused) return;
 
             _elapsedRealTime += Time.deltaTime;
 

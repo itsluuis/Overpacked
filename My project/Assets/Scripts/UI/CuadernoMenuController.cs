@@ -37,10 +37,10 @@ namespace LogiPack.UI.Menu
         public MainMenuController MainMenu;
 
         private RectTransform _rectTransform;
-        private Vector2 _closedPosition = new Vector2(-460f, -20f);
+        private Vector2 _closedPosition = new Vector2(460f, -20f);
         private Vector2 _openPosition = new Vector2(0f, 0f);
-        private Vector3 _closedScale = new Vector3(0.42f, 0.42f, 1f);
-        private Vector3 _openScale = new Vector3(0.85f, 0.85f, 1f);
+        private Vector3 _closedScale = new Vector3(0.84f, 0.84f, 1f);
+        private Vector3 _openScale = new Vector3(1.25f, 1.25f, 1f);
 
         private bool _isOpen = false;
         private bool _isAnimating = false;
@@ -135,7 +135,7 @@ namespace LogiPack.UI.Menu
 
             if (opening)
             {
-                if (MainMenu != null) MainMenu.SetRightHemisphereVisible(false);
+                if (MainMenu != null) MainMenu.SetLeftHemisphereVisible(false);
                 if (OpenPagesContainer != null) OpenPagesContainer.SetActive(false);
             }
             else
@@ -224,7 +224,7 @@ namespace LogiPack.UI.Menu
                 }
                 if (MainMenu != null)
                 {
-                    MainMenu.SetRightHemisphereVisible(true);
+                    MainMenu.SetLeftHemisphereVisible(true);
                 }
                 _isOpen = false;
             }

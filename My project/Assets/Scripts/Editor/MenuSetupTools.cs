@@ -73,25 +73,25 @@ namespace LogiPack.Editor
             var outsideBtn = outsideBtnGO.AddComponent<Button>();
             menuController.OutsideDeskClickButton = outsideBtn;
 
-            // 6. Hemisferio Derecho (Logo y 3 Botones)
-            GameObject rightHemiGO = new GameObject("RightHemisphere");
-            rightHemiGO.transform.SetParent(canvasGO.transform, false);
-            var rightRT = rightHemiGO.AddComponent<RectTransform>();
-            rightRT.anchorMin = new Vector2(0.5f, 0.5f);
-            rightRT.anchorMax = new Vector2(0.5f, 0.5f);
-            rightRT.pivot = new Vector2(0.5f, 0.5f);
-            rightRT.anchoredPosition = new Vector2(460, 0);
-            rightRT.sizeDelta = new Vector2(600, 700);
+            // 6. Hemisferio Izquierdo (Logo y 3 Botones)
+            GameObject leftHemiGO = new GameObject("LeftHemisphere");
+            leftHemiGO.transform.SetParent(canvasGO.transform, false);
+            var leftRT = leftHemiGO.AddComponent<RectTransform>();
+            leftRT.anchorMin = new Vector2(0.5f, 0.5f);
+            leftRT.anchorMax = new Vector2(0.5f, 0.5f);
+            leftRT.pivot = new Vector2(0.5f, 0.5f);
+            leftRT.anchoredPosition = new Vector2(-460, 0);
+            leftRT.sizeDelta = new Vector2(700, 750);
 
-            var rightCG = rightHemiGO.AddComponent<CanvasGroup>();
-            menuController.RightHemisphereGroup = rightCG;
+            var leftCG = leftHemiGO.AddComponent<CanvasGroup>();
+            menuController.LeftHemisphereGroup = leftCG;
 
-            // Logo Overpacked
+            // Logo Overpacked (2x y ensanchado para verse natural)
             GameObject logoGO = new GameObject("Logo_Overpacked");
-            logoGO.transform.SetParent(rightHemiGO.transform, false);
+            logoGO.transform.SetParent(leftHemiGO.transform, false);
             var logoRT = logoGO.AddComponent<RectTransform>();
-            logoRT.anchoredPosition = new Vector2(0, 190);
-            logoRT.sizeDelta = new Vector2(500, 220);
+            logoRT.anchoredPosition = new Vector2(0, 210);
+            logoRT.sizeDelta = new Vector2(650, 270);
             var logoImg = logoGO.AddComponent<Image>();
             logoImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/logo_over_packed.png");
             logoImg.preserveAspect = true;
@@ -100,25 +100,25 @@ namespace LogiPack.Editor
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
             Sprite greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
 
-            // Botón 1: JUGAR
-            menuController.PlayButton = CreateMenuButton(rightHemiGO.transform, "PlayButton", new Vector2(0, 0), new Vector2(340, 75), yellowBtnSprite, "JUGAR", fredokaBold, 28);
+            // Botón 1: JUGAR (Texto negro carbón legible, fuente 38px [+10px])
+            menuController.PlayButton = CreateMenuButton(leftHemiGO.transform, "PlayButton", new Vector2(0, 30), new Vector2(360, 80), yellowBtnSprite, "JUGAR", fredokaBold, 38);
 
             // Botón 2: OPCIONES
-            menuController.OptionsButton = CreateMenuButton(rightHemiGO.transform, "OptionsButton", new Vector2(0, -95), new Vector2(340, 75), yellowBtnSprite, "OPCIONES", fredokaBold, 28);
+            menuController.OptionsButton = CreateMenuButton(leftHemiGO.transform, "OptionsButton", new Vector2(0, -75), new Vector2(360, 80), yellowBtnSprite, "OPCIONES", fredokaBold, 38);
 
             // Botón 3: SALIR
-            menuController.QuitButton = CreateMenuButton(rightHemiGO.transform, "QuitButton", new Vector2(0, -190), new Vector2(340, 75), yellowBtnSprite, "SALIR", fredokaBold, 28);
+            menuController.QuitButton = CreateMenuButton(leftHemiGO.transform, "QuitButton", new Vector2(0, -180), new Vector2(360, 80), yellowBtnSprite, "SALIR", fredokaBold, 38);
 
-            // 7. Cuaderno Interactivo de Modos
+            // 7. Cuaderno Interactivo de Modos (Hemisferio Derecho)
             GameObject cuadernoRootGO = new GameObject("Cuaderno_Interactivo");
             cuadernoRootGO.transform.SetParent(canvasGO.transform, false);
             var cuadernoRT = cuadernoRootGO.AddComponent<RectTransform>();
             cuadernoRT.anchorMin = new Vector2(0.5f, 0.5f);
             cuadernoRT.anchorMax = new Vector2(0.5f, 0.5f);
             cuadernoRT.pivot = new Vector2(0.5f, 0.5f);
-            cuadernoRT.anchoredPosition = new Vector2(-460, -20);
+            cuadernoRT.anchoredPosition = new Vector2(460, -20);
             cuadernoRT.sizeDelta = new Vector2(1000, 750);
-            cuadernoRT.localScale = new Vector3(0.42f, 0.42f, 1f);
+            cuadernoRT.localScale = new Vector3(0.84f, 0.84f, 1f); // 2x más grande en reposo
 
             var cuadernoImg = cuadernoRootGO.AddComponent<Image>();
             cuadernoImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites_sheets/cuaderno_cerrado.png");
@@ -290,7 +290,7 @@ namespace LogiPack.Editor
             txt.font = font;
             txt.fontSize = fontSize;
             txt.fontStyle = FontStyle.Bold;
-            txt.color = Color.white;
+            txt.color = new Color(0.1f, 0.1f, 0.1f, 1f); // Texto negro carbón para máxima legibilidad en botones amarillos y verdes
             txt.alignment = TextAnchor.MiddleCenter;
             txt.text = label;
 

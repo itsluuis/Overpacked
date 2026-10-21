@@ -18,5 +18,17 @@ namespace LogiPack.Core
 
         public static bool IsInfiniteMode => ActiveMode == GameSessionMode.Infinite;
         public static bool IsTutorialMode => ActiveMode == GameSessionMode.Tutorial;
+
+        /// <summary>
+        /// Congela el avance del reloj, clima, spawn y caducidad de pedidos
+        /// mientras el modal de fin de jornada está en pantalla.
+        /// </summary>
+        public static bool IsGameplayPaused { get; set; } = false;
+
+        public static void SetGameplayPaused(bool paused)
+        {
+            IsGameplayPaused = paused;
+            UnityEngine.Debug.Log($"[GameModeManager] Estado de pausa de juego: {paused}");
+        }
     }
 }

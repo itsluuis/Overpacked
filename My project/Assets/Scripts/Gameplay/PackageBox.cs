@@ -85,7 +85,7 @@ namespace LogiPack.Gameplay
 
             if (_baseSR == null) _baseSR = GetComponent<SpriteRenderer>();
 
-            if (State == BoxState.InPackagingSlot)
+            if (State == BoxState.InPackagingSlot || State == BoxState.Dispatched)
             {
                 if (ClosedBoxSprite != null && _baseSR != null)
                 {
@@ -183,6 +183,8 @@ namespace LogiPack.Gameplay
             OnPackagingChanged?.Invoke();
         }
 
+        public const int MAX_CAPACITY = 5;
+
         public void AddItem(ItemData item)
         {
             if (item == null) return;
@@ -190,6 +192,13 @@ namespace LogiPack.Gameplay
             if (State != BoxState.Assembling)
             {
                 Debug.LogWarning("[PackageBox] No se pueden agregar items a una caja que no esté en la mesa de armado.");
+                return;
+            }
+
+            // Límite estricto de 5 items máximo por caja (por instancia)
+            if (GetTotalItemCount() >= MAX_CAPACITY)
+            {
+                Debug.LogWarning($"<color=yellow><b>[PackageBox]</b></color> Capacidad máxima alcanzada ({MAX_CAPACITY} items). No se admiten más items en esta caja.");
                 return;
             }
 
@@ -204,7 +213,7 @@ namespace LogiPack.Gameplay
 
             UpdateVisualContents();
             OnContentsChanged?.Invoke();
-            Debug.Log($"<color=cyan><b>[PackageBox]</b></color> Se añadió 1x <b>{item.ItemName}</b> a la caja. Total en caja: {GetTotalItemCount()} items.");
+            Debug.Log($"<color=cyan><b>[PackageBox]</b></color> Se añadió 1x <b>{item.ItemName}</b> a la caja ({GetTotalItemCount()}/{MAX_CAPACITY}).");
         }
 
         public void ClearBox()
@@ -308,39 +317,20 @@ namespace LogiPack.Gameplay
             int count = itemsList.Count;
             if (count == 0) return;
 
+            // Malla horizontal de feedback visual flotando encima de la caja
+            // Espaciado uniforme para hasta 5 items centrados horizontalmente sin encimarse
+            float slotSpacing = 0.40f;
+            float startX = -((count - 1) * slotSpacing) * 0.5f;
+
             for (int i = 0; i < count; i++)
             {
                 ItemData item = itemsList[i];
-                GameObject iconGO = new GameObject($"Icon_{item.ItemName}_{i}");
+                GameObject iconGO = new GameObject($"FeedbackSlot_{i}_{item.ItemName}");
                 iconGO.transform.parent = ItemContainer;
 
-                Vector3 localPos = Vector3.zero;
-                if (count == 1)
-                {
-                    localPos = new Vector3(0f, 0.4f, -0.1f);
-                }
-                else if (count == 2)
-                {
-                    float x = (i == 0) ? -1.0f : 1.0f;
-                    localPos = new Vector3(x, 0.4f, -0.1f);
-                }
-                else if (count == 3)
-                {
-                    float x = (i - 1) * 1.2f;
-                    localPos = new Vector3(x, 0.4f, -0.1f);
-                }
-                else
-                {
-                    int cols = 3;
-                    int col = i % cols;
-                    int row = i / cols;
-                    float x = (col - 1f) * 1.1f;
-                    float y = -(row * 1.1f) + 0.8f;
-                    localPos = new Vector3(x, y, -0.1f);
-                }
-
-                iconGO.transform.localPosition = localPos;
-                iconGO.transform.localScale = Vector3.one * 0.18f;
+                float xPos = startX + (i * slotSpacing);
+                iconGO.transform.localPosition = new Vector3(xPos, 0.95f, -0.1f);
+                iconGO.transform.localScale = Vector3.one * 0.055f; // Íconos pequeños respecto a la caja
 
                 var sr = iconGO.AddComponent<SpriteRenderer>();
                 sr.sprite = item.Icon;

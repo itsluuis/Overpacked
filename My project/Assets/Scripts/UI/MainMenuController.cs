@@ -11,8 +11,10 @@ namespace LogiPack.UI.Menu
     /// </summary>
     public class MainMenuController : MonoBehaviour
     {
-        [Header("Hemisferio Derecho (Logo y Botones)")]
-        public CanvasGroup RightHemisphereGroup;
+        [Header("Hemisferio Izquierdo (Logo y Botones)")]
+        public CanvasGroup LeftHemisphereGroup;
+        // Compatibilidad hacia atrás
+        public CanvasGroup RightHemisphereGroup { get => LeftHemisphereGroup; set => LeftHemisphereGroup = value; }
         public Button PlayButton;
         public Button OptionsButton;
         public Button QuitButton;
@@ -48,11 +50,11 @@ namespace LogiPack.UI.Menu
             }
 
             if (OptionsModal != null) OptionsModal.SetActive(false);
-            if (RightHemisphereGroup != null)
+            if (LeftHemisphereGroup != null)
             {
-                RightHemisphereGroup.alpha = 1f;
-                RightHemisphereGroup.interactable = true;
-                RightHemisphereGroup.blocksRaycasts = true;
+                LeftHemisphereGroup.alpha = 1f;
+                LeftHemisphereGroup.interactable = true;
+                LeftHemisphereGroup.blocksRaycasts = true;
             }
         }
 
@@ -73,32 +75,34 @@ namespace LogiPack.UI.Menu
             }
         }
 
-        public void SetRightHemisphereVisible(bool visible)
+        public void SetLeftHemisphereVisible(bool visible)
         {
             if (_fadeCoroutine != null) StopCoroutine(_fadeCoroutine);
             _fadeCoroutine = StartCoroutine(FadeGroup(visible));
         }
 
+        public void SetRightHemisphereVisible(bool visible) => SetLeftHemisphereVisible(visible);
+
         private IEnumerator FadeGroup(bool visible)
         {
-            if (RightHemisphereGroup == null) yield break;
+            if (LeftHemisphereGroup == null) yield break;
 
             float duration = 0.35f;
             float elapsed = 0f;
-            float startAlpha = RightHemisphereGroup.alpha;
+            float startAlpha = LeftHemisphereGroup.alpha;
             float targetAlpha = visible ? 1f : 0f;
 
-            RightHemisphereGroup.interactable = visible;
-            RightHemisphereGroup.blocksRaycasts = visible;
+            LeftHemisphereGroup.interactable = visible;
+            LeftHemisphereGroup.blocksRaycasts = visible;
 
             while (elapsed < duration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                RightHemisphereGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
+                LeftHemisphereGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
                 yield return null;
             }
 
-            RightHemisphereGroup.alpha = targetAlpha;
+            LeftHemisphereGroup.alpha = targetAlpha;
         }
 
         private void OnOptionsClicked()
