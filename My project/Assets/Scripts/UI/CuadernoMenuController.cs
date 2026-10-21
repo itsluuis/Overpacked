@@ -236,7 +236,15 @@ namespace LogiPack.UI.Menu
         {
             GameModeManager.ActiveMode = _selectedMode;
             Debug.Log($"<color=green><b>[CuadernoMenuController]</b></color> Iniciando modo: <b>{_selectedMode}</b>. Cargando GameplayScene...");
-            SceneManager.LoadScene("GameplayScene");
+            
+            if (LogiPack.Managers.SceneTransitionManager.Instance != null)
+            {
+                LogiPack.Managers.SceneTransitionManager.Instance.LoadSceneWithWipe("GameplayScene", 1.0f);
+            }
+            else
+            {
+                SceneManager.LoadScene("GameplayScene");
+            }
         }
     }
 }

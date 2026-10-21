@@ -297,7 +297,14 @@ namespace LogiPack.UI
         {
             LogiPack.Core.GameModeManager.SetGameplayPaused(false);
             Debug.Log("[DayEndSummaryUI] Regresando al Menú Principal...");
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
+            if (LogiPack.Managers.SceneTransitionManager.Instance != null)
+            {
+                LogiPack.Managers.SceneTransitionManager.Instance.LoadSceneWithWipe("MainMenuScene", 1.0f);
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenuScene");
+            }
         }
 
         public void OnClickRetryInfinite()

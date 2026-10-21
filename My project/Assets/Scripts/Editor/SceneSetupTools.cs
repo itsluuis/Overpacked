@@ -21,6 +21,9 @@ namespace LogiPack.Editor
             string scenePath = "Assets/Scenes/GameplayScene.unity";
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
+            // 0. Servicios Persistentes Centrales
+            MenuSetupTools.EnsureAppCoreServices();
+
             // Fuente oficial Fredoka
             Font fredokaBold = AssetDatabase.LoadAssetAtPath<Font>("Assets/Art/Font/static/Fredoka-Bold.ttf");
             if (fredokaBold == null) fredokaBold = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -886,6 +889,41 @@ namespace LogiPack.Editor
 
             modalOverlayImg.enabled = false;
             cardPanelGO.SetActive(false);
+
+            // 14. Botón de Pausa / Opciones (Botón Cuadrado de Madera con icono de casa en el lateral derecho central)
+            Sprite woodSquareBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Buttons/Square/SquareButton1_wood.png");
+            Sprite homeIconSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/icono_casa.png");
+
+            GameObject pauseBtnGO = new GameObject("PauseHomeButton");
+            pauseBtnGO.transform.SetParent(canvasGO.transform, false);
+            var pauseBtnRT = pauseBtnGO.AddComponent<RectTransform>();
+            pauseBtnRT.anchorMin = new Vector2(1, 0.5f);
+            pauseBtnRT.anchorMax = new Vector2(1, 0.5f);
+            pauseBtnRT.pivot = new Vector2(1, 0.5f);
+            pauseBtnRT.anchoredPosition = new Vector2(-25, 0); // En el centro a la derecha
+            pauseBtnRT.sizeDelta = new Vector2(70, 70);
+
+            var pauseImg = pauseBtnGO.AddComponent<Image>();
+            pauseImg.sprite = woodSquareBtnSprite;
+            var pauseBtn = pauseBtnGO.AddComponent<Button>();
+            pauseBtn.targetGraphic = pauseImg;
+
+            GameObject homeIconGO = new GameObject("Icon_Home");
+            homeIconGO.transform.SetParent(pauseBtnGO.transform, false);
+            var homeIconRT = homeIconGO.AddComponent<RectTransform>();
+            homeIconRT.anchorMin = new Vector2(0.5f, 0.5f);
+            homeIconRT.anchorMax = new Vector2(0.5f, 0.5f);
+            homeIconRT.sizeDelta = new Vector2(44, 44);
+            homeIconRT.anchoredPosition = Vector2.zero;
+            var homeIconImg = homeIconGO.AddComponent<Image>();
+            homeIconImg.sprite = homeIconSprite;
+            homeIconImg.preserveAspect = true;
+
+            // 15. Modal de Opciones / Pausa de Gameplay
+            Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");
+            var optionsUI = MenuSetupTools.BuildOptionsMenuHierarchy(canvasGO.transform, fredokaBold, cardSprite, yellowBtnSprite, greenBtnSprite, isGameplay: true);
+
+            pauseBtn.onClick.AddListener(optionsUI.OpenOptions);
 
             // Guardar Escena
             EditorSceneManager.SaveScene(scene, scenePath);

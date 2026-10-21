@@ -25,8 +25,9 @@ namespace LogiPack.UI.Menu
         [Header("Área de Clic Exterior (Mesa)")]
         public Button OutsideDeskClickButton;
 
-        [Header("Modal de Opciones Provisional")]
+        [Header("Modal de Opciones")]
         public GameObject OptionsModal;
+        public OptionsMenuUI OptionsUI;
         public Button CloseOptionsButton;
 
         private Coroutine _fadeCoroutine;
@@ -49,7 +50,7 @@ namespace LogiPack.UI.Menu
                 CloseOptionsButton.onClick.AddListener(CloseOptions);
             }
 
-            if (OptionsModal != null) OptionsModal.SetActive(false);
+            if (OptionsModal != null && OptionsUI == null) OptionsModal.SetActive(false);
             if (LeftHemisphereGroup != null)
             {
                 LeftHemisphereGroup.alpha = 1f;
@@ -107,7 +108,11 @@ namespace LogiPack.UI.Menu
 
         private void OnOptionsClicked()
         {
-            if (OptionsModal != null)
+            if (OptionsUI != null)
+            {
+                OptionsUI.OpenOptions();
+            }
+            else if (OptionsModal != null)
             {
                 OptionsModal.SetActive(true);
             }
@@ -115,7 +120,11 @@ namespace LogiPack.UI.Menu
 
         private void CloseOptions()
         {
-            if (OptionsModal != null)
+            if (OptionsUI != null)
+            {
+                OptionsUI.CloseOptions();
+            }
+            else if (OptionsModal != null)
             {
                 OptionsModal.SetActive(false);
             }

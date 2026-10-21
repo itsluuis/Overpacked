@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
+using LogiPack.UI;
 using LogiPack.UI.Menu;
 
 namespace LogiPack.Editor
@@ -20,6 +21,9 @@ namespace LogiPack.Editor
             // Fuente oficial Fredoka
             Font fredokaBold = AssetDatabase.LoadAssetAtPath<Font>("Assets/Art/Font/static/Fredoka-Bold.ttf");
             if (fredokaBold == null) fredokaBold = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            // 0. Servicios Persistentes Centrales (AudioManager, GameCursorManager, SceneTransitionManager)
+            EnsureAppCoreServices();
 
             // 1. Configurar Cámara (1920x1080 16:9 con orthographicSize = 5.4f)
             Camera mainCam = Camera.main;
@@ -73,7 +77,7 @@ namespace LogiPack.Editor
             var outsideBtn = outsideBtnGO.AddComponent<Button>();
             menuController.OutsideDeskClickButton = outsideBtn;
 
-            // 6. Hemisferio Izquierdo (Logo y 3 Botones)
+            // 6. Hemisferio Izquierdo (Logo y 3 Botones - Versión Original)
             GameObject leftHemiGO = new GameObject("LeftHemisphere");
             leftHemiGO.transform.SetParent(canvasGO.transform, false);
             var leftRT = leftHemiGO.AddComponent<RectTransform>();
@@ -86,7 +90,7 @@ namespace LogiPack.Editor
             var leftCG = leftHemiGO.AddComponent<CanvasGroup>();
             menuController.LeftHemisphereGroup = leftCG;
 
-            // Logo Overpacked (Elevado en el tercio superior, 3x más grande e imponente)
+            // Logo Overpacked (Original)
             GameObject logoGO = new GameObject("Logo_Overpacked");
             logoGO.transform.SetParent(leftHemiGO.transform, false);
             var logoRT = logoGO.AddComponent<RectTransform>();
@@ -99,8 +103,9 @@ namespace LogiPack.Editor
             // Sprite botón amarillo
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
             Sprite greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
+            Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");
 
-            // Botones Principales (Ampliados 2x con texto negro carbón legible, fuente 46px)
+            // Botones Principales (Originales 520x125 px, fuente 46px)
             // Botón 1: JUGAR
             menuController.PlayButton = CreateMenuButton(leftHemiGO.transform, "PlayButton", new Vector2(0, 50), new Vector2(520, 125), yellowBtnSprite, "JUGAR", fredokaBold, 46);
 
@@ -110,7 +115,7 @@ namespace LogiPack.Editor
             // Botón 3: SALIR
             menuController.QuitButton = CreateMenuButton(leftHemiGO.transform, "QuitButton", new Vector2(0, -230), new Vector2(520, 125), yellowBtnSprite, "SALIR", fredokaBold, 46);
 
-            // 7. Cuaderno Interactivo de Modos (Hemisferio Derecho)
+            // 7. Cuaderno Interactivo de Modos (Hemisferio Derecho - Versión Original)
             GameObject cuadernoRootGO = new GameObject("Cuaderno_Interactivo");
             cuadernoRootGO.transform.SetParent(canvasGO.transform, false);
             var cuadernoRT = cuadernoRootGO.AddComponent<RectTransform>();
@@ -119,7 +124,7 @@ namespace LogiPack.Editor
             cuadernoRT.pivot = new Vector2(0.5f, 0.5f);
             cuadernoRT.anchoredPosition = new Vector2(460, -20);
             cuadernoRT.sizeDelta = new Vector2(1000, 750);
-            cuadernoRT.localScale = new Vector3(0.84f, 0.84f, 1f); // 2x más grande en reposo
+            cuadernoRT.localScale = new Vector3(0.84f, 0.84f, 1f);
 
             var cuadernoImg = cuadernoRootGO.AddComponent<Image>();
             cuadernoImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites_sheets/cuaderno_cerrado.png");
@@ -137,7 +142,7 @@ namespace LogiPack.Editor
             cuadernoCtrl.MainMenu = menuController;
             menuController.Cuaderno = cuadernoCtrl;
 
-            // 8. Contenedor de Páginas Abiertas (Dentro del Cuaderno)
+            // 8. Contenedor de Páginas Abiertas (Dentro del Cuaderno - Versión Original)
             GameObject pagesContainerGO = new GameObject("OpenPagesContainer");
             pagesContainerGO.transform.SetParent(cuadernoRootGO.transform, false);
             var pagesRT = pagesContainerGO.AddComponent<RectTransform>();
@@ -224,31 +229,10 @@ namespace LogiPack.Editor
 
             pagesContainerGO.SetActive(false);
 
-            // 9. Modal de Opciones Provisional
-            GameObject optModalGO = new GameObject("OptionsModal");
-            optModalGO.transform.SetParent(canvasGO.transform, false);
-            var optModalRT = optModalGO.AddComponent<RectTransform>();
-            optModalRT.anchorMin = Vector2.zero;
-            optModalRT.anchorMax = Vector2.one;
-            optModalRT.offsetMin = Vector2.zero;
-            optModalRT.offsetMax = Vector2.zero;
-
-            var optOverlay = optModalGO.AddComponent<Image>();
-            optOverlay.color = new Color(0, 0, 0, 0.65f);
-
-            GameObject optCardGO = new GameObject("OptionsCard");
-            optCardGO.transform.SetParent(optModalGO.transform, false);
-            var optCardRT = optCardGO.AddComponent<RectTransform>();
-            optCardRT.sizeDelta = new Vector2(500, 360);
-            var optCardImg = optCardGO.AddComponent<Image>();
-            optCardImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");
-
-            CreateTextElement(optCardGO.transform, "Title", new Vector2(0, 110), new Vector2(400, 50), "AJUSTES DE JUEGO", fredokaBold, 26, darkInkColor, TextAnchor.MiddleCenter);
-            CreateTextElement(optCardGO.transform, "Info", new Vector2(0, 10), new Vector2(420, 120), "• Resolución: 1920x1080 (16:9)\n• Render: URP 2D Nativo\n• Control: 100% Ratón / Touch\n• Materia: Lógica Simbólica (UJAP)", fredokaBold, 20, darkInkColor, TextAnchor.MiddleLeft);
-
-            menuController.CloseOptionsButton = CreateMenuButton(optCardGO.transform, "CloseBtn", new Vector2(0, -110), new Vector2(220, 50), yellowBtnSprite, "CERRAR", fredokaBold, 20);
-            menuController.OptionsModal = optModalGO;
-            optModalGO.SetActive(false);
+            // 9. Modal de Opciones Funcional (Sliders de volumen + Volver)
+            var optionsUI = BuildOptionsMenuHierarchy(canvasGO.transform, fredokaBold, cardSprite, yellowBtnSprite, greenBtnSprite, isGameplay: false);
+            menuController.OptionsUI = optionsUI;
+            menuController.OptionsModal = optionsUI.ContentPanel;
 
             // 10. Actualizar Build Settings con ambas escenas
             EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
@@ -261,10 +245,190 @@ namespace LogiPack.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log("<color=green><b>[LogiPack] ¡Escena MainMenuScene construida exitosamente y agregada al Build Settings!</b></color>");
+            Debug.Log("<color=green><b>[LogiPack] ¡Escena MainMenuScene restaurada fielmente al diseño original con Opciones funcionales!</b></color>");
         }
 
-        private static Button CreateMenuButton(Transform parent, string name, Vector2 pos, Vector2 size, Sprite sprite, string label, Font font, int fontSize)
+        public static void EnsureAppCoreServices()
+        {
+            var existingCore = Object.FindFirstObjectByType<LogiPack.Audio.AudioManager>();
+            if (existingCore == null)
+            {
+                GameObject coreGO = new GameObject("AppCore");
+                var audioMgr = coreGO.AddComponent<LogiPack.Audio.AudioManager>();
+                audioMgr.MenuMusic = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Music/menu/The_Picking_Floor.mp3");
+                audioMgr.TutorialMusic = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Music/tutorial/The_Sorting_Floor.mp3");
+                audioMgr.InfiniteMusic = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Music/Jornada infinita/Operational_Weight.mp3");
+
+                var cursorMgr = coreGO.AddComponent<LogiPack.UI.GameCursorManager>();
+                cursorMgr.DefaultCursor = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/CozyUI/Cursors/128px/Cursor1_128px.png");
+                cursorMgr.ClickedCursor = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/CozyUI/Cursors/128px/Cursor1Clicked_128px.png");
+
+                coreGO.AddComponent<LogiPack.Managers.SceneTransitionManager>();
+            }
+        }
+
+        public static OptionsMenuUI BuildOptionsMenuHierarchy(Transform parent, Font font, Sprite cardSprite, Sprite yellowBtnSprite, Sprite greenBtnSprite, bool isGameplay)
+        {
+            GameObject rootGO = new GameObject("OptionsMenuManager");
+            rootGO.transform.SetParent(parent, false);
+            var rootRT = rootGO.AddComponent<RectTransform>();
+            rootRT.anchorMin = Vector2.zero;
+            rootRT.anchorMax = Vector2.one;
+            rootRT.offsetMin = Vector2.zero;
+            rootRT.offsetMax = Vector2.zero;
+
+            var optionsUI = rootGO.AddComponent<OptionsMenuUI>();
+            optionsUI.SetIsGameplayScene(isGameplay);
+
+            GameObject optModalGO = new GameObject("OverlayPanel");
+            optModalGO.transform.SetParent(rootGO.transform, false);
+            var optModalRT = optModalGO.AddComponent<RectTransform>();
+            optModalRT.anchorMin = Vector2.zero;
+            optModalRT.anchorMax = Vector2.one;
+            optModalRT.offsetMin = Vector2.zero;
+            optModalRT.offsetMax = Vector2.zero;
+
+            var optOverlay = optModalGO.AddComponent<Image>();
+            optOverlay.color = new Color(0, 0, 0, 0.70f);
+
+            optionsUI.ContentPanel = optModalGO;
+            optionsUI.OverlayBackground = optOverlay;
+
+            GameObject optCardGO = new GameObject("OptionsCard");
+            optCardGO.transform.SetParent(optModalGO.transform, false);
+            var optCardRT = optCardGO.AddComponent<RectTransform>();
+            optCardRT.sizeDelta = new Vector2(620, isGameplay ? 460 : 400);
+            var optCardImg = optCardGO.AddComponent<Image>();
+            optCardImg.sprite = cardSprite;
+
+            Color darkInk = new Color(0.1f, 0.1f, 0.1f, 1f);
+
+            CreateTextElement(optCardGO.transform, "Title", new Vector2(0, isGameplay ? 165 : 135), new Vector2(500, 50), isGameplay ? "PAUSA - AJUSTES" : "AJUSTES DE JUEGO", font, 28, darkInk, TextAnchor.MiddleCenter);
+
+            // Slider Música
+            Text musicVal;
+            optionsUI.MusicSlider = CreateVolumeSlider(optCardGO.transform, "MusicSliderRow", new Vector2(0, isGameplay ? 80 : 50), new Vector2(520, 45), "Música:", font, out musicVal);
+            optionsUI.MusicValueText = musicVal;
+
+            // Slider SFX
+            Text sfxVal;
+            optionsUI.SFXSlider = CreateVolumeSlider(optCardGO.transform, "SFXSliderRow", new Vector2(0, isGameplay ? 15 : -15), new Vector2(520, 45), "Efectos SFX:", font, out sfxVal);
+            optionsUI.SFXValueText = sfxVal;
+
+            if (isGameplay)
+            {
+                // Botón Verde: SEGUIR CON LA PARTIDA
+                optionsUI.ResumeButton = CreateMenuButton(optCardGO.transform, "ResumeBtn", new Vector2(0, -70), new Vector2(340, 55), greenBtnSprite, "SEGUIR CON LA PARTIDA", font, 22);
+
+                // Botón Amarillo: SALIR AL MENÚ
+                optionsUI.ReturnToMenuButton = CreateMenuButton(optCardGO.transform, "ReturnMenuBtn", new Vector2(0, -145), new Vector2(340, 55), yellowBtnSprite, "SALIR AL MENÚ", font, 22);
+            }
+            else
+            {
+                // Botón Amarillo: VOLVER
+                optionsUI.BackButton = CreateMenuButton(optCardGO.transform, "BackBtn", new Vector2(0, -110), new Vector2(260, 55), yellowBtnSprite, "◀ VOLVER", font, 22);
+            }
+
+            optModalGO.SetActive(false);
+            return optionsUI;
+        }
+
+        public static Slider CreateVolumeSlider(Transform parent, string name, Vector2 pos, Vector2 size, string labelText, Font font, out Text valueText)
+        {
+            GameObject root = new GameObject(name);
+            root.transform.SetParent(parent, false);
+            RectTransform rootRT = root.AddComponent<RectTransform>();
+            rootRT.anchoredPosition = pos;
+            rootRT.sizeDelta = size;
+
+            // Etiqueta del Slider
+            GameObject lblGO = new GameObject("Label");
+            lblGO.transform.SetParent(root.transform, false);
+            RectTransform lblRT = lblGO.AddComponent<RectTransform>();
+            lblRT.anchoredPosition = new Vector2(-size.x * 0.28f, 0);
+            lblRT.sizeDelta = new Vector2(size.x * 0.40f, 35);
+            Text lbl = lblGO.AddComponent<Text>();
+            lbl.font = font;
+            lbl.fontSize = 20;
+            lbl.fontStyle = FontStyle.Bold;
+            lbl.color = new Color(0.1f, 0.1f, 0.1f, 1f);
+            lbl.alignment = TextAnchor.MiddleLeft;
+            lbl.text = labelText;
+
+            // Slider GameObject
+            GameObject sliderGO = new GameObject("Slider");
+            sliderGO.transform.SetParent(root.transform, false);
+            RectTransform sliderRT = sliderGO.AddComponent<RectTransform>();
+            sliderRT.anchoredPosition = new Vector2(size.x * 0.08f, 0);
+            sliderRT.sizeDelta = new Vector2(size.x * 0.42f, 22);
+
+            // Fondo del slider
+            GameObject bg = new GameObject("Background");
+            bg.transform.SetParent(sliderGO.transform, false);
+            RectTransform bgRT = bg.AddComponent<RectTransform>();
+            bgRT.anchorMin = Vector2.zero;
+            bgRT.anchorMax = Vector2.one;
+            bgRT.sizeDelta = Vector2.zero;
+            Image bgImg = bg.AddComponent<Image>();
+            bgImg.color = new Color(0.2f, 0.2f, 0.25f, 0.45f);
+
+            // Fill Area
+            GameObject fillArea = new GameObject("Fill Area");
+            fillArea.transform.SetParent(sliderGO.transform, false);
+            RectTransform fillAreaRT = fillArea.AddComponent<RectTransform>();
+            fillAreaRT.anchorMin = Vector2.zero;
+            fillAreaRT.anchorMax = Vector2.one;
+            fillAreaRT.sizeDelta = new Vector2(-10, 0);
+
+            GameObject fill = new GameObject("Fill");
+            fill.transform.SetParent(fillArea.transform, false);
+            RectTransform fillRT = fill.AddComponent<RectTransform>();
+            fillRT.sizeDelta = Vector2.zero;
+            Image fillImg = fill.AddComponent<Image>();
+            fillImg.color = new Color(0.20f, 0.70f, 0.30f, 1f); // Verde fresco
+
+            // Handle Slide Area
+            GameObject handleArea = new GameObject("Handle Slide Area");
+            handleArea.transform.SetParent(sliderGO.transform, false);
+            var handleAreaRT = handleArea.AddComponent<RectTransform>();
+            handleAreaRT.anchorMin = Vector2.zero;
+            handleAreaRT.anchorMax = Vector2.one;
+            handleAreaRT.sizeDelta = new Vector2(-10, 0);
+
+            GameObject handle = new GameObject("Handle");
+            handle.transform.SetParent(handleArea.transform, false);
+            RectTransform handleRT = handle.AddComponent<RectTransform>();
+            handleRT.sizeDelta = new Vector2(22, 28);
+            Image handleImg = handle.AddComponent<Image>();
+            handleImg.color = new Color(0.95f, 0.95f, 0.95f, 1f);
+
+            Slider slider = sliderGO.AddComponent<Slider>();
+            slider.fillRect = fillRT;
+            slider.handleRect = handleRT;
+            slider.targetGraphic = handleImg;
+            slider.direction = Slider.Direction.LeftToRight;
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.value = 1f;
+
+            // Texto de porcentaje (ej: 100%)
+            GameObject valGO = new GameObject("ValueText");
+            valGO.transform.SetParent(root.transform, false);
+            RectTransform valRT = valGO.AddComponent<RectTransform>();
+            valRT.anchoredPosition = new Vector2(size.x * 0.42f, 0);
+            valRT.sizeDelta = new Vector2(70, 35);
+            valueText = valGO.AddComponent<Text>();
+            valueText.font = font;
+            valueText.fontSize = 20;
+            valueText.fontStyle = FontStyle.Bold;
+            valueText.color = new Color(0.1f, 0.1f, 0.1f, 1f);
+            valueText.alignment = TextAnchor.MiddleCenter;
+            valueText.text = "100%";
+
+            return slider;
+        }
+
+        public static Button CreateMenuButton(Transform parent, string name, Vector2 pos, Vector2 size, Sprite sprite, string label, Font font, int fontSize)
         {
             GameObject btnGO = new GameObject(name);
             btnGO.transform.SetParent(parent, false);
@@ -291,14 +455,14 @@ namespace LogiPack.Editor
             txt.font = font;
             txt.fontSize = fontSize;
             txt.fontStyle = FontStyle.Bold;
-            txt.color = new Color(0.1f, 0.1f, 0.1f, 1f); // Texto negro carbón para máxima legibilidad en botones amarillos y verdes
+            txt.color = new Color(0.1f, 0.1f, 0.1f, 1f); // Texto negro carbón para máxima legibilidad
             txt.alignment = TextAnchor.MiddleCenter;
             txt.text = label;
 
             return btn;
         }
 
-        private static Text CreateTextElement(Transform parent, string name, Vector2 pos, Vector2 size, string text, Font font, int fontSize, Color color, TextAnchor alignment)
+        public static Text CreateTextElement(Transform parent, string name, Vector2 pos, Vector2 size, string text, Font font, int fontSize, Color color, TextAnchor alignment)
         {
             GameObject go = new GameObject(name);
             go.transform.SetParent(parent, false);
