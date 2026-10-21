@@ -187,6 +187,9 @@ namespace LogiPack.Editor
                 envVisuals.WindowStormFrames[f - 1] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Art/Maps/clima_tormenta_frames/clima_tormenta_fase_{f}.png");
             }
 
+            // 7.1 Sistema de Partículas Ambientales de Temperatura (Frío/Calor)
+            BuildAmbientTemperatureFX(envMgr);
+
             // Cargar los 12 Ítems
             string[] guids = AssetDatabase.FindAssets("t:ItemData", new[] { "Assets/Data/Items" });
             orderMgr.AvailableItems = new List<ItemData>();
@@ -973,5 +976,112 @@ namespace LogiPack.Editor
             btn = btnGO.AddComponent<Button>();
             btn.targetGraphic = img;
         }
+
+        private static GameObject BuildAmbientTemperatureFX(EnvironmentManager envMgr)
+        {
+            GameObject fxRoot = new GameObject("[Environment_FX]");
+            fxRoot.transform.position = Vector3.zero;
+            var tempFX = fxRoot.AddComponent<AmbientTemperatureFX>();
+            tempFX.EnvManager = envMgr;
+
+            // 1. Partículas de Frío (Estrellas celestes de 4 puntas cayendo suavemente)
+            GameObject coldGO = new GameObject("Cold_Particles");
+            coldGO.transform.SetParent(fxRoot.transform, false);
+            coldGO.transform.position = new Vector3(0f, 5.8f, 0f);
+            coldGO.transform.rotation = Quaternion.Euler(90f, 0f, 0f); // Emite hacia abajo (+Z local = -Y mundo)
+            var coldPS = coldGO.AddComponent<ParticleSystem>();
+            var coldMain = coldPS.main;
+            coldMain.startLifetime = 6.0f;
+            coldMain.startSpeed = new ParticleSystem.MinMaxCurve(1.2f, 2.0f);
+            coldMain.startSize = new ParticleSystem.MinMaxCurve(0.35f, 0.65f);
+            coldMain.startColor = new Color(0.85f, 0.95f, 1.0f, 0.85f);
+            coldMain.gravityModifier = 0f;
+            coldMain.maxParticles = 50;
+            coldMain.loop = true;
+            coldMain.playOnAwake = false;
+            coldMain.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            var coldEmission = coldPS.emission;
+            coldEmission.rateOverTime = 8.0f;
+            coldEmission.enabled = false;
+
+            var coldShape = coldPS.shape;
+            coldShape.shapeType = ParticleSystemShapeType.Box;
+            coldShape.scale = new Vector3(18f, 0.5f, 1f);
+
+            var coldCol = coldPS.colorOverLifetime;
+            coldCol.enabled = true;
+            Gradient coldGrad = new Gradient();
+            coldGrad.SetKeys(
+                new GradientColorKey[] { new GradientColorKey(new Color(0.85f, 0.95f, 1f), 0.0f), new GradientColorKey(Color.white, 1.0f) },
+                new GradientAlphaKey[] { new GradientAlphaKey(0.0f, 0.0f), new GradientAlphaKey(0.85f, 0.2f), new GradientAlphaKey(0.85f, 0.8f), new GradientAlphaKey(0.0f, 1.0f) }
+            );
+            coldCol.color = coldGrad;
+
+            var coldNoise = coldPS.noise;
+            coldNoise.enabled = true;
+            coldNoise.strength = 0.35f;
+            coldNoise.frequency = 0.3f;
+            coldNoise.damping = true;
+
+            var coldRenderer = coldGO.GetComponent<ParticleSystemRenderer>();
+            coldRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            coldRenderer.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Materials/Material_Estrella_Frio.mat");
+            coldRenderer.sortingLayerName = "Default";
+            coldRenderer.sortingOrder = 3; // Por encima de estanterías (1) y cintas (2), por detrás de mesa (5), caja y pedidos (25)
+
+            tempFX.ColdParticles = coldPS;
+
+            // 2. Partículas de Calor (Ondas y gradiente cálido ascendiendo suavemente)
+            GameObject heatGO = new GameObject("Heat_Particles");
+            heatGO.transform.SetParent(fxRoot.transform, false);
+            heatGO.transform.position = new Vector3(0f, -4.8f, 0f);
+            heatGO.transform.rotation = Quaternion.Euler(-90f, 0f, 0f); // Emite hacia arriba (+Z local = +Y mundo)
+            var heatPS = heatGO.AddComponent<ParticleSystem>();
+            var heatMain = heatPS.main;
+            heatMain.startLifetime = 4.8f;
+            heatMain.startSpeed = new ParticleSystem.MinMaxCurve(1.4f, 2.4f);
+            heatMain.startSize = new ParticleSystem.MinMaxCurve(0.6f, 1.2f);
+            heatMain.startColor = new Color(1.0f, 0.9f, 0.5f, 0.75f);
+            heatMain.gravityModifier = 0f;
+            heatMain.maxParticles = 40;
+            heatMain.loop = true;
+            heatMain.playOnAwake = false;
+            heatMain.simulationSpace = ParticleSystemSimulationSpace.World;
+
+            var heatEmission = heatPS.emission;
+            heatEmission.rateOverTime = 12.0f;
+            heatEmission.enabled = false;
+
+            var heatShape = heatPS.shape;
+            heatShape.shapeType = ParticleSystemShapeType.Box;
+            heatShape.scale = new Vector3(18f, 0.5f, 1f);
+
+            var heatCol = heatPS.colorOverLifetime;
+            heatCol.enabled = true;
+            Gradient heatGrad = new Gradient();
+            heatGrad.SetKeys(
+                new GradientColorKey[] { new GradientColorKey(new Color(1f, 0.95f, 0.4f), 0.0f), new GradientColorKey(new Color(1f, 0.45f, 0.1f), 1.0f) },
+                new GradientAlphaKey[] { new GradientAlphaKey(0.0f, 0.0f), new GradientAlphaKey(0.8f, 0.2f), new GradientAlphaKey(0.7f, 0.7f), new GradientAlphaKey(0.0f, 1.0f) }
+            );
+            heatCol.color = heatGrad;
+
+            var heatNoise = heatPS.noise;
+            heatNoise.enabled = true;
+            heatNoise.strength = 0.5f;
+            heatNoise.frequency = 0.4f;
+            heatNoise.damping = true;
+
+            var heatRenderer = heatGO.GetComponent<ParticleSystemRenderer>();
+            heatRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+            heatRenderer.material = AssetDatabase.LoadAssetAtPath<Material>("Assets/Art/Materials/Material_Onda_Calor.mat");
+            heatRenderer.sortingLayerName = "Default";
+            heatRenderer.sortingOrder = 3; // Mismo plano atmosférico por detrás de la mesa y pedidos
+
+            tempFX.HeatParticles = heatPS;
+
+            return fxRoot;
+        }
     }
 }
+

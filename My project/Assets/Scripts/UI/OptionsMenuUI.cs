@@ -92,7 +92,7 @@ namespace LogiPack.UI
 
         private bool IsDayEndModalActive()
         {
-            var dayEnd = FindFirstObjectByType<DayEndSummaryUI>();
+            var dayEnd = FindAnyObjectByType<DayEndSummaryUI>();
             return dayEnd != null && dayEnd.ContentPanel != null && dayEnd.ContentPanel.activeSelf;
         }
 

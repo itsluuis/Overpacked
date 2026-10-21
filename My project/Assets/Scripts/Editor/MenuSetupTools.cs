@@ -51,7 +51,9 @@ namespace LogiPack.Editor
             // 4. Canvas Principal
             GameObject canvasGO = new GameObject("MenuCanvas");
             var canvas = canvasGO.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.worldCamera = mainCam;
+            canvas.planeDistance = 9f;
             canvas.sortingOrder = 10;
 
             var scaler = canvasGO.AddComponent<CanvasScaler>();
@@ -183,7 +185,7 @@ namespace LogiPack.Editor
             tutHlGO.transform.SetAsFirstSibling();
             cuadernoCtrl.TutorialHighlight = tutHlImg;
 
-            CreateTextElement(tutBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 100), "TUTORIAL\n<size=15>Modo Inducción • Turno 4 Minutos</size>", fredokaBold, 22, darkInkColor, TextAnchor.MiddleCenter);
+            CreateTextElement(tutBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 100), "PRÁCTICA\n<size=15>Jornada de Prueba • Turno 4 Minutos</size>", fredokaBold, 22, darkInkColor, TextAnchor.MiddleCenter);
 
             // Rectángulo 2: Jornada Infinita
             GameObject infBtnGO = new GameObject("ModeCard_Infinite");
@@ -217,11 +219,12 @@ namespace LogiPack.Editor
 
             // === PÁGINA DERECHA ===
             // Título del Modo Seleccionado
-            cuadernoCtrl.ModeTitleText = CreateTextElement(pagesContainerGO.transform, "ModeTitleText", new Vector2(240, 240), new Vector2(380, 50), "TUTORIAL", fredokaBold, 28, new Color(0.15f, 0.45f, 0.18f), TextAnchor.MiddleCenter);
+            cuadernoCtrl.ModeTitleText = CreateTextElement(pagesContainerGO.transform, "ModeTitleText", new Vector2(240, 240), new Vector2(380, 50), "PRÁCTICA", fredokaBold, 28, new Color(0.15f, 0.45f, 0.18f), TextAnchor.MiddleCenter);
 
             // Descripción del Modo
-            var descText = CreateTextElement(pagesContainerGO.transform, "ModeDescriptionText", new Vector2(240, 60), new Vector2(360, 220), CuadernoMenuController.TUTORIAL_DESC, fredokaBold, 20, darkInkColor, TextAnchor.UpperLeft);
+            var descText = CreateTextElement(pagesContainerGO.transform, "ModeDescriptionText", new Vector2(240, 45), new Vector2(360, 280), CuadernoMenuController.TUTORIAL_DESC, fredokaBold, 18, darkInkColor, TextAnchor.UpperLeft);
             descText.lineSpacing = 1.15f;
+            descText.verticalOverflow = VerticalWrapMode.Overflow;
             cuadernoCtrl.ModeDescriptionText = descText;
 
             // Botón Verde "Empecemos"

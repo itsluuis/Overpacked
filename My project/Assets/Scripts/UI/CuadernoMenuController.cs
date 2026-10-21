@@ -46,7 +46,7 @@ namespace LogiPack.UI.Menu
         private bool _isAnimating = false;
         private GameSessionMode _selectedMode = GameSessionMode.Tutorial;
 
-        public const string TUTORIAL_DESC = "Tu primer turno, aquí te presentamos el almacén y todos sus productos, cómo embalar, cómo entregar, cómo tu trabajo cambia a lo largo del día y cuándo terminas.";
+        public const string TUTORIAL_DESC = "Nuevo por aqui? no te preocupes, puedes hacer una jornada de prueba para descubrir el almacen, como funcionan los pedidos, como puede cambiar la jornada a lo largo del dia, y que tienes que cumplir al finalizar tu turno. Asustado? tomatelo facil, podras intentarlo cuantas veces necesites hasta que te acostumbres";
         public const string INFINITE_DESC = "Con una cuota y tiempo límite para alcanzarla, será mejor ponerse serios; alcanza la cuota esperada a tiempo para avanzar de ronda a una más difícil hasta el infinito. ¿Serás capaz de poder manejar todo ese trabajo tú solo?";
 
         public bool IsOpen => _isOpen;
@@ -119,7 +119,7 @@ namespace LogiPack.UI.Menu
 
             if (ModeTitleText != null)
             {
-                ModeTitleText.text = isTutorial ? "TUTORIAL" : "JORNADA INFINITA";
+                ModeTitleText.text = isTutorial ? "PRÁCTICA" : "JORNADA INFINITA";
                 ModeTitleText.color = isTutorial ? new Color(0.15f, 0.45f, 0.18f) : new Color(0.75f, 0.25f, 0.05f);
             }
 
