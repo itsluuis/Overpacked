@@ -189,7 +189,7 @@ namespace LogiPack.Editor
             drawerSR.sortingOrder = 40;
 
             // 4 Botones en el cajón 1x4 (∧, ∨, →, ↔) centrados con precisión pixel-perfect
-            float[] btnOffsetsX = { -1.81f, -0.60f, 0.60f, 1.81f };
+            float[] btnOffsetsX = { -1.74f, -0.58f, 0.58f, 1.74f };
             PropositionalOperator[] ops = { PropositionalOperator.And, PropositionalOperator.Or, PropositionalOperator.Conditional, PropositionalOperator.Biconditional };
             string[] opSymbols = { "∧", "∨", "→", "↔" };
 
@@ -200,7 +200,7 @@ namespace LogiPack.Editor
                 btnGO.transform.localPosition = new Vector3(btnOffsetsX[i], 0f, 0f);
 
                 var btnCol = btnGO.AddComponent<BoxCollider2D>();
-                btnCol.size = new Vector2(1.15f, 1.15f);
+                btnCol.size = new Vector2(1.05f, 1.05f);
 
                 var drawerBtn = btnGO.AddComponent<OperatorDrawerButton>();
                 drawerBtn.Operator = ops[i];
@@ -220,7 +220,7 @@ namespace LogiPack.Editor
                 var btnTextComp = btnTextGO.AddComponent<Text>();
                 btnTextComp.text = opSymbols[i];
                 btnTextComp.alignment = TextAnchor.MiddleCenter;
-                btnTextComp.fontSize = 52;
+                btnTextComp.fontSize = 32;
                 btnTextComp.color = Color.white;
                 btnTextComp.font = fredokaBold;
                 btnTextComp.raycastTarget = false;
@@ -456,7 +456,7 @@ namespace LogiPack.Editor
                 homeIconImg.preserveAspect = true;
             }
 
-            // 12. Botón del Cuaderno de Teoría (Debajo de Pausa)
+            // 12. Botón del Cuaderno de Teoría (Debajo de Pausa en lateral derecho)
             Sprite notebookClosedSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites_sheets/cuaderno_cerrado.png");
             Sprite notebookOpenSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites_sheets/cuaderno_abierto.png");
 
@@ -466,25 +466,14 @@ namespace LogiPack.Editor
                 abrirFrames[f - 1] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Art/Sprites_sheets/individual_frames/abrir_paso_{f}.png");
             }
 
-            // Overlay Oscuro para cuando el cuaderno esté abierto
-            GameObject nbDarkOverlay = new GameObject("Notebook_DarkOverlay");
-            nbDarkOverlay.transform.SetParent(canvasGO.transform, false);
-            var nbDarkRT = nbDarkOverlay.AddComponent<RectTransform>();
-            nbDarkRT.anchorMin = Vector2.zero;
-            nbDarkRT.anchorMax = Vector2.one;
-            nbDarkRT.sizeDelta = Vector2.zero;
-            var nbDarkImg = nbDarkOverlay.AddComponent<Image>();
-            nbDarkImg.color = new Color(0, 0, 0, 0.65f);
-            nbDarkOverlay.AddComponent<Button>();
-            nbDarkOverlay.SetActive(false);
-
             GameObject notebookBtnGO = new GameObject("Button_NotebookGuide");
             notebookBtnGO.transform.SetParent(canvasGO.transform, false);
             var nbRT = notebookBtnGO.AddComponent<RectTransform>();
-            nbRT.anchorMin = new Vector2(0.5f, 0.5f);
-            nbRT.anchorMax = new Vector2(0.5f, 0.5f);
-            nbRT.anchoredPosition = new Vector2(900, -45);
-            nbRT.sizeDelta = new Vector2(115, 75);
+            nbRT.anchorMin = new Vector2(1f, 0.5f);
+            nbRT.anchorMax = new Vector2(1f, 0.5f);
+            nbRT.pivot = new Vector2(0.5f, 0.5f);
+            nbRT.anchoredPosition = new Vector2(-60, -45);
+            nbRT.sizeDelta = new Vector2(70, 70);
 
             var nbImg = notebookBtnGO.AddComponent<Image>();
             nbImg.sprite = notebookClosedSprite;
@@ -492,33 +481,55 @@ namespace LogiPack.Editor
             var nbBtn = notebookBtnGO.AddComponent<Button>();
             nbBtn.targetGraphic = nbImg;
 
-            var guideUI = notebookBtnGO.AddComponent<GameplayNotebookGuideUI>();
-            guideUI.NotebookRect = nbRT;
-            guideUI.NotebookImage = nbImg;
-            guideUI.TriggerButton = nbBtn;
-            guideUI.CuadernoCerrado = notebookClosedSprite;
-            guideUI.CuadernoAbierto = notebookOpenSprite;
-            guideUI.AbrirFrames = abrirFrames;
-            guideUI.DarkOverlay = nbDarkOverlay;
+            // Modal Desacoplado: Cuaderno Abierto en Pantalla Completa (1450x945, 100% opaco)
+            GameObject nbModalRootGO = new GameObject("Notebook_Modal_Root");
+            nbModalRootGO.transform.SetParent(canvasGO.transform, false);
+            var nbModalRT = nbModalRootGO.AddComponent<RectTransform>();
+            nbModalRT.anchorMin = Vector2.zero;
+            nbModalRT.anchorMax = Vector2.one;
+            nbModalRT.sizeDelta = Vector2.zero;
+            nbModalRT.anchoredPosition = Vector2.zero;
 
-            // Contenedor de contenido de las páginas del cuaderno
-            GameObject nbContentGO = new GameObject("Notebook_OpenPages_Content");
-            nbContentGO.transform.SetParent(canvasGO.transform, false);
-            var nbContentRT = nbContentGO.AddComponent<RectTransform>();
-            nbContentRT.sizeDelta = new Vector2(750, 480);
-            nbContentRT.anchoredPosition = Vector2.zero;
+            // Overlay Oscuro de fondo (bloqueador de clics en gameplay)
+            GameObject nbDarkOverlay = new GameObject("DarkOverlay");
+            nbDarkOverlay.transform.SetParent(nbModalRootGO.transform, false);
+            var nbDarkRT = nbDarkOverlay.AddComponent<RectTransform>();
+            nbDarkRT.anchorMin = Vector2.zero;
+            nbDarkRT.anchorMax = Vector2.one;
+            nbDarkRT.sizeDelta = Vector2.zero;
+            var nbDarkImg = nbDarkOverlay.AddComponent<Image>();
+            nbDarkImg.color = new Color(0, 0, 0, 0.75f);
+            var overlayCloseBtn = nbDarkOverlay.AddComponent<Button>();
+
+            // Ventana Principal del Cuaderno Abierto (6x más grande que el icono original, 100% opaco)
+            GameObject nbWindowGO = new GameObject("Notebook_Window");
+            nbWindowGO.transform.SetParent(nbModalRootGO.transform, false);
+            var nbWindowRT = nbWindowGO.AddComponent<RectTransform>();
+            nbWindowRT.anchorMin = new Vector2(0.5f, 0.5f);
+            nbWindowRT.anchorMax = new Vector2(0.5f, 0.5f);
+            nbWindowRT.pivot = new Vector2(0.5f, 0.5f);
+            nbWindowRT.anchoredPosition = Vector2.zero;
+            nbWindowRT.sizeDelta = new Vector2(1450, 945);
+
+            var nbWindowImg = nbWindowGO.AddComponent<Image>();
+            nbWindowImg.sprite = notebookOpenSprite;
+            nbWindowImg.color = Color.white; // 100% sólido, sin transparencia
+            nbWindowImg.preserveAspect = true;
 
             // Página Izquierda: Lógica Simbólica
             GameObject leftPageTextGO = new GameObject("LeftPageText");
-            leftPageTextGO.transform.SetParent(nbContentGO.transform, false);
+            leftPageTextGO.transform.SetParent(nbWindowGO.transform, false);
             var lpRT = leftPageTextGO.AddComponent<RectTransform>();
-            lpRT.anchoredPosition = new Vector2(-180, 20);
-            lpRT.sizeDelta = new Vector2(300, 380);
+            lpRT.anchorMin = new Vector2(0.5f, 0.5f);
+            lpRT.anchorMax = new Vector2(0.5f, 0.5f);
+            lpRT.pivot = new Vector2(0.5f, 0.5f);
+            lpRT.anchoredPosition = new Vector2(-360, 15);
+            lpRT.sizeDelta = new Vector2(530, 680);
             var lpText = leftPageTextGO.AddComponent<Text>();
             lpText.font = fredokaBold;
-            lpText.fontSize = 17;
-            lpText.color = new Color(0.15f, 0.15f, 0.15f);
-            lpText.lineSpacing = 1.15f;
+            lpText.fontSize = 28;
+            lpText.color = new Color(0.12f, 0.12f, 0.12f);
+            lpText.lineSpacing = 1.2f;
             lpText.text = "<b>LÓGICA PROPOSICIONAL</b>\n\n" +
                           "<b>∧ : Conjunción (y)</b>\nVerdadero si ambos cumplen.\n\n" +
                           "<b>∨ : Disyunción (o)</b>\nVerdadero si al menos uno cumple.\n\n" +
@@ -528,34 +539,39 @@ namespace LogiPack.Editor
 
             // Página Derecha: Catálogo de Ítems
             GameObject rightPageTextGO = new GameObject("RightPageText");
-            rightPageTextGO.transform.SetParent(nbContentGO.transform, false);
+            rightPageTextGO.transform.SetParent(nbWindowGO.transform, false);
             var rpRT = rightPageTextGO.AddComponent<RectTransform>();
-            rpRT.anchoredPosition = new Vector2(180, 20);
-            rpRT.sizeDelta = new Vector2(300, 380);
+            rpRT.anchorMin = new Vector2(0.5f, 0.5f);
+            rpRT.anchorMax = new Vector2(0.5f, 0.5f);
+            rpRT.pivot = new Vector2(0.5f, 0.5f);
+            rpRT.anchoredPosition = new Vector2(360, 30);
+            rpRT.sizeDelta = new Vector2(530, 640);
             var rpText = rightPageTextGO.AddComponent<Text>();
             rpText.font = fredokaBold;
-            rpText.fontSize = 16;
-            rpText.color = new Color(0.15f, 0.15f, 0.15f);
-            rpText.lineSpacing = 1.15f;
+            rpText.fontSize = 26;
+            rpText.color = new Color(0.12f, 0.12f, 0.12f);
+            rpText.lineSpacing = 1.2f;
             rpText.text = "<b>CATÁLOGO DE PROPOSICIONES</b>\n\n" +
                           "<b>p</b>: Perno Titanio  |  <b>~p</b>: Tornillo\n" +
                           "<b>q</b>: Batería Litio  |  <b>~q</b>: Cable\n" +
                           "<b>s</b>: Cristal Lab.   |  <b>~s</b>: Vidrio\n" +
                           "<b>r</b>: Ignífugo       |  <b>~r</b>: Algodón\n\n" +
-                          "<i>Tip: Ranura 1 es término directo. Ranura 3 es término negado (~).</i>";
+                          "<i>Tip: Ranura 1 es término directo.\nRanura 3 es término negado (~).</i>";
 
             // Botón Cerrar Cuaderno
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
             GameObject closeNbBtnGO = new GameObject("CloseNotebookBtn");
-            closeNbBtnGO.transform.SetParent(nbContentGO.transform, false);
+            closeNbBtnGO.transform.SetParent(nbWindowGO.transform, false);
             var cnbRT = closeNbBtnGO.AddComponent<RectTransform>();
-            cnbRT.anchoredPosition = new Vector2(180, -170);
-            cnbRT.sizeDelta = new Vector2(160, 42);
+            cnbRT.anchorMin = new Vector2(0.5f, 0.5f);
+            cnbRT.anchorMax = new Vector2(0.5f, 0.5f);
+            cnbRT.pivot = new Vector2(0.5f, 0.5f);
+            cnbRT.anchoredPosition = new Vector2(360, -370);
+            cnbRT.sizeDelta = new Vector2(220, 56);
             var cnbImg = closeNbBtnGO.AddComponent<Image>();
             cnbImg.sprite = yellowBtnSprite;
             var cnbBtn = closeNbBtnGO.AddComponent<Button>();
             cnbBtn.targetGraphic = cnbImg;
-            guideUI.CloseButton = cnbBtn;
 
             GameObject closeNbTextGO = new GameObject("Text");
             closeNbTextGO.transform.SetParent(closeNbBtnGO.transform, false);
@@ -564,12 +580,21 @@ namespace LogiPack.Editor
             var cnbText = closeNbTextGO.AddComponent<Text>();
             cnbText.text = "CERRAR";
             cnbText.alignment = TextAnchor.MiddleCenter;
-            cnbText.fontSize = 18;
+            cnbText.fontSize = 24;
             cnbText.font = fredokaBold;
             cnbText.color = new Color(0.1f, 0.1f, 0.1f);
 
-            guideUI.ContentPagesContainer = nbContentGO;
-            nbContentGO.SetActive(false);
+            var guideUI = notebookBtnGO.AddComponent<GameplayNotebookGuideUI>();
+            guideUI.TriggerButton = nbBtn;
+            guideUI.ModalRoot = nbModalRootGO;
+            guideUI.NotebookWindowRect = nbWindowRT;
+            guideUI.NotebookWindowImage = nbWindowImg;
+            guideUI.CloseButton = cnbBtn;
+            guideUI.OverlayCloseButton = overlayCloseBtn;
+            guideUI.CuadernoAbierto = notebookOpenSprite;
+            guideUI.AbrirFrames = abrirFrames;
+
+            nbModalRootGO.SetActive(false);
 
             // 13. Modal de Opciones / Pausa de Gameplay
             Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");

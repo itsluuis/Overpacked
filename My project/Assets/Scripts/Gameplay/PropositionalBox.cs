@@ -238,7 +238,7 @@ namespace LogiPack.Gameplay
                 if (hit.name.Contains("Revision") || hit.name.Contains("Trash") || (hit.CompareTag("TrashBin")))
                 {
                     handled = true;
-                    FloatingFeedbackFX.Show(transform.position, "Caja Descartada", new Color(0.9f, 0.6f, 0.2f));
+                    FloatingFeedbackFX.Show(transform.position, "Caja revisada con éxito", new Color(0.2f, 0.85f, 0.5f));
                     DestroyBox();
                     return;
                 }
