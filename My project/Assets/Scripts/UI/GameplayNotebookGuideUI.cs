@@ -22,10 +22,10 @@ namespace LogiPack.UI
         public Sprite[] AbrirFrames;
 
         [Header("Posiciones y Escalas")]
-        private Vector2 _idlePosition;
-        private Vector3 _idleScale;
-        private Vector2 _centerPosition = Vector2.zero;
-        private Vector3 _openScale = Vector3.one * 0.90f;
+        public Vector2 IdleAnchoredPosition = new Vector2(900, -45);
+        public Vector2 CenterAnchoredPosition = Vector2.zero;
+        public Vector3 IdleScale = Vector3.one;
+        public Vector3 OpenScale = Vector3.one * 7.0f;
 
         private bool _isOpen;
         private bool _isAnimating;
@@ -37,8 +37,16 @@ namespace LogiPack.UI
 
             if (NotebookRect != null)
             {
-                _idlePosition = NotebookRect.anchoredPosition;
-                _idleScale = NotebookRect.localScale;
+                // Configurar anclaje al centro para interpolación limpia
+                NotebookRect.anchorMin = new Vector2(0.5f, 0.5f);
+                NotebookRect.anchorMax = new Vector2(0.5f, 0.5f);
+                NotebookRect.anchoredPosition = IdleAnchoredPosition;
+                NotebookRect.localScale = IdleScale;
+            }
+
+            if (NotebookImage != null)
+            {
+                NotebookImage.preserveAspect = true;
             }
 
             if (TriggerButton != null)
@@ -55,7 +63,10 @@ namespace LogiPack.UI
             {
                 DarkOverlay.SetActive(false);
                 var overlayBtn = DarkOverlay.GetComponent<Button>();
-                if (overlayBtn != null) overlayBtn.onClick.AddListener(CloseGuide);
+                if (overlayBtn != null)
+                {
+                    overlayBtn.onClick.AddListener(CloseGuide);
+                }
             }
 
             if (ContentPagesContainer != null)
@@ -83,22 +94,38 @@ namespace LogiPack.UI
             if (opening)
             {
                 GameModeManager.SetGameplayPaused(true);
-                if (DarkOverlay != null) DarkOverlay.SetActive(true);
-                if (ContentPagesContainer != null) ContentPagesContainer.SetActive(false);
+
+                if (TriggerButton != null) TriggerButton.interactable = false;
+
+                if (DarkOverlay != null)
+                {
+                    DarkOverlay.SetActive(true);
+                    DarkOverlay.transform.SetAsLastSibling();
+                }
+
+                transform.SetAsLastSibling();
+
+                if (ContentPagesContainer != null)
+                {
+                    ContentPagesContainer.SetActive(false);
+                }
             }
             else
             {
-                if (ContentPagesContainer != null) ContentPagesContainer.SetActive(false);
+                if (ContentPagesContainer != null)
+                {
+                    ContentPagesContainer.SetActive(false);
+                }
             }
 
-            float duration = 0.45f;
+            float duration = 0.35f;
             float elapsed = 0f;
 
-            Vector2 startPos = opening ? _idlePosition : _centerPosition;
-            Vector2 targetPos = opening ? _centerPosition : _idlePosition;
+            Vector2 startPos = opening ? IdleAnchoredPosition : CenterAnchoredPosition;
+            Vector2 targetPos = opening ? CenterAnchoredPosition : IdleAnchoredPosition;
 
-            Vector3 startScale = opening ? _idleScale : _openScale;
-            Vector3 targetScale = opening ? _openScale : _idleScale;
+            Vector3 startScale = opening ? IdleScale : OpenScale;
+            Vector3 targetScale = opening ? OpenScale : IdleScale;
 
             int totalFrames = (AbrirFrames != null) ? AbrirFrames.Length : 0;
 
@@ -154,14 +181,35 @@ namespace LogiPack.UI
             if (opening)
             {
                 _isOpen = true;
-                if (NotebookImage != null && CuadernoAbierto != null) NotebookImage.sprite = CuadernoAbierto;
-                if (ContentPagesContainer != null) ContentPagesContainer.SetActive(true);
+                if (NotebookImage != null && CuadernoAbierto != null)
+                {
+                    NotebookImage.sprite = CuadernoAbierto;
+                }
+
+                if (ContentPagesContainer != null)
+                {
+                    ContentPagesContainer.SetActive(true);
+                    ContentPagesContainer.transform.SetAsLastSibling();
+                }
             }
             else
             {
                 _isOpen = false;
-                if (DarkOverlay != null) DarkOverlay.SetActive(false);
-                if (NotebookImage != null && CuadernoCerrado != null) NotebookImage.sprite = CuadernoCerrado;
+                if (DarkOverlay != null)
+                {
+                    DarkOverlay.SetActive(false);
+                }
+
+                if (NotebookImage != null && CuadernoCerrado != null)
+                {
+                    NotebookImage.sprite = CuadernoCerrado;
+                }
+
+                if (TriggerButton != null)
+                {
+                    TriggerButton.interactable = true;
+                }
+
                 GameModeManager.SetGameplayPaused(false);
             }
 

@@ -1,5 +1,6 @@
 using LogiPack.Logic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace LogiPack.Gameplay
 {
@@ -8,34 +9,34 @@ namespace LogiPack.Gameplay
         public PropositionalOperator Operator;
         public AssemblyWorkbenchManager Workbench;
 
-        private void OnMouseDown()
-        {
-            if (Workbench == null)
-            {
-                Workbench = AssemblyWorkbenchManager.Instance;
-            }
+        private Camera _mainCamera;
+        private Collider2D _collider;
 
-            if (Workbench != null)
-            {
-                Workbench.SelectOperator(Operator);
-            }
+        private void Awake()
+        {
+            _mainCamera = Camera.main;
+            _collider = GetComponent<Collider2D>();
         }
-    }
 
-    public class OperatorSlotTrigger : MonoBehaviour
-    {
-        public AssemblyWorkbenchManager Workbench;
-
-        private void OnMouseDown()
+        private void Update()
         {
-            if (Workbench == null)
+            if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
             {
-                Workbench = AssemblyWorkbenchManager.Instance;
-            }
+                if (_mainCamera == null) _mainCamera = Camera.main;
+                if (_mainCamera == null) return;
 
-            if (Workbench != null)
-            {
-                Workbench.ToggleOperatorDrawer();
+                Vector2 screenPos = Pointer.current.position.ReadValue();
+                Vector3 worldPos = _mainCamera.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, -_mainCamera.transform.position.z));
+                worldPos.z = 0f;
+
+                if (_collider != null && _collider.OverlapPoint(worldPos))
+                {
+                    if (Workbench == null) Workbench = AssemblyWorkbenchManager.Instance;
+                    if (Workbench != null)
+                    {
+                        Workbench.SelectOperator(Operator);
+                    }
+                }
             }
         }
     }

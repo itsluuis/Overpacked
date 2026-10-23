@@ -175,21 +175,21 @@ namespace LogiPack.Editor
             opText.fontSize = 58;
             opText.color = Color.white;
             opText.font = fredokaBold;
+            opText.raycastTarget = false;
             workbench.OperatorSymbolText = opText;
 
             // Cajón 1x4 Desplegable debajo de la Ranura 2
             Sprite drawer1x4Sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/cajon_1x4.png");
             GameObject drawer1x4GO = new GameObject("Cajon_1x4_Operadores");
             drawer1x4GO.transform.SetParent(assemblyAreaGO.transform, false);
-            drawer1x4GO.transform.position = new Vector3(-4.63f, -3.20f, 0f);
-            drawer1x4GO.transform.localScale = Vector3.one * 0.70f;
+            drawer1x4GO.transform.position = new Vector3(-4.63f, -3.45f, 0f);
+            drawer1x4GO.transform.localScale = Vector3.one * 1.15f;
             var drawerSR = drawer1x4GO.AddComponent<SpriteRenderer>();
             drawerSR.sprite = drawer1x4Sprite;
             drawerSR.sortingOrder = 40;
 
-            // 4 Botones en el cajón 1x4 (∧, ∨, →, ↔)
-            float startBtnX = -2.55f;
-            float stepBtnX = 1.70f;
+            // 4 Botones en el cajón 1x4 (∧, ∨, →, ↔) centrados con precisión pixel-perfect
+            float[] btnOffsetsX = { -1.81f, -0.60f, 0.60f, 1.81f };
             PropositionalOperator[] ops = { PropositionalOperator.And, PropositionalOperator.Or, PropositionalOperator.Conditional, PropositionalOperator.Biconditional };
             string[] opSymbols = { "∧", "∨", "→", "↔" };
 
@@ -197,10 +197,10 @@ namespace LogiPack.Editor
             {
                 GameObject btnGO = new GameObject($"Btn_Op_{opSymbols[i]}");
                 btnGO.transform.SetParent(drawer1x4GO.transform, false);
-                btnGO.transform.localPosition = new Vector3(startBtnX + i * stepBtnX, 0f, 0f);
+                btnGO.transform.localPosition = new Vector3(btnOffsetsX[i], 0f, 0f);
 
                 var btnCol = btnGO.AddComponent<BoxCollider2D>();
-                btnCol.size = new Vector2(1.5f, 1.5f);
+                btnCol.size = new Vector2(1.15f, 1.15f);
 
                 var drawerBtn = btnGO.AddComponent<OperatorDrawerButton>();
                 drawerBtn.Operator = ops[i];
@@ -223,7 +223,9 @@ namespace LogiPack.Editor
                 btnTextComp.fontSize = 52;
                 btnTextComp.color = Color.white;
                 btnTextComp.font = fredokaBold;
+                btnTextComp.raycastTarget = false;
             }
+            drawer1x4GO.SetActive(false);
             workbench.OperatorDrawer1x4 = drawer1x4GO;
 
             // Ranura 3 (Operando B)
@@ -347,18 +349,18 @@ namespace LogiPack.Editor
             hudManager.ClockSprites = clockFrames;
             hudManager.MoneyText = moneyText;
 
-            // Post-it Pedido Activo (Superior Izquierdo)
+            // Post-it Pedido Activo (Esquina Superior Derecha)
             Sprite postitSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/popstick_amarillo_grande.png");
             Sprite thumbtackSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/tachuela_roja.png");
 
             GameObject postitGO = new GameObject("Order_PostIt_Container");
             postitGO.transform.SetParent(canvasGO.transform, false);
             var postitRT = postitGO.AddComponent<RectTransform>();
-            postitRT.anchorMin = new Vector2(0f, 1f);
-            postitRT.anchorMax = new Vector2(0f, 1f);
-            postitRT.pivot = new Vector2(0f, 1f);
-            postitRT.anchoredPosition = new Vector2(235, -25);
-            postitRT.sizeDelta = new Vector2(330, 330);
+            postitRT.anchorMin = new Vector2(1f, 1f);
+            postitRT.anchorMax = new Vector2(1f, 1f);
+            postitRT.pivot = new Vector2(1f, 1f);
+            postitRT.anchoredPosition = new Vector2(-25, -25);
+            postitRT.sizeDelta = new Vector2(340, 340);
 
             var postitImg = postitGO.AddComponent<Image>();
             postitImg.sprite = postitSprite;
@@ -377,45 +379,45 @@ namespace LogiPack.Editor
                 ttImg.sprite = thumbtackSprite;
             }
 
-            // Header Pedido
+            // Header Pedido (+6px -> 28pt)
             GameObject postitHeaderGO = new GameObject("OrderHeader");
             postitHeaderGO.transform.SetParent(postitGO.transform, false);
             var phRT = postitHeaderGO.AddComponent<RectTransform>();
             phRT.anchorMin = new Vector2(0.5f, 1f);
             phRT.anchorMax = new Vector2(0.5f, 1f);
             phRT.anchoredPosition = new Vector2(0, -45);
-            phRT.sizeDelta = new Vector2(290, 35);
+            phRT.sizeDelta = new Vector2(300, 38);
             var phText = postitHeaderGO.AddComponent<Text>();
             phText.alignment = TextAnchor.MiddleCenter;
-            phText.fontSize = 22;
+            phText.fontSize = 28;
             phText.font = fredokaBold;
             phText.color = new Color(0.25f, 0.20f, 0.05f);
 
-            // Fórmula FBF
+            // Fórmula FBF (+6px -> 38pt)
             GameObject postitFBFGO = new GameObject("OrderFBF");
             postitFBFGO.transform.SetParent(postitGO.transform, false);
             var fbfRT = postitFBFGO.AddComponent<RectTransform>();
             fbfRT.anchorMin = new Vector2(0.5f, 0.5f);
             fbfRT.anchorMax = new Vector2(0.5f, 0.5f);
             fbfRT.anchoredPosition = new Vector2(0, 15);
-            fbfRT.sizeDelta = new Vector2(300, 65);
+            fbfRT.sizeDelta = new Vector2(310, 70);
             var fbfText = postitFBFGO.AddComponent<Text>();
             fbfText.alignment = TextAnchor.MiddleCenter;
-            fbfText.fontSize = 32;
+            fbfText.fontSize = 38;
             fbfText.font = fredokaBold;
             fbfText.color = new Color(0.12f, 0.12f, 0.12f); // Negro carbón
 
-            // Lenguaje Natural
+            // Lenguaje Natural (+6px -> 24pt)
             GameObject postitNatLangGO = new GameObject("OrderNaturalLanguage");
             postitNatLangGO.transform.SetParent(postitGO.transform, false);
             var nlRT = postitNatLangGO.AddComponent<RectTransform>();
             nlRT.anchorMin = new Vector2(0.5f, 0f);
             nlRT.anchorMax = new Vector2(0.5f, 0f);
-            nlRT.anchoredPosition = new Vector2(0, 55);
-            nlRT.sizeDelta = new Vector2(290, 85);
+            nlRT.anchoredPosition = new Vector2(0, 52);
+            nlRT.sizeDelta = new Vector2(300, 90);
             var nlText = postitNatLangGO.AddComponent<Text>();
             nlText.alignment = TextAnchor.MiddleCenter;
-            nlText.fontSize = 18;
+            nlText.fontSize = 24;
             nlText.lineSpacing = 1.15f;
             nlText.font = fredokaBold;
             nlText.color = new Color(0.28f, 0.28f, 0.28f);
@@ -464,27 +466,6 @@ namespace LogiPack.Editor
                 abrirFrames[f - 1] = AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Art/Sprites_sheets/individual_frames/abrir_paso_{f}.png");
             }
 
-            GameObject notebookBtnGO = new GameObject("Button_NotebookGuide");
-            notebookBtnGO.transform.SetParent(canvasGO.transform, false);
-            var nbRT = notebookBtnGO.AddComponent<RectTransform>();
-            nbRT.anchorMin = new Vector2(1f, 0.5f);
-            nbRT.anchorMax = new Vector2(1f, 0.5f);
-            nbRT.anchoredPosition = new Vector2(-60, -45);
-            nbRT.sizeDelta = new Vector2(70, 70);
-
-            var nbImg = notebookBtnGO.AddComponent<Image>();
-            nbImg.sprite = notebookClosedSprite;
-            var nbBtn = notebookBtnGO.AddComponent<Button>();
-            nbBtn.targetGraphic = nbImg;
-
-            var guideUI = notebookBtnGO.AddComponent<GameplayNotebookGuideUI>();
-            guideUI.NotebookRect = nbRT;
-            guideUI.NotebookImage = nbImg;
-            guideUI.TriggerButton = nbBtn;
-            guideUI.CuadernoCerrado = notebookClosedSprite;
-            guideUI.CuadernoAbierto = notebookOpenSprite;
-            guideUI.AbrirFrames = abrirFrames;
-
             // Overlay Oscuro para cuando el cuaderno esté abierto
             GameObject nbDarkOverlay = new GameObject("Notebook_DarkOverlay");
             nbDarkOverlay.transform.SetParent(canvasGO.transform, false);
@@ -495,8 +476,30 @@ namespace LogiPack.Editor
             var nbDarkImg = nbDarkOverlay.AddComponent<Image>();
             nbDarkImg.color = new Color(0, 0, 0, 0.65f);
             nbDarkOverlay.AddComponent<Button>();
-            guideUI.DarkOverlay = nbDarkOverlay;
             nbDarkOverlay.SetActive(false);
+
+            GameObject notebookBtnGO = new GameObject("Button_NotebookGuide");
+            notebookBtnGO.transform.SetParent(canvasGO.transform, false);
+            var nbRT = notebookBtnGO.AddComponent<RectTransform>();
+            nbRT.anchorMin = new Vector2(0.5f, 0.5f);
+            nbRT.anchorMax = new Vector2(0.5f, 0.5f);
+            nbRT.anchoredPosition = new Vector2(900, -45);
+            nbRT.sizeDelta = new Vector2(115, 75);
+
+            var nbImg = notebookBtnGO.AddComponent<Image>();
+            nbImg.sprite = notebookClosedSprite;
+            nbImg.preserveAspect = true;
+            var nbBtn = notebookBtnGO.AddComponent<Button>();
+            nbBtn.targetGraphic = nbImg;
+
+            var guideUI = notebookBtnGO.AddComponent<GameplayNotebookGuideUI>();
+            guideUI.NotebookRect = nbRT;
+            guideUI.NotebookImage = nbImg;
+            guideUI.TriggerButton = nbBtn;
+            guideUI.CuadernoCerrado = notebookClosedSprite;
+            guideUI.CuadernoAbierto = notebookOpenSprite;
+            guideUI.AbrirFrames = abrirFrames;
+            guideUI.DarkOverlay = nbDarkOverlay;
 
             // Contenedor de contenido de las páginas del cuaderno
             GameObject nbContentGO = new GameObject("Notebook_OpenPages_Content");
