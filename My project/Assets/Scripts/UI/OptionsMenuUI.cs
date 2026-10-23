@@ -27,6 +27,7 @@ namespace LogiPack.UI
         public Text SFXValueText;
 
         [Header("Botones de Acción")]
+        public Button ScreenPauseButton;     // Botón de pausa en pantalla de gameplay
         public Button ResumeButton;          // "SEGUIR CON LA PARTIDA" (Gameplay)
         public Button ReturnToMenuButton;    // "SALIR AL MENÚ" (Gameplay)
         public Button BackButton;            // "◀ VOLVER" (Menú Principal)
@@ -38,6 +39,11 @@ namespace LogiPack.UI
 
         private void Awake()
         {
+            if (ScreenPauseButton != null)
+            {
+                ScreenPauseButton.onClick.AddListener(OpenOptions);
+            }
+
             if (ResumeButton != null)
             {
                 ResumeButton.onClick.AddListener(OnClickResume);

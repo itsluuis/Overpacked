@@ -82,6 +82,11 @@ namespace LogiPack.UI
         {
             LogiPack.Core.GameModeManager.SetGameplayPaused(visible);
 
+            if (visible)
+            {
+                transform.SetAsLastSibling();
+            }
+
             if (OverlayBackground != null)
             {
                 OverlayBackground.enabled = visible;

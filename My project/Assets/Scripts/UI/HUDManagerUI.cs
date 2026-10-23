@@ -24,6 +24,10 @@ namespace LogiPack.UI
         public Text TemperatureText;
         public Text MoneyText;
 
+        [Header("Reloj con Hoja de Sprites")]
+        public Image ClockImage;
+        public Sprite[] ClockSprites;
+
         private void Start()
         {
             if (Economy != null)
@@ -59,7 +63,15 @@ namespace LogiPack.UI
                 int h = Mathf.RoundToInt(Environment.CurrentState.CurrentHour);
                 if (ClockText != null)
                 {
-                    ClockText.text = $"🕒 {h:D2}:00 {(h >= 12 ? "PM" : "AM")}";
+                    ClockText.text = $"{h:D2}:00 {(h >= 12 ? "PM" : "AM")}";
+                }
+                if (ClockImage != null && ClockSprites != null && ClockSprites.Length > 0)
+                {
+                    int index = Mathf.Clamp(h - 6, 0, ClockSprites.Length - 1);
+                    if (ClockSprites[index] != null && ClockImage.sprite != ClockSprites[index])
+                    {
+                        ClockImage.sprite = ClockSprites[index];
+                    }
                 }
             }
         }
