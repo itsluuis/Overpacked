@@ -100,13 +100,15 @@ namespace LogiPack.UI
 
         private void RenderSummary(DailySummary summary)
         {
-            int dayNumber = Environment != null ? Environment.CurrentDayNumber : 1;
+            // 0. Registrar récord en el ranking Top 5 de Jornada Normal
+            LogiPack.Core.RankingManager.RecordNormalDayScore(summary.NetMoney, summary.Stars);
 
             // 1. Título de la Jornada (+10px)
             if (HeaderTitleText != null)
             {
+                int dayNum = (Environment != null) ? Environment.CurrentDayNumber : 1;
                 HeaderTitleText.fontSize = 32;
-                HeaderTitleText.text = $"📋 REPORTE DE JORNADA — DÍA {dayNumber}\n<size=18>CIERRE DE TURNO: 22:00 PM</size>";
+                HeaderTitleText.text = $"📋 REPORTE DE JORNADA — DÍA {dayNum}\n<size=18>CIERRE DE TURNO: 22:00 PM</size>";
             }
 
             // 2. Estrellas (+10px)
@@ -199,6 +201,9 @@ namespace LogiPack.UI
 
         public void RenderInfiniteSummary(int roundsCleared, System.Collections.Generic.List<int> roundEarnings, int totalEarnings)
         {
+            // 0. Registrar récord en el sistema de rankings Top 5
+            LogiPack.Core.RankingManager.RecordInfiniteScore(roundsCleared, totalEarnings);
+
             if (HeaderTitleText != null)
             {
                 HeaderTitleText.fontSize = 32;
@@ -280,6 +285,9 @@ namespace LogiPack.UI
 
         public void RenderTutorialSummary(int completedOrders, int earnings)
         {
+            // Registrar tutorial completado de forma persistente
+            LogiPack.Core.RankingManager.SetTutorialCompleted(true);
+
             if (HeaderTitleText != null)
             {
                 HeaderTitleText.fontSize = 32;

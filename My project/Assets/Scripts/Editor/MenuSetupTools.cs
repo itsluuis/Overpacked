@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -144,7 +145,7 @@ namespace LogiPack.Editor
             cuadernoCtrl.MainMenu = menuController;
             menuController.Cuaderno = cuadernoCtrl;
 
-            // 8. Contenedor de Páginas Abiertas (Dentro del Cuaderno - Versión Original)
+            // 8. Contenedor de Páginas Abiertas (Dentro del Cuaderno - 3 Hojas Paginadas con Rankings)
             GameObject pagesContainerGO = new GameObject("OpenPagesContainer");
             pagesContainerGO.transform.SetParent(cuadernoRootGO.transform, false);
             var pagesRT = pagesContainerGO.AddComponent<RectTransform>();
@@ -156,106 +157,149 @@ namespace LogiPack.Editor
 
             Color darkInkColor = new Color(0.18f, 0.12f, 0.08f);
 
-            // === PÁGINA IZQUIERDA ===
-            // Título: "Modos de juego"
-            CreateTextElement(pagesContainerGO.transform, "Title_Modos", new Vector2(-240, 245), new Vector2(400, 50), "Modos de juego", fredokaBold, 30, darkInkColor, TextAnchor.MiddleCenter);
+            // ==========================================
+            // HOJA 0: PRUEBA LABORAL (TUTORIAL)
+            // ==========================================
+            GameObject sheet0GO = new GameObject("Sheet_0_Tutorial");
+            sheet0GO.transform.SetParent(pagesContainerGO.transform, false);
+            var s0RT = sheet0GO.AddComponent<RectTransform>();
+            s0RT.anchorMin = Vector2.zero; s0RT.anchorMax = Vector2.one;
+            s0RT.offsetMin = Vector2.zero; s0RT.offsetMax = Vector2.zero;
+            cuadernoCtrl.SheetTutorial = sheet0GO;
 
-            // Rectángulo 1: Tutorial (Arriba)
-            GameObject tutBtnGO = new GameObject("ModeCard_Tutorial");
-            tutBtnGO.transform.SetParent(pagesContainerGO.transform, false);
-            var tutRT = tutBtnGO.AddComponent<RectTransform>();
-            tutRT.anchoredPosition = new Vector2(-240, 145);
-            tutRT.sizeDelta = new Vector2(360, 85);
-            var tutImg = tutBtnGO.AddComponent<Image>();
-            tutImg.color = new Color(0.96f, 0.92f, 0.82f, 0.9f);
-            var tutBtn = tutBtnGO.AddComponent<Button>();
-            cuadernoCtrl.TutorialButton = tutBtn;
+            // Página Izquierda Hoja 0
+            CreateTextElement(sheet0GO.transform, "Title", new Vector2(-240, 230), new Vector2(380, 50), "PRUEBA LABORAL", fredokaBold, 28, new Color(0.15f, 0.55f, 0.22f), TextAnchor.MiddleCenter);
+            var desc0 = CreateTextElement(sheet0GO.transform, "Description", new Vector2(-240, 45), new Vector2(360, 250), CuadernoMenuController.TUTORIAL_DESC, fredokaBold, 18, darkInkColor, TextAnchor.UpperLeft);
+            desc0.lineSpacing = 1.18f;
+            cuadernoCtrl.StartTutorialButton = CreateMenuButton(sheet0GO.transform, "StartButton", new Vector2(-240, -145), new Vector2(300, 65), greenBtnSprite, "INICIAR PRUEBA ▶", fredokaBold, 22);
 
-            // Borde / Highlight Tutorial
-            GameObject tutHlGO = new GameObject("Highlight");
-            tutHlGO.transform.SetParent(tutBtnGO.transform, false);
-            var tutHlRT = tutHlGO.AddComponent<RectTransform>();
-            tutHlRT.anchorMin = Vector2.zero;
-            tutHlRT.anchorMax = Vector2.one;
-            tutHlRT.offsetMin = new Vector2(-4, -4);
-            tutHlRT.offsetMax = new Vector2(4, 4);
-            var tutHlImg = tutHlGO.AddComponent<Image>();
-            tutHlImg.color = new Color(0.20f, 0.65f, 0.25f, 0.55f);
-            tutHlImg.raycastTarget = false;
-            tutHlGO.transform.SetAsFirstSibling();
-            cuadernoCtrl.TutorialHighlight = tutHlImg;
+            // Página Derecha Hoja 0 (Ficha de Capacitación)
+            CreateTextElement(sheet0GO.transform, "RightTitle", new Vector2(240, 230), new Vector2(380, 50), "SUPERVISIÓN: MOCHI MILES", fredokaBold, 24, new Color(0.15f, 0.55f, 0.22f), TextAnchor.MiddleCenter);
+            cuadernoCtrl.TutorialStatusText = CreateTextElement(sheet0GO.transform, "StatusText", new Vector2(240, 160), new Vector2(380, 40), "ESTADO: PENDIENTE [!]", fredokaBold, 19, new Color(0.78f, 0.53f, 0f), TextAnchor.MiddleCenter);
 
-            CreateTextElement(tutBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 75), "PRUEBA (TUTORIAL)\n<size=14>Aprende con Mochi Miles • Sin Tiempo</size>", fredokaBold, 20, darkInkColor, TextAnchor.MiddleCenter);
+            CreateDividerLine(sheet0GO.transform, new Vector2(240, 135), 360f);
 
-            // Rectángulo 2: Jornada Normal (Centro)
-            GameObject normalBtnGO = new GameObject("ModeCard_NormalDay");
-            normalBtnGO.transform.SetParent(pagesContainerGO.transform, false);
-            var normalRT = normalBtnGO.AddComponent<RectTransform>();
-            normalRT.anchoredPosition = new Vector2(-240, 48);
-            normalRT.sizeDelta = new Vector2(360, 85);
-            var normalImg = normalBtnGO.AddComponent<Image>();
-            normalImg.color = new Color(0.96f, 0.92f, 0.82f, 0.9f);
-            var normalBtn = normalBtnGO.AddComponent<Button>();
-            cuadernoCtrl.NormalDayButton = normalBtn;
+            CreateTextElement(sheet0GO.transform, "TemarioTitle", new Vector2(240, 105), new Vector2(360, 35), "Temario de Competencias Lógicas:", fredokaBold, 20, darkInkColor, TextAnchor.MiddleLeft);
+            string temarioLines =
+                "1. Conjunción: p ∧ q\n" +
+                "2. Negación y Disyunción: ~q ∨ p\n" +
+                "3. El Condicional: p → s\n" +
+                "4. Sub-cajas Anidadas: (p ∧ q) → s\n" +
+                "5. El Bicondicional: (p ∨ r) ↔ s";
+            var temarioTxt = CreateTextElement(sheet0GO.transform, "TemarioContent", new Vector2(240, -15), new Vector2(360, 180), temarioLines, fredokaBold, 18, new Color(0.25f, 0.20f, 0.15f), TextAnchor.UpperLeft);
+            temarioTxt.lineSpacing = 1.35f;
 
-            // Borde / Highlight NormalDay
-            GameObject normalHlGO = new GameObject("Highlight");
-            normalHlGO.transform.SetParent(normalBtnGO.transform, false);
-            var normalHlRT = normalHlGO.AddComponent<RectTransform>();
-            normalHlRT.anchorMin = Vector2.zero;
-            normalHlRT.anchorMax = Vector2.one;
-            normalHlRT.offsetMin = new Vector2(-4, -4);
-            normalHlRT.offsetMax = new Vector2(4, 4);
-            var normalHlImg = normalHlGO.AddComponent<Image>();
-            normalHlImg.color = new Color(0.1f, 0.1f, 0.1f, 0.15f);
-            normalHlImg.raycastTarget = false;
-            normalHlGO.transform.SetAsFirstSibling();
-            cuadernoCtrl.NormalDayHighlight = normalHlImg;
+            // ==========================================
+            // HOJA 1: JORNADA NORMAL
+            // ==========================================
+            GameObject sheet1GO = new GameObject("Sheet_1_NormalDay");
+            sheet1GO.transform.SetParent(pagesContainerGO.transform, false);
+            var s1RT = sheet1GO.AddComponent<RectTransform>();
+            s1RT.anchorMin = Vector2.zero; s1RT.anchorMax = Vector2.one;
+            s1RT.offsetMin = Vector2.zero; s1RT.offsetMax = Vector2.zero;
+            cuadernoCtrl.SheetNormalDay = sheet1GO;
 
-            CreateTextElement(normalBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 75), "JORNADA NORMAL\n<size=14>Turno 06:00 a 22:00 • Cuotas Diarias</size>", fredokaBold, 20, darkInkColor, TextAnchor.MiddleCenter);
+            // Página Izquierda Hoja 1
+            CreateTextElement(sheet1GO.transform, "Title", new Vector2(-240, 230), new Vector2(380, 50), "JORNADA NORMAL", fredokaBold, 28, new Color(0.15f, 0.35f, 0.65f), TextAnchor.MiddleCenter);
+            var desc1 = CreateTextElement(sheet1GO.transform, "Description", new Vector2(-240, 45), new Vector2(360, 250), CuadernoMenuController.NORMAL_DAY_DESC, fredokaBold, 18, darkInkColor, TextAnchor.UpperLeft);
+            desc1.lineSpacing = 1.18f;
+            cuadernoCtrl.StartNormalDayButton = CreateMenuButton(sheet1GO.transform, "StartButton", new Vector2(-240, -145), new Vector2(300, 65), greenBtnSprite, "EMPECEMOS ▶", fredokaBold, 22);
 
-            // Rectángulo 3: Jornada Infinita (Abajo)
-            GameObject infBtnGO = new GameObject("ModeCard_Infinite");
-            infBtnGO.transform.SetParent(pagesContainerGO.transform, false);
-            var infRT = infBtnGO.AddComponent<RectTransform>();
-            infRT.anchoredPosition = new Vector2(-240, -48);
-            infRT.sizeDelta = new Vector2(360, 85);
-            var infImg = infBtnGO.AddComponent<Image>();
-            infImg.color = new Color(0.96f, 0.92f, 0.82f, 0.9f);
-            var infBtn = infBtnGO.AddComponent<Button>();
-            cuadernoCtrl.InfiniteButton = infBtn;
+            // Página Derecha Hoja 1 (Top 5 Ganancias)
+            CreateTextElement(sheet1GO.transform, "RightTitle", new Vector2(240, 230), new Vector2(380, 50), "MEJORES GANANCIAS (TOP 5)", fredokaBold, 24, new Color(0.15f, 0.35f, 0.65f), TextAnchor.MiddleCenter);
+            CreateTextElement(sheet1GO.transform, "HeaderRow", new Vector2(240, 170), new Vector2(380, 30), "#      Saldo Neto       Calificación     Fecha", fredokaBold, 15, new Color(0.45f, 0.40f, 0.35f), TextAnchor.MiddleLeft);
+            CreateDividerLine(sheet1GO.transform, new Vector2(240, 150), 380f);
 
-            // Borde / Highlight Infinite
-            GameObject infHlGO = new GameObject("Highlight");
-            infHlGO.transform.SetParent(infBtnGO.transform, false);
-            var infHlRT = infHlGO.AddComponent<RectTransform>();
-            infHlRT.anchorMin = Vector2.zero;
-            infHlRT.anchorMax = Vector2.one;
-            infHlRT.offsetMin = new Vector2(-4, -4);
-            infHlRT.offsetMax = new Vector2(4, 4);
-            var infHlImg = infHlGO.AddComponent<Image>();
-            infHlImg.color = new Color(0.1f, 0.1f, 0.1f, 0.15f);
-            infHlImg.raycastTarget = false;
-            infHlGO.transform.SetAsFirstSibling();
-            cuadernoCtrl.InfiniteHighlight = infHlImg;
+            cuadernoCtrl.NormalDayRowTexts = new Text[5];
+            float[] rowY = new float[] { 105f, 50f, -5f, -60f, -115f };
+            for (int r = 0; r < 5; r++)
+            {
+                cuadernoCtrl.NormalDayRowTexts[r] = CreateTextElement(sheet1GO.transform, $"Row_{r + 1}", new Vector2(240, rowY[r]), new Vector2(380, 40), $"#{r + 1}   --- Sin registro ---", fredokaBold, 18, darkInkColor, TextAnchor.MiddleLeft);
+            }
 
-            CreateTextElement(infBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 75), "JORNADA INFINITA\n<size=14>Desafío Contrarreloj • Supervivencia</size>", fredokaBold, 20, darkInkColor, TextAnchor.MiddleCenter);
+            // ==========================================
+            // HOJA 2: JORNADA INFINITA
+            // ==========================================
+            GameObject sheet2GO = new GameObject("Sheet_2_Infinite");
+            sheet2GO.transform.SetParent(pagesContainerGO.transform, false);
+            var s2RT = sheet2GO.AddComponent<RectTransform>();
+            s2RT.anchorMin = Vector2.zero; s2RT.anchorMax = Vector2.one;
+            s2RT.offsetMin = Vector2.zero; s2RT.offsetMax = Vector2.zero;
+            cuadernoCtrl.SheetInfinite = sheet2GO;
+
+            // Página Izquierda Hoja 2
+            CreateTextElement(sheet2GO.transform, "Title", new Vector2(-240, 230), new Vector2(380, 50), "JORNADA INFINITA", fredokaBold, 28, new Color(0.75f, 0.25f, 0.05f), TextAnchor.MiddleCenter);
+            var desc2 = CreateTextElement(sheet2GO.transform, "Description", new Vector2(-240, 45), new Vector2(360, 250), CuadernoMenuController.INFINITE_DESC, fredokaBold, 18, darkInkColor, TextAnchor.UpperLeft);
+            desc2.lineSpacing = 1.18f;
+            cuadernoCtrl.StartInfiniteButton = CreateMenuButton(sheet2GO.transform, "StartButton", new Vector2(-240, -145), new Vector2(300, 65), greenBtnSprite, "A TRABAJAR ▶", fredokaBold, 22);
+
+            // Página Derecha Hoja 2 (Top 5 Resistencia)
+            CreateTextElement(sheet2GO.transform, "RightTitle", new Vector2(240, 230), new Vector2(380, 50), "RÉCORDS DE RESISTENCIA (TOP 5)", fredokaBold, 24, new Color(0.75f, 0.25f, 0.05f), TextAnchor.MiddleCenter);
+            CreateTextElement(sheet2GO.transform, "HeaderRow", new Vector2(240, 170), new Vector2(380, 30), "#      Ronda Máx.     Dinero Total       Fecha", fredokaBold, 15, new Color(0.45f, 0.40f, 0.35f), TextAnchor.MiddleLeft);
+            CreateDividerLine(sheet2GO.transform, new Vector2(240, 150), 380f);
+
+            cuadernoCtrl.InfiniteRowTexts = new Text[5];
+            for (int r = 0; r < 5; r++)
+            {
+                cuadernoCtrl.InfiniteRowTexts[r] = CreateTextElement(sheet2GO.transform, $"Row_{r + 1}", new Vector2(240, rowY[r]), new Vector2(380, 40), $"#{r + 1}   --- Sin registro ---", fredokaBold, 18, darkInkColor, TextAnchor.MiddleLeft);
+            }
+
+            // ==========================================
+            // CONTROLES INFERIORES: FLECHAS Y VOLVER
+            // ==========================================
+            Sprite arrowLeftSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Arrows/ArrowBrownOuline22.png");
+            Sprite arrowRightSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Arrows/ArrowBrownOuline23.png");
+
+            // Flecha Izquierda
+            GameObject prevBtnGO = new GameObject("Button_PrevPage");
+            prevBtnGO.transform.SetParent(pagesContainerGO.transform, false);
+            var prevRT = prevBtnGO.AddComponent<RectTransform>();
+            prevRT.anchoredPosition = new Vector2(-385, -225);
+            prevRT.sizeDelta = new Vector2(45, 65);
+            var prevImg = prevBtnGO.AddComponent<Image>();
+            prevImg.sprite = arrowLeftSpr;
+            prevImg.preserveAspect = true;
+            cuadernoCtrl.PrevPageButton = prevBtnGO.AddComponent<Button>();
+            cuadernoCtrl.PrevPageButton.targetGraphic = prevImg;
+
+            // Flecha Derecha
+            GameObject nextBtnGO = new GameObject("Button_NextPage");
+            nextBtnGO.transform.SetParent(pagesContainerGO.transform, false);
+            var nextRT = nextBtnGO.AddComponent<RectTransform>();
+            nextRT.anchoredPosition = new Vector2(385, -225);
+            nextRT.sizeDelta = new Vector2(45, 65);
+            var nextImg = nextBtnGO.AddComponent<Image>();
+            nextImg.sprite = arrowRightSpr;
+            nextImg.preserveAspect = true;
+            cuadernoCtrl.NextPageButton = nextBtnGO.AddComponent<Button>();
+            cuadernoCtrl.NextPageButton.targetGraphic = nextImg;
 
             // Botón Volver (Pie de página izquierda)
-            cuadernoCtrl.BackButton = CreateMenuButton(pagesContainerGO.transform, "BackButton", new Vector2(-240, -180), new Vector2(220, 52), yellowBtnSprite, "◀ VOLVER", fredokaBold, 18);
+            cuadernoCtrl.BackButton = CreateMenuButton(pagesContainerGO.transform, "BackButton", new Vector2(-240, -225), new Vector2(200, 50), yellowBtnSprite, "◀ VOLVER", fredokaBold, 18);
 
-            // === PÁGINA DERECHA ===
-            // Título del Modo Seleccionado
-            cuadernoCtrl.ModeTitleText = CreateTextElement(pagesContainerGO.transform, "ModeTitleText", new Vector2(240, 240), new Vector2(380, 50), "PRUEBA LABORAL", fredokaBold, 28, new Color(0.15f, 0.55f, 0.22f), TextAnchor.MiddleCenter);
+            // ==========================================
+            // OVERLAY DE ANIMACIÓN DE VOLTEO DE PÁGINA
+            // ==========================================
+            GameObject flipOverlayGO = new GameObject("PageFlipOverlay");
+            flipOverlayGO.transform.SetParent(pagesContainerGO.transform, false);
+            var flipRT = flipOverlayGO.AddComponent<RectTransform>();
+            flipRT.anchorMin = Vector2.zero; flipRT.anchorMax = Vector2.one;
+            flipRT.offsetMin = Vector2.zero; flipRT.offsetMax = Vector2.zero;
+            var flipImg = flipOverlayGO.AddComponent<Image>();
+            flipImg.raycastTarget = true;
+            cuadernoCtrl.PageFlipOverlay = flipImg;
+            flipOverlayGO.SetActive(false);
 
-            // Descripción del Modo
-            var descText = CreateTextElement(pagesContainerGO.transform, "ModeDescriptionText", new Vector2(240, 45), new Vector2(360, 280), CuadernoMenuController.TUTORIAL_DESC, fredokaBold, 18, darkInkColor, TextAnchor.UpperLeft);
-            descText.lineSpacing = 1.15f;
-            descText.verticalOverflow = VerticalWrapMode.Overflow;
-            cuadernoCtrl.ModeDescriptionText = descText;
+            // Cargar frames de volteo
+            var allSpr1 = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Sprites_sheets/cuaderno_pasar_pagina_der_izq.png");
+            List<Sprite> fwdList = new List<Sprite>();
+            foreach (var obj in allSpr1) { if (obj is Sprite s) fwdList.Add(s); }
+            cuadernoCtrl.PageFlipForwardSprites = fwdList.ToArray();
 
-            // Botón Verde "Iniciar Prueba"
-            cuadernoCtrl.StartButton = CreateMenuButton(pagesContainerGO.transform, "StartButton", new Vector2(240, -180), new Vector2(300, 65), greenBtnSprite, "INICIAR PRUEBA ▶", fredokaBold, 22);
+            var allSpr2 = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Sprites_sheets/cuaderno_pasar_pagina_izq_der.png");
+            List<Sprite> bwdList = new List<Sprite>();
+            foreach (var obj in allSpr2) { if (obj is Sprite s) bwdList.Add(s); }
+            cuadernoCtrl.PageFlipBackwardSprites = bwdList.ToArray();
 
             pagesContainerGO.SetActive(false);
 
@@ -273,8 +317,6 @@ namespace LogiPack.Editor
             };
 
             EditorSceneManager.SaveScene(scene, scenePath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
 
             Debug.Log("<color=green><b>[LogiPack] ¡Escena MainMenuScene restaurada fielmente al diseño original con Opciones funcionales!</b></color>");
         }
@@ -512,6 +554,18 @@ namespace LogiPack.Editor
             txt.text = text;
 
             return txt;
+        }
+
+        public static void CreateDividerLine(Transform parent, Vector2 pos, float width)
+        {
+            GameObject lineGO = new GameObject("DividerLine");
+            lineGO.transform.SetParent(parent, false);
+            var rt = lineGO.AddComponent<RectTransform>();
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = new Vector2(width, 2f);
+            var img = lineGO.AddComponent<Image>();
+            img.color = new Color(0.2f, 0.15f, 0.1f, 0.2f);
+            img.raycastTarget = false;
         }
     }
 }
