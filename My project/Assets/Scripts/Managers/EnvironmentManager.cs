@@ -25,6 +25,7 @@ namespace LogiPack.Managers
         public TemperatureType NextTemperature;
 
         public bool IsDayOver { get; private set; }
+        public bool IsDayPaused = false;
         public int CurrentDayNumber { get; private set; } = 1;
 
         public event Action<EnvironmentState> OnEnvironmentChanged;
@@ -57,7 +58,7 @@ namespace LogiPack.Managers
 
         private void Update()
         {
-            if (IsDayOver || LogiPack.Core.GameModeManager.IsGameplayPaused) return;
+            if (IsDayOver || IsDayPaused || LogiPack.Core.GameModeManager.IsGameplayPaused) return;
 
             _elapsedRealTime += Time.deltaTime;
 

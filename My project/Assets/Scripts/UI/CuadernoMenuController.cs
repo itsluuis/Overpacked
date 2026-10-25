@@ -24,6 +24,8 @@ namespace LogiPack.UI.Menu
         [Header("Elementos de Selección (Página Izquierda)")]
         public Button TutorialButton;
         public Image TutorialHighlight;
+        public Button NormalDayButton;
+        public Image NormalDayHighlight;
         public Button InfiniteButton;
         public Image InfiniteHighlight;
         public Button BackButton;
@@ -46,7 +48,8 @@ namespace LogiPack.UI.Menu
         private bool _isAnimating = false;
         private GameSessionMode _selectedMode = GameSessionMode.Tutorial;
 
-        public const string TUTORIAL_DESC = "Nuevo por aqui? no te preocupes, puedes hacer una jornada de prueba para descubrir el almacen, como funcionan los pedidos, como puede cambiar la jornada a lo largo del dia, y que tienes que cumplir al finalizar tu turno. Asustado? tomatelo facil, podras intentarlo cuantas veces necesites hasta que te acostumbres";
+        public const string TUTORIAL_DESC = "Aprende los fundamentos de la lógica simbólica con la supervisora Mochi Miles. Descubre cómo armar fórmulas FBF con proposiciones atómicas (p, q, s, r), operadores (∧, ∨, →, ↔) y anidamiento de sub-cajas paso a paso sin límite de tiempo.";
+        public const string NORMAL_DAY_DESC = "¿Nuevo por aquí? Haz una jornada estándar de 06:00 a 22:00 para descubrir el almacén, cumplir cuotas y poner a prueba tu destreza lógica con pedidos individuales a tu propio ritmo.";
         public const string INFINITE_DESC = "Con una cuota y tiempo límite para alcanzarla, será mejor ponerse serios; alcanza la cuota esperada a tiempo para avanzar de ronda a una más difícil hasta el infinito. ¿Serás capaz de poder manejar todo ese trabajo tú solo?";
 
         public bool IsOpen => _isOpen;
@@ -82,6 +85,7 @@ namespace LogiPack.UI.Menu
 
             // Configurar listeners de botones
             if (TutorialButton != null) TutorialButton.onClick.AddListener(() => SelectMode(GameSessionMode.Tutorial));
+            if (NormalDayButton != null) NormalDayButton.onClick.AddListener(() => SelectMode(GameSessionMode.NormalDay));
             if (InfiniteButton != null) InfiniteButton.onClick.AddListener(() => SelectMode(GameSessionMode.Infinite));
             if (BackButton != null) BackButton.onClick.AddListener(CloseNotebook);
             if (StartButton != null) StartButton.onClick.AddListener(StartGame);
@@ -105,27 +109,64 @@ namespace LogiPack.UI.Menu
         {
             _selectedMode = mode;
 
-            bool isTutorial = mode == GameSessionMode.Tutorial;
-
             if (TutorialHighlight != null)
             {
-                TutorialHighlight.color = isTutorial ? new Color(0.20f, 0.65f, 0.25f, 0.55f) : new Color(0.1f, 0.1f, 0.1f, 0.15f);
+                TutorialHighlight.color = (mode == GameSessionMode.Tutorial) ? new Color(0.20f, 0.65f, 0.25f, 0.55f) : new Color(0.1f, 0.1f, 0.1f, 0.15f);
+            }
+
+            if (NormalDayHighlight != null)
+            {
+                NormalDayHighlight.color = (mode == GameSessionMode.NormalDay) ? new Color(0.25f, 0.45f, 0.85f, 0.55f) : new Color(0.1f, 0.1f, 0.1f, 0.15f);
             }
 
             if (InfiniteHighlight != null)
             {
-                InfiniteHighlight.color = !isTutorial ? new Color(0.85f, 0.45f, 0.10f, 0.65f) : new Color(0.1f, 0.1f, 0.1f, 0.15f);
+                InfiniteHighlight.color = (mode == GameSessionMode.Infinite) ? new Color(0.85f, 0.45f, 0.10f, 0.65f) : new Color(0.1f, 0.1f, 0.1f, 0.15f);
             }
 
             if (ModeTitleText != null)
             {
-                ModeTitleText.text = isTutorial ? "PRÁCTICA" : "JORNADA INFINITA";
-                ModeTitleText.color = isTutorial ? new Color(0.15f, 0.45f, 0.18f) : new Color(0.75f, 0.25f, 0.05f);
+                ModeTitleText.text = mode switch
+                {
+                    GameSessionMode.Tutorial => "PRUEBA LABORAL",
+                    GameSessionMode.NormalDay => "JORNADA NORMAL",
+                    GameSessionMode.Infinite => "JORNADA INFINITA",
+                    _ => "MODO DE JUEGO"
+                };
+
+                ModeTitleText.color = mode switch
+                {
+                    GameSessionMode.Tutorial => new Color(0.15f, 0.55f, 0.22f),
+                    GameSessionMode.NormalDay => new Color(0.15f, 0.35f, 0.65f),
+                    GameSessionMode.Infinite => new Color(0.75f, 0.25f, 0.05f),
+                    _ => Color.black
+                };
             }
 
             if (ModeDescriptionText != null)
             {
-                ModeDescriptionText.text = isTutorial ? TUTORIAL_DESC : INFINITE_DESC;
+                ModeDescriptionText.text = mode switch
+                {
+                    GameSessionMode.Tutorial => TUTORIAL_DESC,
+                    GameSessionMode.NormalDay => NORMAL_DAY_DESC,
+                    GameSessionMode.Infinite => INFINITE_DESC,
+                    _ => ""
+                };
+            }
+
+            if (StartButton != null)
+            {
+                var btnText = StartButton.GetComponentInChildren<Text>();
+                if (btnText != null)
+                {
+                    btnText.text = mode switch
+                    {
+                        GameSessionMode.Tutorial => "INICIAR PRUEBA ▶",
+                        GameSessionMode.NormalDay => "EMPECEMOS ▶",
+                        GameSessionMode.Infinite => "A TRABAJAR ▶",
+                        _ => "JUGAR ▶"
+                    };
+                }
             }
         }
 
@@ -235,15 +276,16 @@ namespace LogiPack.UI.Menu
         private void StartGame()
         {
             GameModeManager.ActiveMode = _selectedMode;
-            Debug.Log($"<color=green><b>[CuadernoMenuController]</b></color> Iniciando modo: <b>{_selectedMode}</b>. Cargando GameplayScene...");
+            string targetScene = (_selectedMode == GameSessionMode.Tutorial) ? "TutorialScene" : "GameplayScene";
+            Debug.Log($"<color=green><b>[CuadernoMenuController]</b></color> Iniciando modo: <b>{_selectedMode}</b>. Cargando {targetScene}...");
             
             if (LogiPack.Managers.SceneTransitionManager.Instance != null)
             {
-                LogiPack.Managers.SceneTransitionManager.Instance.LoadSceneWithWipe("GameplayScene", 1.0f);
+                LogiPack.Managers.SceneTransitionManager.Instance.LoadSceneWithWipe(targetScene, 1.0f);
             }
             else
             {
-                SceneManager.LoadScene("GameplayScene");
+                SceneManager.LoadScene(targetScene);
             }
         }
     }

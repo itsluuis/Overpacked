@@ -5,8 +5,9 @@ namespace LogiPack.Core
     /// </summary>
     public enum GameSessionMode
     {
-        Tutorial,   // Modo estándar de cátedra (06:00 a 22:00, cuotas fijas, progresión tranquila)
-        Infinite    // Modo arcade contrarreloj (rondas de 60s a 30s, cuotas crecientes, racha x1.5)
+        Tutorial,   // Modo inducción con Mochi Miles en TutorialScene.unity
+        NormalDay,  // Jornada Normal (06:00 a 22:00 en GameplayScene)
+        Infinite    // Modo arcade contrarreloj (GameplayScene)
     }
 
     /// <summary>
@@ -18,6 +19,7 @@ namespace LogiPack.Core
 
         public static bool IsInfiniteMode => ActiveMode == GameSessionMode.Infinite;
         public static bool IsTutorialMode => ActiveMode == GameSessionMode.Tutorial;
+        public static bool IsNormalDayMode => ActiveMode == GameSessionMode.NormalDay;
 
         /// <summary>
         /// Congela el avance del reloj, clima, spawn y caducidad de pedidos

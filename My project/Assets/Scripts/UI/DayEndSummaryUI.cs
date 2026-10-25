@@ -142,6 +142,7 @@ namespace LogiPack.UI
             // 4. Badge de Prestigio (+10px)
             if (PrestigeBadgeText != null)
             {
+                PrestigeBadgeText.gameObject.SetActive(true);
                 PrestigeBadgeText.fontSize = 26;
                 string sign = summary.PrestigeImpact > 0 ? "+" : "";
                 string pColor = summary.PrestigeImpact > 0 ? "#00FF66" : (summary.PrestigeImpact < 0 ? "#FF4444" : "#AAAAAA");
@@ -277,10 +278,83 @@ namespace LogiPack.UI
             }
         }
 
+        public void RenderTutorialSummary(int completedOrders, int earnings)
+        {
+            if (HeaderTitleText != null)
+            {
+                HeaderTitleText.fontSize = 32;
+                HeaderTitleText.text = "🎓 PRUEBA LABORAL COMPLETADA\n<size=18>SUPERVISIÓN: MOCHI MILES</size>";
+            }
+
+            if (StarsDisplayText != null)
+            {
+                StarsDisplayText.fontSize = 58;
+                StarsDisplayText.text = "<color=#FFD700>★ ★ ★</color>";
+            }
+
+            if (RatingTitleText != null)
+            {
+                RatingTitleText.fontSize = 34;
+                RatingTitleText.text = "<color=#00FFAA><b>CAPACITACIÓN COMPLETADA</b></color>";
+            }
+
+            if (PrestigeBadgeText != null)
+            {
+                PrestigeBadgeText.gameObject.SetActive(false);
+            }
+
+            if (FinancialBreakdownText != null)
+            {
+                FinancialBreakdownText.fontSize = 26;
+                FinancialBreakdownText.text =
+                    $"📦 Pedidos de Prueba: <b>{completedOrders}/5</b>  <color=#00AA44>(+${earnings})</color>\n" +
+                    $"⚡ Precisión Lógica: <color=#00FFAA>100%</color>\n" +
+                    $"────────────────────────────────────────\n" +
+                    $"💵 Saldo Inicial Ganado: <size=28><b>${earnings}</b></size>";
+            }
+
+            if (QuotasStatusText != null)
+            {
+                QuotasStatusText.fontSize = 25;
+                QuotasStatusText.text =
+                    "Proposiciones Atómicas: <color=#00AA44>[✓ DOMINADAS]</color>\n" +
+                    "Conectivos y Equivalencias: <color=#00AA44>[✓ DOMINADOS]</color>\n" +
+                    "Anidamiento de Sub-Cajas: <color=#00AA44>[✓ APROBADO]</color>";
+            }
+
+            if (NextDayButtonText != null)
+            {
+                NextDayButtonText.text = "REPETIR TUTORIAL";
+                NextDayButtonText.color = new Color(0.1f, 0.1f, 0.1f);
+                NextDayButtonText.fontSize = 20;
+            }
+
+            EnforceButtonTextColors();
+
+            if (NextDayButton != null) NextDayButton.gameObject.SetActive(true);
+            if (RetryInfiniteButton != null) RetryInfiniteButton.gameObject.SetActive(false);
+            if (ReturnToMenuButton != null) ReturnToMenuButton.gameObject.SetActive(true);
+
+            SetModalVisible(true);
+        }
+
         public void OnClickNextDay()
         {
             LogiPack.Core.GameModeManager.SetGameplayPaused(false);
             SetModalVisible(false);
+
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "TutorialScene")
+            {
+                if (LogiPack.Managers.SceneTransitionManager.Instance != null)
+                {
+                    LogiPack.Managers.SceneTransitionManager.Instance.LoadSceneWithWipe("TutorialScene", 1.0f);
+                }
+                else
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene("TutorialScene");
+                }
+                return;
+            }
 
             if (Economy != null)
             {

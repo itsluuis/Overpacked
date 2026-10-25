@@ -109,6 +109,18 @@ namespace LogiPack.Orders
             };
         }
 
+        public static PropositionalOrder CreateCustomOrder(int orderId, PropositionalNode formula, int reward)
+        {
+            return new PropositionalOrder
+            {
+                OrderId = orderId,
+                FormulaNode = formula,
+                Reward = reward,
+                FBFString = formula != null ? formula.ToFormulaString(false) : "",
+                NaturalLanguage = formula != null ? formula.ToNaturalLanguage() : ""
+            };
+        }
+
         private static ItemData FindItemById(List<ItemData> items, string idFragment)
         {
             if (items == null) return null;

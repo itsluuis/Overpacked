@@ -35,6 +35,13 @@ namespace LogiPack.Gameplay
         private GameObject _visualOperandRight;
         private PropositionalBox _activeResultBox;
 
+        [Header("Control de Interacción / Modo Tutorial")]
+        public bool IsInteractionsBlocked = false;
+
+        public event Action<int, PropositionalNode> OnOperandPlaced;
+        public event Action<PropositionalOperator> OnOperatorSelected;
+        public event Action<PropositionalBox> OnResultBoxCreated;
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -66,6 +73,7 @@ namespace LogiPack.Gameplay
             }
 
             UpdateAssemblyState();
+            OnOperandPlaced?.Invoke(slotIndex, node);
         }
 
         public void ClearOperand(int slotIndex)
@@ -241,6 +249,7 @@ namespace LogiPack.Gameplay
             }
             UpdateOperatorVisual();
             UpdateAssemblyState();
+            OnOperatorSelected?.Invoke(op);
         }
 
         public void UpdateOperatorVisual()
@@ -361,6 +370,7 @@ namespace LogiPack.Gameplay
             _activeResultBox.SetFormula(node, depth);
             _activeResultBox.SetHomePosition(ResultSlot_Transform.position);
             _activeResultBox.gameObject.SetActive(true);
+            OnResultBoxCreated?.Invoke(_activeResultBox);
         }
 
         public void OnResultBoxPickedUp(PropositionalBox box)
@@ -390,6 +400,8 @@ namespace LogiPack.Gameplay
             if (_activeResultBox == box)
             {
                 _activeResultBox = null;
+                ClearOperand(0);
+                ClearOperand(2);
             }
         }
 

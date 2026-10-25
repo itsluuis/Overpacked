@@ -173,18 +173,17 @@ namespace LogiPack.Gameplay
 
         private void OnMouseDown()
         {
+            if (UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+            var workbench = AssemblyWorkbenchManager.Instance;
+            if (workbench != null && workbench.IsInteractionsBlocked) return;
+
             if (_mainCamera == null) _mainCamera = Camera.main;
             _isDragging = true;
             _startPosition = transform.position;
             transform.localScale = _baseScale * 1.05f;
             if (_sr != null) _sr.sortingOrder = 30; // Al frente mientras se arrastra
 
-            // Notificar a la mesa si esta caja estaba en el resultado para limpiar casillas de armado inmediatamente
-            var workbench = AssemblyWorkbenchManager.Instance;
-            if (workbench != null)
-            {
-                workbench.OnResultBoxPickedUp(this);
-            }
+            // La referencia a la caja se retiene hasta su consumo terminal (despacho, revisión o anidamiento)
         }
 
         private void OnMouseDrag()

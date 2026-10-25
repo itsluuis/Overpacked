@@ -158,14 +158,14 @@ namespace LogiPack.Editor
 
             // === PÁGINA IZQUIERDA ===
             // Título: "Modos de juego"
-            CreateTextElement(pagesContainerGO.transform, "Title_Modos", new Vector2(-240, 240), new Vector2(400, 60), "Modos de juego", fredokaBold, 32, darkInkColor, TextAnchor.MiddleCenter);
+            CreateTextElement(pagesContainerGO.transform, "Title_Modos", new Vector2(-240, 245), new Vector2(400, 50), "Modos de juego", fredokaBold, 30, darkInkColor, TextAnchor.MiddleCenter);
 
-            // Rectángulo 1: Tutorial
+            // Rectángulo 1: Tutorial (Arriba)
             GameObject tutBtnGO = new GameObject("ModeCard_Tutorial");
             tutBtnGO.transform.SetParent(pagesContainerGO.transform, false);
             var tutRT = tutBtnGO.AddComponent<RectTransform>();
-            tutRT.anchoredPosition = new Vector2(-240, 110);
-            tutRT.sizeDelta = new Vector2(360, 110);
+            tutRT.anchoredPosition = new Vector2(-240, 145);
+            tutRT.sizeDelta = new Vector2(360, 85);
             var tutImg = tutBtnGO.AddComponent<Image>();
             tutImg.color = new Color(0.96f, 0.92f, 0.82f, 0.9f);
             var tutBtn = tutBtnGO.AddComponent<Button>();
@@ -185,14 +185,41 @@ namespace LogiPack.Editor
             tutHlGO.transform.SetAsFirstSibling();
             cuadernoCtrl.TutorialHighlight = tutHlImg;
 
-            CreateTextElement(tutBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 100), "PRÁCTICA\n<size=15>Jornada de Prueba • Turno 4 Minutos</size>", fredokaBold, 22, darkInkColor, TextAnchor.MiddleCenter);
+            CreateTextElement(tutBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 75), "PRUEBA (TUTORIAL)\n<size=14>Aprende con Mochi Miles • Sin Tiempo</size>", fredokaBold, 20, darkInkColor, TextAnchor.MiddleCenter);
 
-            // Rectángulo 2: Jornada Infinita
+            // Rectángulo 2: Jornada Normal (Centro)
+            GameObject normalBtnGO = new GameObject("ModeCard_NormalDay");
+            normalBtnGO.transform.SetParent(pagesContainerGO.transform, false);
+            var normalRT = normalBtnGO.AddComponent<RectTransform>();
+            normalRT.anchoredPosition = new Vector2(-240, 48);
+            normalRT.sizeDelta = new Vector2(360, 85);
+            var normalImg = normalBtnGO.AddComponent<Image>();
+            normalImg.color = new Color(0.96f, 0.92f, 0.82f, 0.9f);
+            var normalBtn = normalBtnGO.AddComponent<Button>();
+            cuadernoCtrl.NormalDayButton = normalBtn;
+
+            // Borde / Highlight NormalDay
+            GameObject normalHlGO = new GameObject("Highlight");
+            normalHlGO.transform.SetParent(normalBtnGO.transform, false);
+            var normalHlRT = normalHlGO.AddComponent<RectTransform>();
+            normalHlRT.anchorMin = Vector2.zero;
+            normalHlRT.anchorMax = Vector2.one;
+            normalHlRT.offsetMin = new Vector2(-4, -4);
+            normalHlRT.offsetMax = new Vector2(4, 4);
+            var normalHlImg = normalHlGO.AddComponent<Image>();
+            normalHlImg.color = new Color(0.1f, 0.1f, 0.1f, 0.15f);
+            normalHlImg.raycastTarget = false;
+            normalHlGO.transform.SetAsFirstSibling();
+            cuadernoCtrl.NormalDayHighlight = normalHlImg;
+
+            CreateTextElement(normalBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 75), "JORNADA NORMAL\n<size=14>Turno 06:00 a 22:00 • Cuotas Diarias</size>", fredokaBold, 20, darkInkColor, TextAnchor.MiddleCenter);
+
+            // Rectángulo 3: Jornada Infinita (Abajo)
             GameObject infBtnGO = new GameObject("ModeCard_Infinite");
             infBtnGO.transform.SetParent(pagesContainerGO.transform, false);
             var infRT = infBtnGO.AddComponent<RectTransform>();
-            infRT.anchoredPosition = new Vector2(-240, -30);
-            infRT.sizeDelta = new Vector2(360, 110);
+            infRT.anchoredPosition = new Vector2(-240, -48);
+            infRT.sizeDelta = new Vector2(360, 85);
             var infImg = infBtnGO.AddComponent<Image>();
             infImg.color = new Color(0.96f, 0.92f, 0.82f, 0.9f);
             var infBtn = infBtnGO.AddComponent<Button>();
@@ -212,14 +239,14 @@ namespace LogiPack.Editor
             infHlGO.transform.SetAsFirstSibling();
             cuadernoCtrl.InfiniteHighlight = infHlImg;
 
-            CreateTextElement(infBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 100), "JORNADA INFINITA\n<size=15>Desafío Contrarreloj • Rondas y Racha</size>", fredokaBold, 22, darkInkColor, TextAnchor.MiddleCenter);
+            CreateTextElement(infBtnGO.transform, "Text", Vector2.zero, new Vector2(340, 75), "JORNADA INFINITA\n<size=14>Desafío Contrarreloj • Supervivencia</size>", fredokaBold, 20, darkInkColor, TextAnchor.MiddleCenter);
 
             // Botón Volver (Pie de página izquierda)
             cuadernoCtrl.BackButton = CreateMenuButton(pagesContainerGO.transform, "BackButton", new Vector2(-240, -180), new Vector2(220, 52), yellowBtnSprite, "◀ VOLVER", fredokaBold, 18);
 
             // === PÁGINA DERECHA ===
             // Título del Modo Seleccionado
-            cuadernoCtrl.ModeTitleText = CreateTextElement(pagesContainerGO.transform, "ModeTitleText", new Vector2(240, 240), new Vector2(380, 50), "PRÁCTICA", fredokaBold, 28, new Color(0.15f, 0.45f, 0.18f), TextAnchor.MiddleCenter);
+            cuadernoCtrl.ModeTitleText = CreateTextElement(pagesContainerGO.transform, "ModeTitleText", new Vector2(240, 240), new Vector2(380, 50), "PRUEBA LABORAL", fredokaBold, 28, new Color(0.15f, 0.55f, 0.22f), TextAnchor.MiddleCenter);
 
             // Descripción del Modo
             var descText = CreateTextElement(pagesContainerGO.transform, "ModeDescriptionText", new Vector2(240, 45), new Vector2(360, 280), CuadernoMenuController.TUTORIAL_DESC, fredokaBold, 18, darkInkColor, TextAnchor.UpperLeft);
@@ -227,8 +254,8 @@ namespace LogiPack.Editor
             descText.verticalOverflow = VerticalWrapMode.Overflow;
             cuadernoCtrl.ModeDescriptionText = descText;
 
-            // Botón Verde "Empecemos"
-            cuadernoCtrl.StartButton = CreateMenuButton(pagesContainerGO.transform, "StartButton", new Vector2(240, -180), new Vector2(300, 65), greenBtnSprite, "EMPECEMOS ▶", fredokaBold, 24);
+            // Botón Verde "Iniciar Prueba"
+            cuadernoCtrl.StartButton = CreateMenuButton(pagesContainerGO.transform, "StartButton", new Vector2(240, -180), new Vector2(300, 65), greenBtnSprite, "INICIAR PRUEBA ▶", fredokaBold, 22);
 
             pagesContainerGO.SetActive(false);
 
@@ -237,11 +264,12 @@ namespace LogiPack.Editor
             menuController.OptionsUI = optionsUI;
             menuController.OptionsModal = optionsUI.ContentPanel;
 
-            // 10. Actualizar Build Settings con ambas escenas
+            // 10. Actualizar Build Settings con las tres escenas
             EditorBuildSettings.scenes = new EditorBuildSettingsScene[]
             {
                 new EditorBuildSettingsScene(scenePath, true),
-                new EditorBuildSettingsScene("Assets/Scenes/GameplayScene.unity", true)
+                new EditorBuildSettingsScene("Assets/Scenes/GameplayScene.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/TutorialScene.unity", true)
             };
 
             EditorSceneManager.SaveScene(scene, scenePath);

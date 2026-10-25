@@ -15,8 +15,10 @@ namespace LogiPack.Editor
         {
             CreateTestSetup();
             RunSetTheoryValidation();
+            MenuSetupTools.BuildMainMenuScene();
             SceneSetupTools.BuildGameplayScene();
-            Debug.Log("<color=green><b>[LogiPack] ¡Todo construido, validado e integrado con éxito!</b></color>");
+            SceneSetupTools.BuildTutorialScene();
+            Debug.Log("<color=green><b>[LogiPack] ¡Todo construido, validado e integrado con éxito (Menú, Gameplay y Tutorial)!</b></color>");
         }
 
         [MenuItem("LogiPack/Crear Items y Escena de Prueba")]

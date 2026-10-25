@@ -33,7 +33,13 @@ namespace LogiPack.Managers
         public Orders.PropositionalOrder CurrentOrder { get; private set; }
         private int _orderCounter = 1;
 
+        [Header("Modo Tutorial / Control Manual")]
+        public bool AutoSpawnNextOrder = true;
+        public bool DispatchBlocked = false;
+
         public event Action<Orders.PropositionalOrder> OnOrderChanged;
+        public event Action<Orders.PropositionalOrder, bool> OnOrderDispatched;
+        public event Action<PropositionalBox> OnOrderDispatchRejected;
 
         private void Awake()
         {
@@ -52,7 +58,18 @@ namespace LogiPack.Managers
                 }
             }
 
-            SpawnNextOrder();
+            if (AutoSpawnNextOrder)
+            {
+                SpawnNextOrder();
+            }
+        }
+
+        public void SetManualOrder(Orders.PropositionalOrder order)
+        {
+            CurrentOrder = order;
+            UpdateOrderUI();
+            OnOrderChanged?.Invoke(CurrentOrder);
+            Debug.Log($"<color=cyan>[PropositionalOrder]</color> Orden Manual #{CurrentOrder.OrderId}: {CurrentOrder.FBFString} ({CurrentOrder.NaturalLanguage})");
         }
 
         public void SpawnNextOrder()
@@ -91,6 +108,13 @@ namespace LogiPack.Managers
 
         public bool ValidateAndDispatch(PropositionalBox box)
         {
+            if (DispatchBlocked)
+            {
+                FloatingFeedbackFX.Show(box != null ? box.transform.position : transform.position, "Despacho bloqueado temporalmente", Color.yellow);
+                PlaySound(FailureClip);
+                return false;
+            }
+
             if (box == null || box.FormulaNode == null || CurrentOrder == null)
             {
                 FloatingFeedbackFX.Show(box != null ? box.transform.position : transform.position, "Falta algo...", new Color(0.9f, 0.29f, 0.23f));
@@ -112,14 +136,20 @@ namespace LogiPack.Managers
                     economy.AddEarnings(CurrentOrder.Reward, 0);
                 }
 
-                // Generar siguiente pedido
-                SpawnNextOrder();
+                OnOrderDispatched?.Invoke(CurrentOrder, true);
+
+                if (AutoSpawnNextOrder)
+                {
+                    SpawnNextOrder();
+                }
                 return true;
             }
             else
             {
                 FloatingFeedbackFX.Show(box.transform.position, "Falta algo...", new Color(0.9f, 0.29f, 0.23f));
                 PlaySound(FailureClip);
+                OnOrderDispatched?.Invoke(CurrentOrder, false);
+                OnOrderDispatchRejected?.Invoke(box);
                 return false;
             }
         }
