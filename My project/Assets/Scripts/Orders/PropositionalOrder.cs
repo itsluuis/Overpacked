@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using LogiPack.Core;
 using LogiPack.Logic;
+using LogiPack.Gameplay;
 using UnityEngine;
 
 namespace LogiPack.Orders
@@ -15,8 +16,58 @@ namespace LogiPack.Orders
         public string FBFString;
         public string NaturalLanguage;
 
+        // Soporte para Teoría de Conjuntos (50% de probabilidad en el almacén)
+        public bool IsSetTheoryOrder = false;
+        public SetTheoryRule SetRule;
+        public int TargetItemCount = 2;
+        public string CompanyName;
+
+        public bool MatchesBox(PropositionalBox box)
+        {
+            if (box == null || box.FormulaNode == null) return false;
+
+            if (!IsSetTheoryOrder)
+            {
+                return FormulaNode != null && box.FormulaNode.IsEquivalentTo(FormulaNode);
+            }
+
+            // Para orden de teoría de conjuntos: extraer items atómicos del árbol de la caja
+            var items = new List<ItemData>();
+            box.FormulaNode.CollectItems(items);
+            if (SetRule == null) return false;
+
+            int matchCount = 0;
+            foreach (var it in items)
+            {
+                if (SetRule.Matches(it)) matchCount++;
+            }
+            return matchCount >= TargetItemCount;
+        }
+
         public static PropositionalOrder GenerateRandomOrder(int orderId, List<ItemData> allItems)
         {
+            // 50% de probabilidad: Lote de Empresa con Regla de Teoría de Conjuntos
+            if (UnityEngine.Random.value < 0.50f)
+            {
+                var rule = OrderGenerator.GenerateRandomSetRule();
+                string compName = OrderGenerator.CompanyNames[UnityEngine.Random.Range(0, OrderGenerator.CompanyNames.Length)];
+                int targetCount = UnityEngine.Random.Range(2, 4); // 2 o 3 ítems
+                int setReward = UnityEngine.Random.Range(120, 161);
+
+                return new PropositionalOrder
+                {
+                    OrderId = orderId,
+                    IsSetTheoryOrder = true,
+                    SetRule = rule,
+                    TargetItemCount = targetCount,
+                    CompanyName = compName,
+                    Reward = setReward,
+                    FBFString = rule.FormalFormula,
+                    NaturalLanguage = $"Empacar {targetCount}x {rule.NaturalLanguageDescription}"
+                };
+            }
+
+            // 50% restante: Lógica Proposicional Clásica
             // Mapear items a variables mediante ItemId
             // p = Titanio (f1_t3), q = Litio (f2_t3), s = Cristal (f3_t3), r = Ignífugo (f4_t3)
             // ~p = Tornillo (f1_t1), ~q = Cable (f2_t1), ~s = Vidrio (f3_t1), ~r = Algodón (f4_t1)

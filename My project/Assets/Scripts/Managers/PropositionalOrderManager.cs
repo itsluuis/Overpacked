@@ -92,7 +92,14 @@ namespace LogiPack.Managers
 
             if (OrderHeaderTitleText != null)
             {
-                OrderHeaderTitleText.text = $"PEDIDO #{CurrentOrder.OrderId}   <color=#0E6251>+${CurrentOrder.Reward}</color>";
+                if (CurrentOrder.IsSetTheoryOrder)
+                {
+                    OrderHeaderTitleText.text = $"★ {CurrentOrder.CompanyName}   <color=#8E2800>+${CurrentOrder.Reward}</color>";
+                }
+                else
+                {
+                    OrderHeaderTitleText.text = $"PEDIDO #{CurrentOrder.OrderId}   <color=#0E6251>+${CurrentOrder.Reward}</color>";
+                }
             }
 
             if (OrderFBFFormulaText != null)
@@ -122,7 +129,7 @@ namespace LogiPack.Managers
                 return false;
             }
 
-            bool isMatch = box.FormulaNode.IsEquivalentTo(CurrentOrder.FormulaNode);
+            bool isMatch = CurrentOrder.MatchesBox(box);
 
             if (isMatch)
             {

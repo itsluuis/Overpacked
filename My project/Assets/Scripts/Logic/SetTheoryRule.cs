@@ -61,7 +61,7 @@ namespace LogiPack.Logic
             };
         }
 
-        public static SetCriterion CreateNegatedPropositions(string displayName = "Proposiciones Negadas (¬P)")
+        public static SetCriterion CreateNegatedPropositions(string displayName = "¬P")
         {
             return new SetCriterion
             {
@@ -71,7 +71,7 @@ namespace LogiPack.Logic
             };
         }
 
-        public static SetCriterion CreateDirectPropositions(string displayName = "Proposiciones Directas (P)")
+        public static SetCriterion CreateDirectPropositions(string displayName = "P")
         {
             return new SetCriterion
             {
@@ -159,6 +159,35 @@ namespace LogiPack.Logic
         }
 
         /// <summary>
+        /// Evalúa si un ítem individual cumple con la regla de teoría de conjuntos.
+        /// </summary>
+        public bool Matches(ItemData item)
+        {
+            if (item == null) return false;
+
+            bool leftMatch = LeftCriterion != null && LeftCriterion.Matches(item);
+            bool rightMatch = RightCriterion != null && RightCriterion.Matches(item);
+
+            switch (Operator)
+            {
+                case SetOperator.Union:
+                    return (RightCriterion != null) ? (leftMatch || rightMatch) : leftMatch;
+
+                case SetOperator.Intersection:
+                    return leftMatch && rightMatch;
+
+                case SetOperator.Difference:
+                    return leftMatch && !rightMatch;
+
+                case SetOperator.Complement:
+                    return !leftMatch;
+
+                default:
+                    return leftMatch;
+            }
+        }
+
+        /// <summary>
         /// Resuelve y devuelve el conjunto de ítems del almacén que satisfacen la regla.
         /// </summary>
         public HashSet<ItemData> ResolveValidItems(List<ItemData> universe)
@@ -168,32 +197,7 @@ namespace LogiPack.Logic
 
             foreach (var item in universe)
             {
-                if (item == null) continue;
-
-                bool leftMatch = LeftCriterion != null && LeftCriterion.Matches(item);
-                bool rightMatch = RightCriterion != null && RightCriterion.Matches(item);
-
-                bool isIncluded = false;
-                switch (Operator)
-                {
-                    case SetOperator.Union:
-                        isIncluded = (RightCriterion != null) ? (leftMatch || rightMatch) : leftMatch;
-                        break;
-
-                    case SetOperator.Intersection:
-                        isIncluded = leftMatch && rightMatch;
-                        break;
-
-                    case SetOperator.Difference:
-                        isIncluded = leftMatch && !rightMatch;
-                        break;
-
-                    case SetOperator.Complement:
-                        isIncluded = !leftMatch;
-                        break;
-                }
-
-                if (isIncluded)
+                if (item != null && Matches(item))
                 {
                     validItems.Add(item);
                 }

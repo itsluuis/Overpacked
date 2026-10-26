@@ -352,6 +352,86 @@ namespace LogiPack.Editor
             hudManager.ClockSprites = clockFrames;
             hudManager.MoneyText = moneyText;
 
+            // HUD de Cuota para Modo Jornada Infinita
+            GameObject quotaPanelGO = new GameObject("HUD_InfiniteQuota");
+            quotaPanelGO.transform.SetParent(canvasGO.transform, false);
+            var qpRT = quotaPanelGO.AddComponent<RectTransform>();
+            qpRT.anchorMin = new Vector2(0f, 1f);
+            qpRT.anchorMax = new Vector2(0f, 1f);
+            qpRT.pivot = new Vector2(0f, 1f);
+            qpRT.anchoredPosition = new Vector2(35, -25);
+            qpRT.sizeDelta = new Vector2(240, 180);
+
+            // 1. Temporizador de Ronda
+            GameObject qTimerGO = new GameObject("RoundTimerText");
+            qTimerGO.transform.SetParent(quotaPanelGO.transform, false);
+            var qtRT = qTimerGO.AddComponent<RectTransform>();
+            qtRT.anchoredPosition = new Vector2(0, 0);
+            qtRT.sizeDelta = new Vector2(240, 45);
+            var qtText = qTimerGO.AddComponent<Text>();
+            qtText.font = fredokaBold;
+            qtText.fontSize = 32;
+            qtText.color = Color.white;
+            qtText.alignment = TextAnchor.MiddleLeft;
+            qtText.text = "60s";
+            var qtShadow = qTimerGO.AddComponent<Shadow>();
+            qtShadow.effectColor = new Color(0, 0, 0, 0.8f);
+            qtShadow.effectDistance = new Vector2(2, -2);
+
+            // 2. Ronda Actual
+            GameObject qRoundGO = new GameObject("QuotaRoundText");
+            qRoundGO.transform.SetParent(quotaPanelGO.transform, false);
+            var qrRT = qRoundGO.AddComponent<RectTransform>();
+            qrRT.anchoredPosition = new Vector2(0, -42);
+            qrRT.sizeDelta = new Vector2(240, 32);
+            var qrText = qRoundGO.AddComponent<Text>();
+            qrText.font = fredokaBold;
+            qrText.fontSize = 24;
+            qrText.color = new Color(0.95f, 0.85f, 0.2f);
+            qrText.alignment = TextAnchor.MiddleLeft;
+            qrText.text = "RONDA 1";
+            var qrShadow = qRoundGO.AddComponent<Shadow>();
+            qrShadow.effectColor = new Color(0, 0, 0, 0.8f);
+
+            // 3. Marco Plateado con Cuota Acumulada / Meta
+            GameObject qFrameGO = new GameObject("QuotaFrame");
+            qFrameGO.transform.SetParent(quotaPanelGO.transform, false);
+            var qfRT = qFrameGO.AddComponent<RectTransform>();
+            qfRT.anchoredPosition = new Vector2(0, -80);
+            qfRT.sizeDelta = new Vector2(220, 56);
+            if (moneyPlateSprite != null)
+            {
+                var qfImg = qFrameGO.AddComponent<Image>();
+                qfImg.sprite = moneyPlateSprite;
+            }
+            GameObject qAmountGO = new GameObject("QuotaAmountText");
+            qAmountGO.transform.SetParent(qFrameGO.transform, false);
+            var qaRT = qAmountGO.AddComponent<RectTransform>();
+            qaRT.anchorMin = Vector2.zero; qaRT.anchorMax = Vector2.one;
+            qaRT.offsetMin = Vector2.zero; qaRT.offsetMax = Vector2.zero;
+            var qaText = qAmountGO.AddComponent<Text>();
+            qaText.font = fredokaBold;
+            qaText.fontSize = 22;
+            qaText.color = Color.white;
+            qaText.alignment = TextAnchor.MiddleCenter;
+            qaText.text = "$0 / $500";
+
+            // 4. Badge de Racha
+            GameObject qStreakGO = new GameObject("StreakBadgeText");
+            qStreakGO.transform.SetParent(quotaPanelGO.transform, false);
+            var qsRT = qStreakGO.AddComponent<RectTransform>();
+            qsRT.anchoredPosition = new Vector2(0, -145);
+            qsRT.sizeDelta = new Vector2(240, 30);
+            var qsText = qStreakGO.AddComponent<Text>();
+            qsText.font = fredokaBold;
+            qsText.fontSize = 18;
+            qsText.color = new Color(1f, 0.6f, 0.1f);
+            qsText.alignment = TextAnchor.MiddleLeft;
+            qsText.text = "🔥 RACHA x1.5";
+            qsText.gameObject.SetActive(false);
+
+            quotaPanelGO.SetActive(false);
+
             // Post-it Pedido Activo (Esquina Superior Derecha)
             Sprite postitSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/popstick_amarillo_grande.png");
             Sprite thumbtackSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps_Assets/tachuela_roja.png");
@@ -389,10 +469,13 @@ namespace LogiPack.Editor
             phRT.anchorMin = new Vector2(0.5f, 1f);
             phRT.anchorMax = new Vector2(0.5f, 1f);
             phRT.anchoredPosition = new Vector2(0, -45);
-            phRT.sizeDelta = new Vector2(300, 38);
+            phRT.sizeDelta = new Vector2(300, 42);
             var phText = postitHeaderGO.AddComponent<Text>();
             phText.alignment = TextAnchor.MiddleCenter;
             phText.fontSize = 28;
+            phText.resizeTextForBestFit = true;
+            phText.resizeTextMinSize = 14;
+            phText.resizeTextMaxSize = 28;
             phText.font = fredokaBold;
             phText.color = new Color(0.25f, 0.20f, 0.05f);
 
@@ -403,10 +486,13 @@ namespace LogiPack.Editor
             fbfRT.anchorMin = new Vector2(0.5f, 0.5f);
             fbfRT.anchorMax = new Vector2(0.5f, 0.5f);
             fbfRT.anchoredPosition = new Vector2(0, 15);
-            fbfRT.sizeDelta = new Vector2(310, 70);
+            fbfRT.sizeDelta = new Vector2(310, 80);
             var fbfText = postitFBFGO.AddComponent<Text>();
             fbfText.alignment = TextAnchor.MiddleCenter;
             fbfText.fontSize = 38;
+            fbfText.resizeTextForBestFit = true;
+            fbfText.resizeTextMinSize = 14;
+            fbfText.resizeTextMaxSize = 38;
             fbfText.font = fredokaBold;
             fbfText.color = new Color(0.12f, 0.12f, 0.12f); // Negro carbón
 
@@ -417,10 +503,13 @@ namespace LogiPack.Editor
             nlRT.anchorMin = new Vector2(0.5f, 0f);
             nlRT.anchorMax = new Vector2(0.5f, 0f);
             nlRT.anchoredPosition = new Vector2(0, 52);
-            nlRT.sizeDelta = new Vector2(300, 90);
+            nlRT.sizeDelta = new Vector2(300, 95);
             var nlText = postitNatLangGO.AddComponent<Text>();
             nlText.alignment = TextAnchor.MiddleCenter;
             nlText.fontSize = 24;
+            nlText.resizeTextForBestFit = true;
+            nlText.resizeTextMinSize = 14;
+            nlText.resizeTextMaxSize = 24;
             nlText.lineSpacing = 1.15f;
             nlText.font = fredokaBold;
             nlText.color = new Color(0.28f, 0.28f, 0.28f);
@@ -556,23 +645,24 @@ namespace LogiPack.Editor
             boxRT.anchorMin = new Vector2(0.5f, 0.5f);
             boxRT.anchorMax = new Vector2(0.5f, 0.5f);
             boxRT.pivot = new Vector2(0.5f, 0.5f);
-            boxRT.anchoredPosition = new Vector2(0, -45);
-            boxRT.sizeDelta = new Vector2(680, 150);
+            boxRT.anchoredPosition = new Vector2(0, -35);
+            boxRT.sizeDelta = new Vector2(680, 180);
 
-            dayEndUI.FinancialBreakdownText = CreateModalText(breakdownBoxGO.transform, "FinancialBreakdownText", Vector2.zero, new Vector2(660, 140), 18, fredokaBold, darkReportColor, TextAnchor.MiddleLeft);
+            dayEndUI.FinancialBreakdownText = CreateModalText(breakdownBoxGO.transform, "FinancialBreakdownText", Vector2.zero, new Vector2(660, 175), 18, fredokaBold, darkReportColor, TextAnchor.MiddleLeft);
+            dayEndUI.FinancialBreakdownText.verticalOverflow = VerticalWrapMode.Overflow;
 
             // 6. Quotas Status
-            dayEndUI.QuotasStatusText = CreateModalText(cardPanelGO.transform, "QuotasStatusText", new Vector2(0, -145), new Vector2(680, 45), 18, fredokaBold, new Color(0.3f, 0.3f, 0.3f), TextAnchor.MiddleCenter);
+            dayEndUI.QuotasStatusText = CreateModalText(cardPanelGO.transform, "QuotasStatusText", new Vector2(0, -150), new Vector2(680, 45), 18, fredokaBold, new Color(0.3f, 0.3f, 0.3f), TextAnchor.MiddleCenter);
 
-            // 7. Botón Siguiente Turno (Verde)
+            // 7. Botón Volver a Intentar / Siguiente Turno (Verde - Izquierda)
             GameObject nextDayBtnGO = new GameObject("NextDayButton");
             nextDayBtnGO.transform.SetParent(cardPanelGO.transform, false);
             var deBtnRT = nextDayBtnGO.AddComponent<RectTransform>();
             deBtnRT.anchorMin = new Vector2(0.5f, 0.5f);
             deBtnRT.anchorMax = new Vector2(0.5f, 0.5f);
             deBtnRT.pivot = new Vector2(0.5f, 0.5f);
-            deBtnRT.anchoredPosition = new Vector2(0, -215);
-            deBtnRT.sizeDelta = new Vector2(340, 58);
+            deBtnRT.anchoredPosition = new Vector2(-150, -215);
+            deBtnRT.sizeDelta = new Vector2(260, 58);
 
             var nextBtnImg = nextDayBtnGO.AddComponent<Image>();
             nextBtnImg.sprite = greenBtnSprite;
@@ -597,6 +687,79 @@ namespace LogiPack.Editor
             btnTxt.alignment = TextAnchor.MiddleCenter;
             btnTxt.text = "VOLVER A INTENTAR";
             dayEndUI.NextDayButtonText = btnTxt;
+
+            // Botón Reintentar Modo Infinito (Verde - Misma posición izquierda)
+            GameObject retryInfBtnGO = new GameObject("RetryInfiniteButton");
+            retryInfBtnGO.transform.SetParent(cardPanelGO.transform, false);
+            var rinfRT = retryInfBtnGO.AddComponent<RectTransform>();
+            rinfRT.anchorMin = new Vector2(0.5f, 0.5f);
+            rinfRT.anchorMax = new Vector2(0.5f, 0.5f);
+            rinfRT.pivot = new Vector2(0.5f, 0.5f);
+            rinfRT.anchoredPosition = new Vector2(-150, -215);
+            rinfRT.sizeDelta = new Vector2(260, 58);
+
+            var rinfImg = retryInfBtnGO.AddComponent<Image>();
+            rinfImg.sprite = greenBtnSprite;
+            var rinfBtn = retryInfBtnGO.AddComponent<Button>();
+            rinfBtn.targetGraphic = rinfImg;
+            dayEndUI.RetryInfiniteButton = rinfBtn;
+
+            GameObject rinfTxtGO = new GameObject("Text");
+            rinfTxtGO.transform.SetParent(retryInfBtnGO.transform, false);
+            var rinfTxtRT = rinfTxtGO.AddComponent<RectTransform>();
+            rinfTxtRT.anchorMin = Vector2.zero; rinfTxtRT.anchorMax = Vector2.one;
+            rinfTxtRT.offsetMin = Vector2.zero; rinfTxtRT.offsetMax = Vector2.zero;
+            var rinfTxt = rinfTxtGO.AddComponent<Text>();
+            rinfTxt.font = fredokaBold;
+            rinfTxt.fontSize = 20;
+            rinfTxt.color = new Color(0.1f, 0.1f, 0.1f);
+            rinfTxt.alignment = TextAnchor.MiddleCenter;
+            rinfTxt.text = "VOLVER A INTENTAR";
+            retryInfBtnGO.SetActive(false);
+
+            // Botón Volver al Menú Principal (Amarillo - Derecha)
+            GameObject menuBtnGO = new GameObject("ReturnToMenuButton");
+            menuBtnGO.transform.SetParent(cardPanelGO.transform, false);
+            var menuBtnRT = menuBtnGO.AddComponent<RectTransform>();
+            menuBtnRT.anchorMin = new Vector2(0.5f, 0.5f);
+            menuBtnRT.anchorMax = new Vector2(0.5f, 0.5f);
+            menuBtnRT.pivot = new Vector2(0.5f, 0.5f);
+            menuBtnRT.anchoredPosition = new Vector2(150, -215);
+            menuBtnRT.sizeDelta = new Vector2(260, 58);
+
+            var menuBtnImg = menuBtnGO.AddComponent<Image>();
+            menuBtnImg.sprite = yellowBtnSprite;
+            var menuBtn = menuBtnGO.AddComponent<Button>();
+            menuBtn.targetGraphic = menuBtnImg;
+            dayEndUI.ReturnToMenuButton = menuBtn;
+
+            GameObject menuTxtGO = new GameObject("Text");
+            menuTxtGO.transform.SetParent(menuBtnGO.transform, false);
+            var menuTxtRT = menuTxtGO.AddComponent<RectTransform>();
+            menuTxtRT.anchorMin = Vector2.zero; menuTxtRT.anchorMax = Vector2.one;
+            menuTxtRT.offsetMin = Vector2.zero; menuTxtRT.offsetMax = Vector2.zero;
+            var menuTxt = menuTxtGO.AddComponent<Text>();
+            menuTxt.font = fredokaBold;
+            menuTxt.fontSize = 20;
+            menuTxt.color = new Color(0.1f, 0.1f, 0.1f);
+            menuTxt.alignment = TextAnchor.MiddleCenter;
+            menuTxt.text = "VOLVER AL MENÚ";
+
+            // Wire listeners en runtime
+            nextBtn.onClick.AddListener(dayEndUI.OnClickNextDay);
+            rinfBtn.onClick.AddListener(dayEndUI.OnClickRetryInfinite);
+            menuBtn.onClick.AddListener(dayEndUI.OnClickReturnToMenu);
+
+            // Controlador de Modo Jornada Infinita
+            var infiniteCtrl = managersGO.AddComponent<InfiniteModeController>();
+            infiniteCtrl.Economy = economyManager;
+            infiniteCtrl.PropositionalOrders = orderManager;
+            infiniteCtrl.SummaryUI = dayEndUI;
+            infiniteCtrl.QuotaPanel = quotaPanelGO;
+            infiniteCtrl.QuotaRoundText = qrText;
+            infiniteCtrl.QuotaAmountText = qaText;
+            infiniteCtrl.RoundTimerText = qtText;
+            infiniteCtrl.StreakBadgeText = qsText;
 
             deOverlayImg.enabled = false;
             deModalGO.SetActive(false);
@@ -1413,10 +1576,10 @@ namespace LogiPack.Editor
             lp2RT.anchorMin = new Vector2(0.5f, 0.5f); lp2RT.anchorMax = new Vector2(0.5f, 0.5f);
             lp2RT.pivot = new Vector2(0.5f, 0.5f);
             lp2RT.anchoredPosition = new Vector2(-360, 20);
-            lp2RT.sizeDelta = new Vector2(530, 680);
+            lp2RT.sizeDelta = new Vector2(550, 720);
             var lp2Text = left2TextGO.AddComponent<Text>();
             lp2Text.font = fredokaBold;
-            lp2Text.fontSize = 14; // Tipografía compacta de 14pt solicitada para que los 10 registros respiren cómodamente
+            lp2Text.fontSize = 17; // Tipografía aumentada a 17pt para óptima legibilidad
             lp2Text.color = new Color(0.12f, 0.12f, 0.12f);
             lp2Text.lineSpacing = 1.15f;
             lp2Text.text = "<b>TABLAS DE VERDAD Y LEYES LÓGICAS</b>\n\n" +
@@ -1439,10 +1602,10 @@ namespace LogiPack.Editor
             rp2RT.anchorMin = new Vector2(0.5f, 0.5f); rp2RT.anchorMax = new Vector2(0.5f, 0.5f);
             rp2RT.pivot = new Vector2(0.5f, 0.5f);
             rp2RT.anchoredPosition = new Vector2(360, 20);
-            rp2RT.sizeDelta = new Vector2(530, 680);
+            rp2RT.sizeDelta = new Vector2(550, 720);
             var rp2Text = right2TextGO.AddComponent<Text>();
             rp2Text.font = fredokaBold;
-            rp2Text.fontSize = 15;
+            rp2Text.fontSize = 18; // Tipografía aumentada a 18pt
             rp2Text.color = new Color(0.12f, 0.12f, 0.12f);
             rp2Text.lineSpacing = 1.18f;
             rp2Text.text = "<b>CONTINGENCIA Y GUÍA DE AUDITORÍA</b>\n\n" +

@@ -14,7 +14,7 @@ namespace LogiPack.Orders
     {
         private static int _orderSequence = 1;
 
-        private static readonly string[] CompanyNames = new string[]
+        public static readonly string[] CompanyNames = new string[]
         {
             "Ferretería Pim Pom Pim",
             "Chispitas & Voltios Bip-Bop",
@@ -234,7 +234,7 @@ namespace LogiPack.Orders
             return new Order(orderId, companyName, rule, validItems, targetCount, condition, duration, reward, penalty);
         }
 
-        private static SetTheoryRule GenerateRandomSetRule()
+        public static SetTheoryRule GenerateRandomSetRule()
         {
             int ruleType = UnityEngine.Random.Range(0, 15);
             switch (ruleType)
@@ -323,7 +323,7 @@ namespace LogiPack.Orders
                     // Conjunto de Proposiciones Negadas: Tornillo (~p), Cable (~q), Vidrio (~s), Algodón (~r)
                     return new SetTheoryRule(
                         SetOperator.Union,
-                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        SetCriterion.CreateNegatedPropositions("¬P"),
                         null,
                         "Cualquier insumo del conjunto de proposiciones negadas (Tornillo, Cable, Vidrio o Algodón)"
                     );
@@ -332,7 +332,7 @@ namespace LogiPack.Orders
                     // Intersección: Proposiciones Negadas ∩ Metales -> Tornillo Estándar (~p)
                     return new SetTheoryRule(
                         SetOperator.Intersection,
-                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        SetCriterion.CreateNegatedPropositions("¬P"),
                         SetCriterion.CreateFamily("Metales", "Metales"),
                         "Fijaciones metálicas del conjunto de proposiciones negadas (Tornillo ¬p)"
                     );
@@ -341,7 +341,7 @@ namespace LogiPack.Orders
                     // Intersección: Proposiciones Directas ∩ Eléctricos -> Batería Litio (q)
                     return new SetTheoryRule(
                         SetOperator.Intersection,
-                        SetCriterion.CreateDirectPropositions("Proposiciones Directas (P)"),
+                        SetCriterion.CreateDirectPropositions("P"),
                         SetCriterion.CreateFamily("Electricidad", "Eléctricos"),
                         "Componentes eléctricos del conjunto de proposiciones directas (Batería Litio q)"
                     );
@@ -350,7 +350,7 @@ namespace LogiPack.Orders
                     // Diferencia: Proposiciones Negadas − Textiles -> Tornillo, Cable o Vidrio
                     return new SetTheoryRule(
                         SetOperator.Difference,
-                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        SetCriterion.CreateNegatedPropositions("¬P"),
                         SetCriterion.CreateFamily("Textiles", "Textiles"),
                         "Proposiciones negadas de taller excluyendo telas (Tornillo, Cable o Vidrio)"
                     );
@@ -360,8 +360,8 @@ namespace LogiPack.Orders
                     // Unión: Proposiciones Negadas ∪ Proposiciones Directas (insumos proposicionales puros)
                     return new SetTheoryRule(
                         SetOperator.Union,
-                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
-                        SetCriterion.CreateDirectPropositions("Proposiciones Directas (P)"),
+                        SetCriterion.CreateNegatedPropositions("¬P"),
+                        SetCriterion.CreateDirectPropositions("P"),
                         "Insumos proposicionales puros (directas o negadas, sin piezas intermedias)"
                     );
             }

@@ -20,8 +20,7 @@ namespace LogiPack.Gameplay
     {
         [Header("Managers")]
         public EconomyManager Economy;
-        public OrderManager Orders;
-        public PackagingZoneManager Packaging;
+        public PropositionalOrderManager PropositionalOrders;
         public DayEndSummaryUI SummaryUI;
 
         [Header("Panel HUD de Cuota (marco_dinero_plateado)")]
@@ -51,6 +50,12 @@ namespace LogiPack.Gameplay
                 return;
             }
 
+            // Ocultar reloj tradicional de jornada 06:00 - 22:00
+            var clock = GameObject.Find("HUD_Clock");
+            if (clock != null) clock.SetActive(false);
+            var money = GameObject.Find("HUD_Money");
+            if (money != null) money.SetActive(false);
+
             InitInfiniteMode();
         }
 
@@ -68,19 +73,25 @@ namespace LogiPack.Gameplay
 
             if (QuotaPanel != null) QuotaPanel.SetActive(true);
 
-            if (Orders != null)
+            if (PropositionalOrders == null)
             {
-                Orders.MaxConcurrentOrders = 5;
-                Orders.OrderSpawnInterval = 1.0f; // Flujo ininterrumpido
-                Orders.ClearAllOrders();
-                Orders.OnOrderExpired -= HandleOrderExpired;
-                Orders.OnOrderExpired += HandleOrderExpired;
+                PropositionalOrders = FindAnyObjectByType<PropositionalOrderManager>();
             }
 
-            if (Packaging != null)
+            if (PropositionalOrders != null)
             {
-                Packaging.OnOrderDispatched -= HandleOrderDispatched;
-                Packaging.OnOrderDispatched += HandleOrderDispatched;
+                PropositionalOrders.OnOrderDispatched -= HandlePropositionalOrderDispatched;
+                PropositionalOrders.OnOrderDispatched += HandlePropositionalOrderDispatched;
+            }
+
+            if (Economy == null)
+            {
+                Economy = FindAnyObjectByType<EconomyManager>();
+            }
+
+            if (SummaryUI == null)
+            {
+                SummaryUI = FindAnyObjectByType<DayEndSummaryUI>();
             }
 
             UpdateHUD();
@@ -89,19 +100,10 @@ namespace LogiPack.Gameplay
 
         private void OnDestroy()
         {
-            if (Packaging != null)
+            if (PropositionalOrders != null)
             {
-                Packaging.OnOrderDispatched -= HandleOrderDispatched;
+                PropositionalOrders.OnOrderDispatched -= HandlePropositionalOrderDispatched;
             }
-            if (Orders != null)
-            {
-                Orders.OnOrderExpired -= HandleOrderExpired;
-            }
-        }
-
-        private void HandleOrderExpired(Order order)
-        {
-            NotifyBoxDiscardedOrExpired();
         }
 
         private void Update()
@@ -120,25 +122,32 @@ namespace LogiPack.Gameplay
             UpdateHUD();
         }
 
-        private void HandleOrderDispatched(PackageBox box, Order order, int tip)
+        private void HandlePropositionalOrderDispatched(PropositionalOrder order, bool success)
         {
             if (!_isModeActive || order == null) return;
 
-            CurrentStreak++;
-
-            // Multiplicador de racha x1.5 a partir de 2 entregas consecutivas sin fallos
-            float multiplier = CurrentStreak >= 2 ? 1.5f : 1.0f;
-            int totalOrderEarning = Mathf.RoundToInt((order.MonetaryReward + tip) * multiplier);
-
-            CurrentRoundEarnings += totalOrderEarning;
-            TotalCareerEarnings += totalOrderEarning;
-
-            UpdateHUD();
-
-            // Verificar si se alcanzó la cuota de la ronda
-            if (CurrentRoundEarnings >= TargetQuota)
+            if (success)
             {
-                AdvanceToNextRound();
+                CurrentStreak++;
+
+                // Multiplicador de racha x1.5 a partir de 2 entregas consecutivas sin fallos
+                float multiplier = CurrentStreak >= 2 ? 1.5f : 1.0f;
+                int totalOrderEarning = Mathf.RoundToInt(order.Reward * multiplier);
+
+                CurrentRoundEarnings += totalOrderEarning;
+                TotalCareerEarnings += totalOrderEarning;
+
+                UpdateHUD();
+
+                // Verificar si se alcanzó la cuota de la ronda
+                if (CurrentRoundEarnings >= TargetQuota)
+                {
+                    AdvanceToNextRound();
+                }
+            }
+            else
+            {
+                NotifyBoxDiscardedOrExpired();
             }
         }
 
@@ -156,7 +165,7 @@ namespace LogiPack.Gameplay
             RoundEarningsHistory.Add(CurrentRoundEarnings);
             CurrentRound++;
 
-            // Tiempo por ronda: decae progresivamente hasta 30s (tras mínimo 4 rondas)
+            // Tiempo por ronda: decae progresivamente hasta 30s (tras al menos 4-5 rondas)
             // R1: 60s, R2: 52.5s, R3: 45s, R4: 37.5s, R5+: 30s
             CurrentRoundMaxDuration = Mathf.Max(30f, 60f - (CurrentRound - 1) * 7.5f);
             RoundTimeRemaining = CurrentRoundMaxDuration;
@@ -170,11 +179,6 @@ namespace LogiPack.Gameplay
                 Economy.ResetForNewDay();
             }
 
-            if (Orders != null)
-            {
-                Orders.ClearAllOrders();
-            }
-
             UpdateHUD();
             Debug.Log($"<color=green><b>[InfiniteMode]</b></color> ¡CUOTA ALCANZADA! Avanzando a Ronda {CurrentRound}. Nueva cuota: ${TargetQuota}. Tiempo: {CurrentRoundMaxDuration:F0}s.");
         }
@@ -185,9 +189,14 @@ namespace LogiPack.Gameplay
             RoundEarningsHistory.Add(CurrentRoundEarnings);
             Debug.Log($"<color=red><b>[InfiniteMode]</b></color> Tiempo agotado. Rondas superadas: {CurrentRound - 1}. Recaudación total: ${TotalCareerEarnings}.");
 
+            if (SummaryUI == null)
+            {
+                SummaryUI = FindAnyObjectByType<DayEndSummaryUI>();
+            }
+
             if (SummaryUI != null)
             {
-                SummaryUI.RenderInfiniteSummary(CurrentRound - 1, RoundEarningsHistory, TotalCareerEarnings);
+                SummaryUI.RenderInfiniteSummary(CurrentRound, RoundEarningsHistory, TotalCareerEarnings);
                 SummaryUI.SetModalVisible(true);
             }
         }

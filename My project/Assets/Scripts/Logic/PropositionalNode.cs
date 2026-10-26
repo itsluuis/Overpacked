@@ -241,6 +241,27 @@ namespace LogiPack.Logic
             }
         }
 
+        public void CollectItems(List<ItemData> items)
+        {
+            if (items == null) return;
+
+            if (NodeType == PropositionalNodeType.Atomic)
+            {
+                if (AssociatedItem != null)
+                    items.Add(AssociatedItem);
+            }
+            else if (NodeType == PropositionalNodeType.Unary)
+            {
+                if (InnerNode != null)
+                    InnerNode.CollectItems(items);
+            }
+            else if (NodeType == PropositionalNodeType.Binary)
+            {
+                if (Left != null) Left.CollectItems(items);
+                if (Right != null) Right.CollectItems(items);
+            }
+        }
+
         public override string ToString()
         {
             return ToFormulaString();

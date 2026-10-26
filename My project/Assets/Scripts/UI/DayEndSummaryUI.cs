@@ -158,14 +158,12 @@ namespace LogiPack.UI
                 PrestigeBadgeText.text = $"Prestigio Empresarial: <color={pColor}><b>{sign}{summary.PrestigeImpact:0.0}%</b></color> (Total: {summary.FinalPrestige:0.0}%){extraText}";
             }
 
-            // 5. Desglose Financiero (+10px)
+            // 5. Desglose Financiero (+10px) - Simplificado sin propinas ni caducados
             if (FinancialBreakdownText != null)
             {
                 FinancialBreakdownText.fontSize = 26;
                 FinancialBreakdownText.text =
                     $"📦 Pedidos Entregados: <b>{summary.CompletedOrders}</b>  <color=#00AA44>(+${summary.GrossEarnings})</color>\n" +
-                    $"⚡ Propinas por Rapidez:  <color=#C89000>+${summary.TotalTips}</color>\n" +
-                    $"⏳ Pedidos Caducados: <b>{summary.ExpiredOrders}</b>  <color=#CC2222>(-${summary.TotalPenalties})</color>\n" +
                     $"────────────────────────────────────────\n" +
                     $"💵 Saldo Neto Final: <size=28><b>${summary.NetMoney}</b></size>";
             }
@@ -212,47 +210,51 @@ namespace LogiPack.UI
 
             if (StarsDisplayText != null)
             {
-                StarsDisplayText.fontSize = 52;
-                StarsDisplayText.text = $"🏆 RONDAS SUPERADAS: {roundsCleared}";
+                StarsDisplayText.fontSize = 42;
+                StarsDisplayText.text = $"🏆 RONDA MÁXIMA ALCANZADA: {roundsCleared}";
             }
 
-            // Textos después de 'RONDAS SUPERADAS': aumentados +14px para máxima legibilidad
+            // Textos después de 'RONDAS SUPERADAS': aumentados para máxima legibilidad
             if (RatingTitleText != null)
             {
-                RatingTitleText.fontSize = 36; // +14px (era 22)
-                RatingTitleText.text = roundsCleared >= 5 ? "¡DESEMPEÑO LEGENDARIO!" : (roundsCleared >= 3 ? "¡EXCELENTE RESISTENCIA!" : "TURNO FINALIZADO");
+                RatingTitleText.fontSize = 34;
+                RatingTitleText.text = roundsCleared >= 5 ? "¡DESEMPEÑO LEGENDARIO!" : (roundsCleared >= 3 ? "¡EXCELENTE RESISTENCIA!" : (roundsCleared >= 2 ? "¡BUEN ESFUERZO!" : "TURNO FINALIZADO"));
                 RatingTitleText.color = new Color(0.85f, 0.55f, 0.05f);
             }
 
             if (PrestigeBadgeText != null)
             {
-                PrestigeBadgeText.fontSize = 30; // +13px (era 17)
-                PrestigeBadgeText.text = $"Modo Arcade Infinito • Rondas: {roundsCleared}";
+                PrestigeBadgeText.fontSize = 24;
+                PrestigeBadgeText.text = $"Modo Arcade Infinito • Ronda Máxima: {roundsCleared}";
             }
 
             if (FinancialBreakdownText != null)
             {
-                FinancialBreakdownText.fontSize = 28; // +11px con buen interlineado
-                string breakdown = "<b>Desglose de Ganancias por Ronda:</b>\n";
+                FinancialBreakdownText.fontSize = 19;
+                FinancialBreakdownText.verticalOverflow = VerticalWrapMode.Overflow;
+                string breakdown = "<b>Desglose por Rondas (Recaudado / Meta de Ronda):</b>\n";
+                int quota = 500;
                 if (roundEarnings != null && roundEarnings.Count > 0)
                 {
                     for (int i = 0; i < roundEarnings.Count; i++)
                     {
-                        breakdown += $"  • Ronda {i + 1}: ${roundEarnings[i]}\n";
+                        string status = (i < roundEarnings.Count - 1) ? "<color=#00AA44>[✓ CUMPLIDA]</color>" : "<color=#CC2222>[✗ NO ALCANZADA]</color>";
+                        breakdown += $"  • Ronda {i + 1} (Meta: ${quota}): <b>${roundEarnings[i]}</b>  {status}\n";
+                        quota = Mathf.RoundToInt(quota * 1.18f);
                     }
                 }
                 else
                 {
-                    breakdown += "  • Ronda 1: $0\n";
+                    breakdown += "  • Ronda 1 (Meta: $500): $0  <color=#CC2222>[✗ NO ALCANZADA]</color>\n";
                 }
-                breakdown += $"\n<b>TOTAL OBTENIDO: <color=#008833>${totalEarnings}</color></b>";
+                breakdown += $"<b>TOTAL RECAUDADO ACUMULADO: <color=#008833>${totalEarnings}</color></b>";
                 FinancialBreakdownText.text = breakdown;
             }
 
             if (QuotasStatusText != null)
             {
-                QuotasStatusText.fontSize = 28; // +12px (era 16)
-                QuotasStatusText.text = $"Rondas totales completadas: {roundsCleared}\n¡Buen intento! Supera tu récord en la próxima partida.";
+                QuotasStatusText.fontSize = 22;
+                QuotasStatusText.text = $"Ronda máxima alcanzada: {roundsCleared}\n¡Buen intento! Supera tu récord en la próxima partida.";
             }
 
             EnforceButtonTextColors();
