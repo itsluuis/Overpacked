@@ -405,6 +405,16 @@ namespace LogiPack.Gameplay
             }
         }
 
+        public void ClearWorkbench()
+        {
+            ClearOperand(0);
+            ClearOperand(2);
+            ClearResultBox();
+            CurrentOperator = PropositionalOperator.And;
+            UpdateOperatorVisual();
+            UpdateAssemblyState();
+        }
+
         private void ClearResultBox()
         {
             if (_activeResultBox != null)

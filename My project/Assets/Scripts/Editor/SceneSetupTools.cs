@@ -1519,20 +1519,21 @@ namespace LogiPack.Editor
             lp1RT.sizeDelta = new Vector2(530, 680);
             var lp1Text = left1TextGO.AddComponent<Text>();
             lp1Text.font = fredokaBold;
-            lp1Text.fontSize = 20;
+            lp1Text.fontSize = 24; // Aumentado a 24pt para cubrir el lienzo como Hoja 0
             lp1Text.color = new Color(0.12f, 0.12f, 0.12f);
             lp1Text.lineSpacing = 1.18f;
+            lp1Text.verticalOverflow = VerticalWrapMode.Overflow;
             lp1Text.text = "<b>TEORÍA DE CONJUNTOS EN ALMACÉN</b>\n\n" +
-                          "<b>x ∈ S</b> : Pertenencia del insumo 'x' al lote de empresa 'S'.\n\n" +
+                          "<b>x ∈ S</b> : Pertenencia del insumo 'x' a la orden 'S'.\n\n" +
                           "<b>∪ : Unión (A ∪ B)</b>\n" +
                           "Insumos que pertenecen a A o a B (o a ambos).\n" +
-                          "<i>Ej: Metales ∪ Textiles (cualquier fijación o tela).</i>\n\n" +
+                          "<i>Ej: Metales ∪ Textiles (fijaciones o telas).</i>\n\n" +
                           "<b>∩ : Intersección (A ∩ B)</b>\n" +
-                          "Insumos que cumplen ambas condiciones simultáneamente.\n" +
-                          "<i>Ej: Eléctricos ∩ Herramientas (Enchufe Aislado).</i>\n\n" +
+                          "Insumos que cumplen ambas condiciones a la vez.\n" +
+                          "<i>Ej: Metales ∩ VIP (Perno de Titanio p).</i>\n\n" +
                           "<b>− : Diferencia (A − B)</b>\n" +
-                          "Insumos que pertenecen a A pero NO pertenecen a B.\n" +
-                          "<i>Ej: Eléctricos − Frágiles (Cable y Enchufe).</i>\n\n" +
+                          "Insumos que están en A pero NO en B.\n" +
+                          "<i>Ej: Metales − VIP (Tornillo Estándar ~p).</i>\n\n" +
                           "<b>Aᶜ : Complemento</b>\n" +
                           "Todo el universo del almacén EXCEPTO el conjunto A.\n" +
                           "<i>Ej: (Metales)ᶜ = Cualquier ítem no metálico.</i>";
@@ -1542,26 +1543,27 @@ namespace LogiPack.Editor
             var rp1RT = right1TextGO.AddComponent<RectTransform>();
             rp1RT.anchorMin = new Vector2(0.5f, 0.5f); rp1RT.anchorMax = new Vector2(0.5f, 0.5f);
             rp1RT.pivot = new Vector2(0.5f, 0.5f);
-            rp1RT.anchoredPosition = new Vector2(360, 25);
-            rp1RT.sizeDelta = new Vector2(530, 660);
+            rp1RT.anchoredPosition = new Vector2(360, 20);
+            rp1RT.sizeDelta = new Vector2(550, 700);
             var rp1Text = right1TextGO.AddComponent<Text>();
             rp1Text.font = fredokaBold;
-            rp1Text.fontSize = 20;
+            rp1Text.fontSize = 24; // Aumentado a 24pt
             rp1Text.color = new Color(0.12f, 0.12f, 0.12f);
             rp1Text.lineSpacing = 1.18f;
+            rp1Text.verticalOverflow = VerticalWrapMode.Overflow;
             rp1Text.text = "<b>CONJUNTOS PROPOSICIONALES</b>\n\n" +
                           "<b>• Conjunto de Negadas (¬P):</b>\n" +
-                          "Insumos de Ranura 3 (Tier 1 Básico):\n" +
+                          "Insumos Básicos del Almacén:\n" +
                           "<b>~p</b>: Tornillo Estándar  |  <b>~q</b>: Cable Simple\n" +
                           "<b>~s</b>: Vidrio Plano        |  <b>~r</b>: Tela de Algodón\n\n" +
                           "<b>• Conjunto de Directas (P):</b>\n" +
-                          "Insumos de Ranura 1 (Tier 3 Avanzado):\n" +
+                          "Insumos VIP / Avanzados:\n" +
                           "<b>p</b>: Perno Titanio   |  <b>q</b>: Batería Litio\n" +
                           "<b>s</b>: Cristal Lab.    |  <b>r</b>: Tejido Ignífugo\n\n" +
                           "<b>• Familias del Almacén:</b>\n" +
                           "Metales, Electricidad, Óptica, Textiles.\n\n" +
                           "<b>• Atributos Especiales:</b>\n" +
-                          "Herramienta, Eléctrico, Frágil, Aislante.";
+                          "Herramienta, Eléctrico, Frágil, Tela.";
 
             // HOJA 2: Tablas de Verdad (Auditoría y Leyes Lógicas)
             GameObject page2GO = new GameObject("Page_2_TruthTables");
@@ -1576,22 +1578,23 @@ namespace LogiPack.Editor
             lp2RT.anchorMin = new Vector2(0.5f, 0.5f); lp2RT.anchorMax = new Vector2(0.5f, 0.5f);
             lp2RT.pivot = new Vector2(0.5f, 0.5f);
             lp2RT.anchoredPosition = new Vector2(-360, 20);
-            lp2RT.sizeDelta = new Vector2(550, 720);
+            lp2RT.sizeDelta = new Vector2(560, 720);
             var lp2Text = left2TextGO.AddComponent<Text>();
             lp2Text.font = fredokaBold;
-            lp2Text.fontSize = 17; // Tipografía aumentada a 17pt para óptima legibilidad
+            lp2Text.fontSize = 21; // Tipografía aumentada a 21pt para óptima legibilidad
             lp2Text.color = new Color(0.12f, 0.12f, 0.12f);
-            lp2Text.lineSpacing = 1.15f;
+            lp2Text.lineSpacing = 1.16f;
+            lp2Text.verticalOverflow = VerticalWrapMode.Overflow;
             lp2Text.text = "<b>TABLAS DE VERDAD Y LEYES LÓGICAS</b>\n\n" +
                           "<b>✓ 5 TAUTOLOGÍAS (Siempre Verdaderas ⊤):</b>\n" +
                           "1. <b>p ∨ ~p</b> : \"O llueve o no llueve\" (Tercero excluido)\n" +
                           "2. <b>p → p</b> : \"Si hay stock, entonces hay stock\" (Identidad)\n" +
-                          "3. <b>~(p ∧ ~p)</b> : \"No ocurre que llueva y no llueva a la vez\"\n" +
+                          "3. <b>~(p ∧ ~p)</b> : \"No ocurre que llueva y no a la vez\"\n" +
                           "4. <b>(p ∧ q) → p</b> : \"Si llueve y hace frío, seguro llueve\"\n" +
                           "5. <b>p → (q → p)</b> : \"Si llueve, si hace frío sigue lloviendo\"\n\n" +
                           "<b>✗ 5 CONTRADICCIONES (Siempre Falsas ⊥):</b>\n" +
                           "1. <b>p ∧ ~p</b> : \"Llueve y no llueve al mismo tiempo\"\n" +
-                          "2. <b>~(p ∨ ~p)</b> : \"No es cierto que o llueva o no llueva\"\n" +
+                          "2. <b>~(p ∨ ~p)</b> : \"No es cierto que o llueva o no\"\n" +
                           "3. <b>p ↔ ~p</b> : \"Llueve si y solo si no llueve\" (Opuestos)\n" +
                           "4. <b>(p → q) ∧ (p ∧ ~q)</b> : \"Si llueve hace frío, pero no\"\n" +
                           "5. <b>~(p → p)</b> : \"Es falso que si hay stock, haya stock\"";
@@ -1602,15 +1605,16 @@ namespace LogiPack.Editor
             rp2RT.anchorMin = new Vector2(0.5f, 0.5f); rp2RT.anchorMax = new Vector2(0.5f, 0.5f);
             rp2RT.pivot = new Vector2(0.5f, 0.5f);
             rp2RT.anchoredPosition = new Vector2(360, 20);
-            rp2RT.sizeDelta = new Vector2(550, 720);
+            rp2RT.sizeDelta = new Vector2(560, 720);
             var rp2Text = right2TextGO.AddComponent<Text>();
             rp2Text.font = fredokaBold;
-            rp2Text.fontSize = 18; // Tipografía aumentada a 18pt
+            rp2Text.fontSize = 22; // Tipografía aumentada a 22pt
             rp2Text.color = new Color(0.12f, 0.12f, 0.12f);
             rp2Text.lineSpacing = 1.18f;
+            rp2Text.verticalOverflow = VerticalWrapMode.Overflow;
             rp2Text.text = "<b>CONTINGENCIA Y GUÍA DE AUDITORÍA</b>\n\n" +
                           "<b>⚡ 5 CONTINGENCIAS (Casos Mixtos V y F):</b>\n" +
-                          "1. <b>p ∧ q</b> : \"Llueve y hace frío\" (Solo V si ambos ocurren)\n" +
+                          "1. <b>p ∧ q</b> : \"Llueve y hace frío\" (V solo si ambos ocurren)\n" +
                           "2. <b>p ∨ q</b> : \"Llueve o hace frío\" (V si al menos uno ocurre)\n" +
                           "3. <b>p → q</b> : \"Si llueve, hace frío\" (Falsa solo si V → F)\n" +
                           "4. <b>p ↔ q</b> : \"Llueve si y solo si hace frío\" (V si coinciden)\n" +

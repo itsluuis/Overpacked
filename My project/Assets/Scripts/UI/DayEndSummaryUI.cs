@@ -210,22 +210,21 @@ namespace LogiPack.UI
 
             if (StarsDisplayText != null)
             {
-                StarsDisplayText.fontSize = 42;
-                StarsDisplayText.text = $"🏆 RONDA MÁXIMA ALCANZADA: {roundsCleared}";
+                StarsDisplayText.text = "";
             }
 
             // Textos después de 'RONDAS SUPERADAS': aumentados para máxima legibilidad
             if (RatingTitleText != null)
             {
                 RatingTitleText.fontSize = 34;
-                RatingTitleText.text = roundsCleared >= 5 ? "¡DESEMPEÑO LEGENDARIO!" : (roundsCleared >= 3 ? "¡EXCELENTE RESISTENCIA!" : (roundsCleared >= 2 ? "¡BUEN ESFUERZO!" : "TURNO FINALIZADO"));
+                RatingTitleText.text = "¡BUEN TRABAJO!";
                 RatingTitleText.color = new Color(0.85f, 0.55f, 0.05f);
             }
 
             if (PrestigeBadgeText != null)
             {
                 PrestigeBadgeText.fontSize = 24;
-                PrestigeBadgeText.text = $"Modo Arcade Infinito • Ronda Máxima: {roundsCleared}";
+                PrestigeBadgeText.text = $"Ronda máxima: {roundsCleared}";
             }
 
             if (FinancialBreakdownText != null)
@@ -254,7 +253,7 @@ namespace LogiPack.UI
             if (QuotasStatusText != null)
             {
                 QuotasStatusText.fontSize = 22;
-                QuotasStatusText.text = $"Ronda máxima alcanzada: {roundsCleared}\n¡Buen intento! Supera tu récord en la próxima partida.";
+                QuotasStatusText.text = "¡Supera tu récord en la próxima partida!";
             }
 
             EnforceButtonTextColors();
@@ -378,7 +377,25 @@ namespace LogiPack.UI
 
             if (Environment != null)
             {
-                Environment.RestartDay(advanceDayCount: true);
+                Environment.RestartDay(false);
+            }
+            else if (EnvironmentManager.Instance != null)
+            {
+                EnvironmentManager.Instance.RestartDay(false);
+            }
+
+            // Reiniciar orden actual para que no quede congelada la del día anterior
+            var propOrders = FindAnyObjectByType<PropositionalOrderManager>();
+            if (propOrders != null)
+            {
+                propOrders.SpawnNextOrder();
+            }
+
+            // Limpiar mesa de armado
+            var workbench = FindAnyObjectByType<Gameplay.AssemblyWorkbenchManager>();
+            if (workbench != null)
+            {
+                workbench.ClearWorkbench();
             }
         }
 
@@ -400,6 +417,12 @@ namespace LogiPack.UI
         {
             LogiPack.Core.GameModeManager.SetGameplayPaused(false);
             SetModalVisible(false);
+
+            if (Economy != null)
+            {
+                Economy.ResetForNewDay();
+            }
+
             var infiniteCtrl = FindAnyObjectByType<Gameplay.InfiniteModeController>();
             if (infiniteCtrl != null)
             {
@@ -408,6 +431,20 @@ namespace LogiPack.UI
             else
             {
                 UnityEngine.SceneManagement.SceneManager.LoadScene("GameplayScene");
+            }
+
+            // Reiniciar orden para la nueva partida infinita
+            var propOrders = FindAnyObjectByType<PropositionalOrderManager>();
+            if (propOrders != null)
+            {
+                propOrders.SpawnNextOrder();
+            }
+
+            // Limpiar mesa de armado
+            var workbench = FindAnyObjectByType<Gameplay.AssemblyWorkbenchManager>();
+            if (workbench != null)
+            {
+                workbench.ClearWorkbench();
             }
         }
     }

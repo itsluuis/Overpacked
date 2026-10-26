@@ -258,25 +258,25 @@ namespace LogiPack.Orders
                 case 2:
                     return new SetTheoryRule(
                         SetOperator.Intersection,
-                        SetCriterion.CreateFamily("Electricidad", "Eléctricos"),
-                        SetCriterion.CreateAttribute(ItemAttributes.Tool, "Herramientas"),
-                        "Insumos eléctricos utilizables como herramientas"
+                        SetCriterion.CreateFamily("Metales", "Metales"),
+                        SetCriterion.CreateDirectPropositions("P"),
+                        "Fijaciones metálicas VIP (Perno Titanio p)"
                     );
 
                 case 3:
                     return new SetTheoryRule(
                         SetOperator.Intersection,
                         SetCriterion.CreateFamily("Óptica", "Óptica"),
-                        SetCriterion.CreateAttribute(ItemAttributes.Electrical, "Eléctricos"),
-                        "Piezas ópticas con propiedades eléctricas"
+                        SetCriterion.CreateDirectPropositions("P"),
+                        "Piezas ópticas VIP (Cristal de Laboratorio s)"
                     );
 
                 case 4:
                     return new SetTheoryRule(
                         SetOperator.Intersection,
                         SetCriterion.CreateFamily("Metales", "Metales"),
-                        SetCriterion.CreateTier(ItemTier.Tier2_Medium, "Tier 2"),
-                        "Fijaciones metálicas de calidad intermedia (Tier 2)"
+                        SetCriterion.CreateNegatedPropositions("¬P"),
+                        "Fijaciones metálicas básicas (Tornillo ¬p)"
                     );
 
                 case 5:
@@ -291,16 +291,16 @@ namespace LogiPack.Orders
                     return new SetTheoryRule(
                         SetOperator.Difference,
                         SetCriterion.CreateFamily("Metales", "Metales"),
-                        SetCriterion.CreateTier(ItemTier.Tier3_Advanced, "Tier 3"),
-                        "Herrajes metálicos ligeros (NO de titanio pesado)"
+                        SetCriterion.CreateDirectPropositions("P"),
+                        "Herrajes metálicos básicos excluyendo piezas VIP (Tornillo ¬p)"
                     );
 
                 case 7:
                     return new SetTheoryRule(
                         SetOperator.Difference,
                         SetCriterion.CreateFamily("Óptica", "Óptica"),
-                        SetCriterion.CreateAttribute(ItemAttributes.Tool, "Herramientas"),
-                        "Cristalería óptica pura (sin instrumental de lab)"
+                        SetCriterion.CreateDirectPropositions("P"),
+                        "Cristalería básica excluyendo piezas VIP (Vidrio Plano ¬s)"
                     );
 
                 case 8:

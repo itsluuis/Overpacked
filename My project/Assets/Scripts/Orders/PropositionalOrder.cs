@@ -51,7 +51,7 @@ namespace LogiPack.Orders
             {
                 var rule = OrderGenerator.GenerateRandomSetRule();
                 string compName = OrderGenerator.CompanyNames[UnityEngine.Random.Range(0, OrderGenerator.CompanyNames.Length)];
-                int targetCount = UnityEngine.Random.Range(2, 4); // 2 o 3 ítems
+                int targetCount = UnityEngine.Random.Range(1, 3); // 1 o 2 ítems (máximo 2)
                 int setReward = UnityEngine.Random.Range(120, 161);
 
                 return new PropositionalOrder

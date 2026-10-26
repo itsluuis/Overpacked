@@ -94,6 +94,13 @@ namespace LogiPack.Gameplay
                 SummaryUI = FindAnyObjectByType<DayEndSummaryUI>();
             }
 
+            LogiPack.Core.GameModeManager.SetGameplayPaused(false);
+
+            if (PropositionalOrders != null)
+            {
+                PropositionalOrders.SpawnNextOrder();
+            }
+
             UpdateHUD();
             Debug.Log("<color=yellow><b>[InfiniteMode]</b></color> Modo Jornada Infinita iniciado. Ronda 1. Cuota objetivo: $500.");
         }

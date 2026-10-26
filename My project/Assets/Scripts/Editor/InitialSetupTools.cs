@@ -145,12 +145,12 @@ namespace LogiPack.Editor
             );
             var unionItems = unionRule.ResolveValidItems(universe);
 
-            // 3. Probar Intersección: Óptica ∩ Eléctricos (Lente Halógeno)
+            // 3. Probar Intersección: Óptica ∩ Directas (Cristal Lab s)
             var interRule = new SetTheoryRule(
                 SetOperator.Intersection,
                 SetCriterion.CreateFamily("Óptica", "Óptica"),
-                SetCriterion.CreateAttribute(ItemAttributes.Electrical, "Eléctricos"),
-                "Óptica Eléctrica"
+                SetCriterion.CreateDirectPropositions("P"),
+                "Óptica VIP"
             );
             var interItems = interRule.ResolveValidItems(universe);
 

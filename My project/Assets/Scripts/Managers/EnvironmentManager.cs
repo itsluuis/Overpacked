@@ -18,6 +18,8 @@ namespace LogiPack.Managers
         public const int START_HOUR = 6;
         public const int END_HOUR = 22;
 
+        public static EnvironmentManager Instance { get; private set; }
+
         public EnvironmentState CurrentState;
 
         [Header("Pronóstico para la Próxima Hora")]
@@ -35,6 +37,11 @@ namespace LogiPack.Managers
         private int _currentHourInt = START_HOUR;
         private int _consecutiveWeatherRepeats = 0;
         private int _consecutiveTempRepeats = 0;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
 
         private void Start()
         {
