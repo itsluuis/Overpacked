@@ -18,6 +18,7 @@ namespace LogiPack.UI
 
         [Header("Páginas de Contenido")]
         public GameObject PageBasics;
+        public GameObject PageSetTheory;
         public GameObject PageTruthTables;
         public Button NextPageButton;
         public Button PrevPageButton;
@@ -29,7 +30,7 @@ namespace LogiPack.UI
         private bool _isOpen;
         private bool _isAnimating;
         private Coroutine _currentAnim;
-        private int _currentPage = 0; // 0: Lógica y Catálogo, 1: Tablas de Verdad
+        private int _currentPage = 0; // 0: Lógica y Catálogo, 1: Teoría de Conjuntos, 2: Tablas de Verdad
 
         private void Awake()
         {
@@ -72,9 +73,14 @@ namespace LogiPack.UI
         public void OpenGuide()
         {
             if (_isOpen || _isAnimating) return;
-            // Si estamos en Checkout, abrir directamente en la página de Tablas de Verdad
-            _currentPage = GameModeManager.IsCheckoutMode ? 1 : 0;
+            // Si estamos en Checkout, abrir directamente en la página de Tablas de Verdad (Página 2)
+            _currentPage = GameModeManager.IsCheckoutMode ? 2 : 0;
             UpdatePageNavigation();
+
+            if (ModalRoot != null)
+            {
+                ModalRoot.transform.SetAsLastSibling();
+            }
 
             if (_currentAnim != null) StopCoroutine(_currentAnim);
             _currentAnim = StartCoroutine(AnimateOpen());
@@ -82,7 +88,7 @@ namespace LogiPack.UI
 
         public void NextPage()
         {
-            if (_currentPage < 1)
+            if (_currentPage < 2)
             {
                 _currentPage++;
                 UpdatePageNavigation();
@@ -101,10 +107,11 @@ namespace LogiPack.UI
         private void UpdatePageNavigation()
         {
             if (PageBasics != null) PageBasics.SetActive(_currentPage == 0);
-            if (PageTruthTables != null) PageTruthTables.SetActive(_currentPage == 1);
+            if (PageSetTheory != null) PageSetTheory.SetActive(_currentPage == 1);
+            if (PageTruthTables != null) PageTruthTables.SetActive(_currentPage == 2);
 
             if (PrevPageButton != null) PrevPageButton.gameObject.SetActive(_currentPage > 0);
-            if (NextPageButton != null) NextPageButton.gameObject.SetActive(_currentPage < 1);
+            if (NextPageButton != null) NextPageButton.gameObject.SetActive(_currentPage < 2);
         }
 
         public void CloseGuide()

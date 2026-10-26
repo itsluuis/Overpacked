@@ -1340,14 +1340,14 @@ namespace LogiPack.Editor
                           "<b>r</b>: Ignífugo       |  <b>~r</b>: Algodón\n\n" +
                           "<i>Tip: Ranura 1 es término directo.\nRanura 3 es término negado (~).</i>";
 
-            // HOJA 1: Tablas de Verdad (Auditoría)
-            GameObject page1GO = new GameObject("Page_1_TruthTables");
+            // HOJA 1: Teoría de Conjuntos en el Almacén
+            GameObject page1GO = new GameObject("Page_1_SetTheory");
             page1GO.transform.SetParent(nbWindowGO.transform, false);
             var p1RT = page1GO.AddComponent<RectTransform>();
             p1RT.anchorMin = Vector2.zero; p1RT.anchorMax = Vector2.one;
             p1RT.sizeDelta = Vector2.zero;
 
-            GameObject left1TextGO = new GameObject("LeftPageText_TT");
+            GameObject left1TextGO = new GameObject("LeftPageText_Set");
             left1TextGO.transform.SetParent(page1GO.transform, false);
             var lp1RT = left1TextGO.AddComponent<RectTransform>();
             lp1RT.anchorMin = new Vector2(0.5f, 0.5f); lp1RT.anchorMax = new Vector2(0.5f, 0.5f);
@@ -1356,37 +1356,102 @@ namespace LogiPack.Editor
             lp1RT.sizeDelta = new Vector2(530, 680);
             var lp1Text = left1TextGO.AddComponent<Text>();
             lp1Text.font = fredokaBold;
-            lp1Text.fontSize = 23;
+            lp1Text.fontSize = 20;
             lp1Text.color = new Color(0.12f, 0.12f, 0.12f);
             lp1Text.lineSpacing = 1.18f;
-            lp1Text.text = "<b>TABLAS DE VERDAD</b>\n\n" +
-                          "Evalúan la verdad (V/F) de una fórmula en cada combinación posible de sus variables.\n\n" +
-                          "<b>✓ TAUTOLOGÍA (T):</b>\n" +
-                          "Fórmula que resulta <b>SIEMPRE VERDADERA (V)</b> en todas las filas de su tabla, sin excepción.\n" +
-                          "<i>Ej: p ∨ ~p (\"O llueve o no llueve\").\n" +
-                          "(p ∧ q) → p (\"Si llueve y hace frío, llueve\").</i>\n\n" +
-                          "<b>✗ CONTRADICCIÓN (⊥):</b>\n" +
-                          "Fórmula que resulta <b>SIEMPRE FALSA (F)</b> en todas las filas de su tabla, sin excepción.\n" +
-                          "<i>Ej: p ∧ ~p (\"Llueve y no llueve a la vez\").\n" +
-                          "p ↔ ~p (\"Llueve si y solo si no llueve\").</i>";
+            lp1Text.text = "<b>TEORÍA DE CONJUNTOS EN ALMACÉN</b>\n\n" +
+                          "<b>x ∈ S</b> : Pertenencia del insumo 'x' al lote de empresa 'S'.\n\n" +
+                          "<b>∪ : Unión (A ∪ B)</b>\n" +
+                          "Insumos que pertenecen a A o a B (o a ambos).\n" +
+                          "<i>Ej: Metales ∪ Textiles (cualquier fijación o tela).</i>\n\n" +
+                          "<b>∩ : Intersección (A ∩ B)</b>\n" +
+                          "Insumos que cumplen ambas condiciones simultáneamente.\n" +
+                          "<i>Ej: Eléctricos ∩ Herramientas (Enchufe Aislado).</i>\n\n" +
+                          "<b>− : Diferencia (A − B)</b>\n" +
+                          "Insumos que pertenecen a A pero NO pertenecen a B.\n" +
+                          "<i>Ej: Eléctricos − Frágiles (Cable y Enchufe).</i>\n\n" +
+                          "<b>Aᶜ : Complemento</b>\n" +
+                          "Todo el universo del almacén EXCEPTO el conjunto A.\n" +
+                          "<i>Ej: (Metales)ᶜ = Cualquier ítem no metálico.</i>";
 
-            GameObject right1TextGO = new GameObject("RightPageText_TT");
+            GameObject right1TextGO = new GameObject("RightPageText_Set");
             right1TextGO.transform.SetParent(page1GO.transform, false);
             var rp1RT = right1TextGO.AddComponent<RectTransform>();
             rp1RT.anchorMin = new Vector2(0.5f, 0.5f); rp1RT.anchorMax = new Vector2(0.5f, 0.5f);
             rp1RT.pivot = new Vector2(0.5f, 0.5f);
-            rp1RT.anchoredPosition = new Vector2(360, 30);
-            rp1RT.sizeDelta = new Vector2(530, 640);
+            rp1RT.anchoredPosition = new Vector2(360, 25);
+            rp1RT.sizeDelta = new Vector2(530, 660);
             var rp1Text = right1TextGO.AddComponent<Text>();
             rp1Text.font = fredokaBold;
-            rp1Text.fontSize = 23;
+            rp1Text.fontSize = 20;
             rp1Text.color = new Color(0.12f, 0.12f, 0.12f);
             rp1Text.lineSpacing = 1.18f;
-            rp1Text.text = "<b>CONTINGENCIA Y AUDITORÍA</b>\n\n" +
-                          "<b>⚡ CONTINGENCIA (C):</b>\n" +
-                          "Fórmula cuyo valor depende de las condiciones: es <b>Verdadera en algunos casos y Falsa en otros</b> (mezcla de V y F).\n" +
-                          "<i>Ej: p ∧ q (\"Llueve y hace frío\").\n" +
-                          "p → q (\"Si llueve, uso abrigo\").</i>\n\n" +
+            rp1Text.text = "<b>CONJUNTOS PROPOSICIONALES</b>\n\n" +
+                          "<b>• Conjunto de Negadas (¬P):</b>\n" +
+                          "Insumos de Ranura 3 (Tier 1 Básico):\n" +
+                          "<b>~p</b>: Tornillo Estándar  |  <b>~q</b>: Cable Simple\n" +
+                          "<b>~s</b>: Vidrio Plano        |  <b>~r</b>: Tela de Algodón\n\n" +
+                          "<b>• Conjunto de Directas (P):</b>\n" +
+                          "Insumos de Ranura 1 (Tier 3 Avanzado):\n" +
+                          "<b>p</b>: Perno Titanio   |  <b>q</b>: Batería Litio\n" +
+                          "<b>s</b>: Cristal Lab.    |  <b>r</b>: Tejido Ignífugo\n\n" +
+                          "<b>• Familias del Almacén:</b>\n" +
+                          "Metales, Electricidad, Óptica, Textiles.\n\n" +
+                          "<b>• Atributos Especiales:</b>\n" +
+                          "Herramienta, Eléctrico, Frágil, Aislante.";
+
+            // HOJA 2: Tablas de Verdad (Auditoría y Leyes Lógicas)
+            GameObject page2GO = new GameObject("Page_2_TruthTables");
+            page2GO.transform.SetParent(nbWindowGO.transform, false);
+            var p2RT = page2GO.AddComponent<RectTransform>();
+            p2RT.anchorMin = Vector2.zero; p2RT.anchorMax = Vector2.one;
+            p2RT.sizeDelta = Vector2.zero;
+
+            GameObject left2TextGO = new GameObject("LeftPageText_TT");
+            left2TextGO.transform.SetParent(page2GO.transform, false);
+            var lp2RT = left2TextGO.AddComponent<RectTransform>();
+            lp2RT.anchorMin = new Vector2(0.5f, 0.5f); lp2RT.anchorMax = new Vector2(0.5f, 0.5f);
+            lp2RT.pivot = new Vector2(0.5f, 0.5f);
+            lp2RT.anchoredPosition = new Vector2(-360, 20);
+            lp2RT.sizeDelta = new Vector2(530, 680);
+            var lp2Text = left2TextGO.AddComponent<Text>();
+            lp2Text.font = fredokaBold;
+            lp2Text.fontSize = 14; // Tipografía compacta de 14pt solicitada para que los 10 registros respiren cómodamente
+            lp2Text.color = new Color(0.12f, 0.12f, 0.12f);
+            lp2Text.lineSpacing = 1.15f;
+            lp2Text.text = "<b>TABLAS DE VERDAD Y LEYES LÓGICAS</b>\n\n" +
+                          "<b>✓ 5 TAUTOLOGÍAS (Siempre Verdaderas ⊤):</b>\n" +
+                          "1. <b>p ∨ ~p</b> : \"O llueve o no llueve\" (Tercero excluido)\n" +
+                          "2. <b>p → p</b> : \"Si hay stock, entonces hay stock\" (Identidad)\n" +
+                          "3. <b>~(p ∧ ~p)</b> : \"No ocurre que llueva y no llueva a la vez\"\n" +
+                          "4. <b>(p ∧ q) → p</b> : \"Si llueve y hace frío, seguro llueve\"\n" +
+                          "5. <b>p → (q → p)</b> : \"Si llueve, si hace frío sigue lloviendo\"\n\n" +
+                          "<b>✗ 5 CONTRADICCIONES (Siempre Falsas ⊥):</b>\n" +
+                          "1. <b>p ∧ ~p</b> : \"Llueve y no llueve al mismo tiempo\"\n" +
+                          "2. <b>~(p ∨ ~p)</b> : \"No es cierto que o llueva o no llueva\"\n" +
+                          "3. <b>p ↔ ~p</b> : \"Llueve si y solo si no llueve\" (Opuestos)\n" +
+                          "4. <b>(p → q) ∧ (p ∧ ~q)</b> : \"Si llueve hace frío, pero no\"\n" +
+                          "5. <b>~(p → p)</b> : \"Es falso que si hay stock, haya stock\"";
+
+            GameObject right2TextGO = new GameObject("RightPageText_TT");
+            right2TextGO.transform.SetParent(page2GO.transform, false);
+            var rp2RT = right2TextGO.AddComponent<RectTransform>();
+            rp2RT.anchorMin = new Vector2(0.5f, 0.5f); rp2RT.anchorMax = new Vector2(0.5f, 0.5f);
+            rp2RT.pivot = new Vector2(0.5f, 0.5f);
+            rp2RT.anchoredPosition = new Vector2(360, 20);
+            rp2RT.sizeDelta = new Vector2(530, 680);
+            var rp2Text = right2TextGO.AddComponent<Text>();
+            rp2Text.font = fredokaBold;
+            rp2Text.fontSize = 15;
+            rp2Text.color = new Color(0.12f, 0.12f, 0.12f);
+            rp2Text.lineSpacing = 1.18f;
+            rp2Text.text = "<b>CONTINGENCIA Y GUÍA DE AUDITORÍA</b>\n\n" +
+                          "<b>⚡ 5 CONTINGENCIAS (Casos Mixtos V y F):</b>\n" +
+                          "1. <b>p ∧ q</b> : \"Llueve y hace frío\" (Solo V si ambos ocurren)\n" +
+                          "2. <b>p ∨ q</b> : \"Llueve o hace frío\" (V si al menos uno ocurre)\n" +
+                          "3. <b>p → q</b> : \"Si llueve, hace frío\" (Falsa solo si V → F)\n" +
+                          "4. <b>p ↔ q</b> : \"Llueve si y solo si hace frío\" (V si coinciden)\n" +
+                          "5. <b>p ∧ ~q</b> : \"Llueve pero no hace frío\" (V solo en p=V, q=F)\n\n" +
                           "<b>GUÍA RÁPIDA DE DESPACHO:</b>\n" +
                           "• <b>Todo V</b> → Sello <b>TAUTOLOGÍA</b>\n" +
                           "• <b>Todo F</b> → Sello <b>CONTRADICCIÓN</b>\n" +
@@ -1450,7 +1515,8 @@ namespace LogiPack.Editor
             guideUI.CloseButton = cnbBtn;
             guideUI.OverlayCloseButton = overlayCloseBtn;
             guideUI.PageBasics = page0GO;
-            guideUI.PageTruthTables = page1GO;
+            guideUI.PageSetTheory = page1GO;
+            guideUI.PageTruthTables = page2GO;
             guideUI.NextPageButton = nextBtn;
             guideUI.PrevPageButton = prevBtn;
             guideUI.CuadernoAbierto = notebookOpenSprite;
@@ -1575,50 +1641,7 @@ namespace LogiPack.Editor
             pShadow.effectDistance = new Vector2(1, -1);
             director.SheetProgressText = pText;
 
-            // 7. Botones Superiores Derechos
-            GameObject pauseBtnGO = new GameObject("Button_Pause");
-            pauseBtnGO.transform.SetParent(canvasGO.transform, false);
-            var pauseRT = pauseBtnGO.AddComponent<RectTransform>();
-            pauseRT.anchorMin = new Vector2(1f, 1f); pauseRT.anchorMax = new Vector2(1f, 1f);
-            pauseRT.pivot = new Vector2(1f, 1f);
-            pauseRT.anchoredPosition = new Vector2(-40, -35);
-            pauseRT.sizeDelta = new Vector2(65, 65);
-            var pauseImg = pauseBtnGO.AddComponent<Image>();
-            pauseImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/selector_cuadrado.png");
-            var pauseBtn = pauseBtnGO.AddComponent<Button>();
-            pauseBtn.targetGraphic = pauseImg;
-
-            GameObject pauseTxtGO = new GameObject("Icon");
-            pauseTxtGO.transform.SetParent(pauseBtnGO.transform, false);
-            var ptxtRT = pauseTxtGO.AddComponent<RectTransform>();
-            ptxtRT.sizeDelta = pauseRT.sizeDelta;
-            var ptxt = pauseTxtGO.AddComponent<Text>();
-            ptxt.font = fredokaBold;
-            ptxt.fontSize = 28;
-            ptxt.text = "II";
-            ptxt.color = new Color(0.15f, 0.15f, 0.15f);
-            ptxt.alignment = TextAnchor.MiddleCenter;
-
-            GameObject nbBtnGO = new GameObject("Button_NotebookGuide");
-            nbBtnGO.transform.SetParent(canvasGO.transform, false);
-            var nbRT = nbBtnGO.AddComponent<RectTransform>();
-            nbRT.anchorMin = new Vector2(1f, 1f); nbRT.anchorMax = new Vector2(1f, 1f);
-            nbRT.pivot = new Vector2(1f, 1f);
-            nbRT.anchoredPosition = new Vector2(-120, -35);
-            nbRT.sizeDelta = new Vector2(65, 65);
-            var nbImg = nbBtnGO.AddComponent<Image>();
-            nbImg.sprite = notebookClosedSprite;
-            nbImg.preserveAspect = true;
-            var nbBtn = nbBtnGO.AddComponent<Button>();
-            nbBtn.targetGraphic = nbImg;
-
-            var optionsUI = MenuSetupTools.BuildOptionsMenuHierarchy(canvasGO.transform, fredokaBold, cardSprite, yellowBtnSprite, greenBtnSprite, isGameplay: true);
-            optionsUI.ScreenPauseButton = pauseBtn;
-            pauseBtn.onClick.AddListener(optionsUI.OpenOptions);
-
-            BuildGameplayNotebookModal(canvasGO.transform, nbBtn, fredokaBold, yellowBtnSprite, notebookOpenSprite, abrirFrames);
-
-            // 8. Tríptico de Expedientes
+            // 7. Tríptico de Expedientes
             GameObject tripticoGO = new GameObject("TripticoContainer");
             tripticoGO.transform.SetParent(canvasGO.transform, false);
             var tripRT = tripticoGO.AddComponent<RectTransform>();
@@ -1635,7 +1658,7 @@ namespace LogiPack.Editor
                 director.Sheets[i] = CreateCheckoutSheetCard(tripticoGO.transform, $"Sheet_{i + 1}", new Vector2(sheetX[i], 0), fredokaBold);
             }
 
-            // 9. Botones de Clasificación Inferiores
+            // 8. Botones de Clasificación Inferiores
             GameObject buttonsGO = new GameObject("DecisionButtonsContainer");
             buttonsGO.transform.SetParent(canvasGO.transform, false);
             var btnsRT = buttonsGO.AddComponent<RectTransform>();
@@ -1661,7 +1684,50 @@ namespace LogiPack.Editor
             hText.alignment = TextAnchor.MiddleCenter;
             hText.text = "Atajos: [1 / Q] Tautología  •  [2 / W] Contradicción  •  [3 / E] Contingencia";
 
-            // 10. Modal de Resumen y Calificación Final
+            // 9. Botones Superiores Derechos: Pausa (Madera + Casa) y Cuaderno Guía
+            Sprite pauseWoodSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Buttons/Square/SquareButton1_wood.png");
+            Sprite houseIconSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/icono_casa.png");
+
+            GameObject pauseBtnGO = new GameObject("Button_Pause");
+            pauseBtnGO.transform.SetParent(canvasGO.transform, false);
+            var pauseRT = pauseBtnGO.AddComponent<RectTransform>();
+            pauseRT.anchorMin = new Vector2(1f, 1f); pauseRT.anchorMax = new Vector2(1f, 1f);
+            pauseRT.pivot = new Vector2(1f, 1f);
+            pauseRT.anchoredPosition = new Vector2(-40, -35);
+            pauseRT.sizeDelta = new Vector2(65, 65);
+            var pauseImg = pauseBtnGO.AddComponent<Image>();
+            pauseImg.sprite = pauseWoodSprite;
+            var pauseBtn = pauseBtnGO.AddComponent<Button>();
+            pauseBtn.targetGraphic = pauseImg;
+
+            GameObject pauseIconGO = new GameObject("Icon");
+            pauseIconGO.transform.SetParent(pauseBtnGO.transform, false);
+            var pIconRT = pauseIconGO.AddComponent<RectTransform>();
+            pIconRT.sizeDelta = new Vector2(42, 42);
+            var pIconImg = pauseIconGO.AddComponent<Image>();
+            pIconImg.sprite = houseIconSprite;
+            pIconImg.raycastTarget = false;
+
+            GameObject nbBtnGO = new GameObject("Button_NotebookGuide");
+            nbBtnGO.transform.SetParent(canvasGO.transform, false);
+            var nbRT = nbBtnGO.AddComponent<RectTransform>();
+            nbRT.anchorMin = new Vector2(1f, 1f); nbRT.anchorMax = new Vector2(1f, 1f);
+            nbRT.pivot = new Vector2(1f, 1f);
+            nbRT.anchoredPosition = new Vector2(-120, -35);
+            nbRT.sizeDelta = new Vector2(65, 65);
+            var nbImg = nbBtnGO.AddComponent<Image>();
+            nbImg.sprite = notebookClosedSprite;
+            nbImg.preserveAspect = true;
+            var nbBtn = nbBtnGO.AddComponent<Button>();
+            nbBtn.targetGraphic = nbImg;
+
+            // 10. Modales (Se crean al final del Canvas para garantizar que se dibujen encima del tríptico y botones)
+            BuildGameplayNotebookModal(canvasGO.transform, nbBtn, fredokaBold, yellowBtnSprite, notebookOpenSprite, abrirFrames);
+
+            var optionsUI = MenuSetupTools.BuildOptionsMenuHierarchy(canvasGO.transform, fredokaBold, cardSprite, yellowBtnSprite, greenBtnSprite, isGameplay: true);
+            optionsUI.ScreenPauseButton = pauseBtn;
+            pauseBtn.onClick.AddListener(optionsUI.OpenOptions);
+
             director.SummaryUI = CreateCheckoutSummaryModal(canvasGO.transform, fredokaBold, cardSprite, greenBtnSprite, yellowBtnSprite);
 
             // Guardar Escena

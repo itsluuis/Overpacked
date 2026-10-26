@@ -27,8 +27,8 @@ namespace LogiPack.Orders
 
         public static Order GenerateRandomOrder(EnvironmentState currentState, List<ItemData> availableItems)
         {
-            // Probabilidad de Orden Especial de Empresa: 15% en Tutorial, 30% en Modo Infinito
-            float specialProb = GameModeManager.IsInfiniteMode ? 0.30f : 0.15f;
+            // Probabilidad equilibrada de Orden de Teoría de Conjuntos (50% en Normal e Infinita)
+            float specialProb = 0.50f;
             if (UnityEngine.Random.value < specialProb && availableItems != null && availableItems.Count > 0)
             {
                 var specialOrder = GenerateCompanyOrder(availableItems);
@@ -236,7 +236,7 @@ namespace LogiPack.Orders
 
         private static SetTheoryRule GenerateRandomSetRule()
         {
-            int ruleType = UnityEngine.Random.Range(0, 10);
+            int ruleType = UnityEngine.Random.Range(0, 15);
             switch (ruleType)
             {
                 case 0:
@@ -312,12 +312,57 @@ namespace LogiPack.Orders
                     );
 
                 case 9:
-                default:
                     return new SetTheoryRule(
                         SetOperator.Complement,
                         SetCriterion.CreateAttribute(ItemAttributes.Fragile, "Frágiles"),
                         null,
                         "Cualquier insumo del almacén que NO sea frágil"
+                    );
+
+                case 10:
+                    // Conjunto de Proposiciones Negadas: Tornillo (~p), Cable (~q), Vidrio (~s), Algodón (~r)
+                    return new SetTheoryRule(
+                        SetOperator.Union,
+                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        null,
+                        "Cualquier insumo del conjunto de proposiciones negadas (Tornillo, Cable, Vidrio o Algodón)"
+                    );
+
+                case 11:
+                    // Intersección: Proposiciones Negadas ∩ Metales -> Tornillo Estándar (~p)
+                    return new SetTheoryRule(
+                        SetOperator.Intersection,
+                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        SetCriterion.CreateFamily("Metales", "Metales"),
+                        "Fijaciones metálicas del conjunto de proposiciones negadas (Tornillo ¬p)"
+                    );
+
+                case 12:
+                    // Intersección: Proposiciones Directas ∩ Eléctricos -> Batería Litio (q)
+                    return new SetTheoryRule(
+                        SetOperator.Intersection,
+                        SetCriterion.CreateDirectPropositions("Proposiciones Directas (P)"),
+                        SetCriterion.CreateFamily("Electricidad", "Eléctricos"),
+                        "Componentes eléctricos del conjunto de proposiciones directas (Batería Litio q)"
+                    );
+
+                case 13:
+                    // Diferencia: Proposiciones Negadas − Textiles -> Tornillo, Cable o Vidrio
+                    return new SetTheoryRule(
+                        SetOperator.Difference,
+                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        SetCriterion.CreateFamily("Textiles", "Textiles"),
+                        "Proposiciones negadas de taller excluyendo telas (Tornillo, Cable o Vidrio)"
+                    );
+
+                case 14:
+                default:
+                    // Unión: Proposiciones Negadas ∪ Proposiciones Directas (insumos proposicionales puros)
+                    return new SetTheoryRule(
+                        SetOperator.Union,
+                        SetCriterion.CreateNegatedPropositions("Proposiciones Negadas (¬P)"),
+                        SetCriterion.CreateDirectPropositions("Proposiciones Directas (P)"),
+                        "Insumos proposicionales puros (directas o negadas, sin piezas intermedias)"
                     );
             }
         }

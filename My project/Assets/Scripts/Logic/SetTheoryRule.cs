@@ -17,7 +17,8 @@ namespace LogiPack.Logic
     {
         Family,
         Attribute,
-        Tier
+        Tier,
+        PropositionalPolarity
     }
 
     [Serializable]
@@ -27,6 +28,7 @@ namespace LogiPack.Logic
         public string Family;
         public ItemAttributes Attribute;
         public ItemTier Tier;
+        public bool IsNegatedProposition;
         public string DisplayName;
 
         public static SetCriterion CreateFamily(string family, string displayName)
@@ -59,6 +61,26 @@ namespace LogiPack.Logic
             };
         }
 
+        public static SetCriterion CreateNegatedPropositions(string displayName = "Proposiciones Negadas (¬P)")
+        {
+            return new SetCriterion
+            {
+                Type = CriterionType.PropositionalPolarity,
+                IsNegatedProposition = true,
+                DisplayName = displayName
+            };
+        }
+
+        public static SetCriterion CreateDirectPropositions(string displayName = "Proposiciones Directas (P)")
+        {
+            return new SetCriterion
+            {
+                Type = CriterionType.PropositionalPolarity,
+                IsNegatedProposition = false,
+                DisplayName = displayName
+            };
+        }
+
         public bool Matches(ItemData item)
         {
             if (item == null) return false;
@@ -74,6 +96,13 @@ namespace LogiPack.Logic
 
                 case CriterionType.Tier:
                     return item.Tier == Tier;
+
+                case CriterionType.PropositionalPolarity:
+                    // En LogiPack, las proposiciones negadas (~p, ~q, ~s, ~r) corresponden al Tier 1 (básicos: Tornillo, Cable, Vidrio, Algodón)
+                    // y las proposiciones directas (p, q, s, r) corresponden al Tier 3 (avanzados: Titanio, Batería, Cristal Lab, Ignífugo).
+                    return IsNegatedProposition
+                        ? (item.Tier == ItemTier.Tier1_Basic)
+                        : (item.Tier == ItemTier.Tier3_Advanced);
 
                 default:
                     return false;
@@ -112,6 +141,7 @@ namespace LogiPack.Logic
             switch (Operator)
             {
                 case SetOperator.Union:
+                    if (RightCriterion == null) return $"x ∈ {leftName}";
                     return $"x ∈ ({leftName} ∪ {rightName})";
 
                 case SetOperator.Intersection:
@@ -147,7 +177,7 @@ namespace LogiPack.Logic
                 switch (Operator)
                 {
                     case SetOperator.Union:
-                        isIncluded = leftMatch || rightMatch;
+                        isIncluded = (RightCriterion != null) ? (leftMatch || rightMatch) : leftMatch;
                         break;
 
                     case SetOperator.Intersection:

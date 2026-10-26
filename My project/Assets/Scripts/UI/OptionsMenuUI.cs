@@ -124,6 +124,8 @@ namespace LogiPack.UI
             if (ContentPanel == null) return;
 
             SyncSlidersFromAudio();
+            transform.SetAsLastSibling();
+            ContentPanel.transform.SetAsLastSibling();
             ContentPanel.SetActive(true);
 
             if (_isGameplayScene)

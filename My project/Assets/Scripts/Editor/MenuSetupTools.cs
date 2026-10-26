@@ -310,11 +310,11 @@ namespace LogiPack.Editor
             Sprite arrowLeftSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Arrows/ArrowBrownOuline22.png");
             Sprite arrowRightSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Arrows/ArrowBrownOuline23.png");
 
-            // Flecha Izquierda (Esquina inferior exterior izquierda)
+            // Flecha Izquierda (Recuadro verde lateral izquierdo, alineado con VOLVER)
             GameObject prevBtnGO = new GameObject("Button_PrevPage");
             prevBtnGO.transform.SetParent(pagesContainerGO.transform, false);
             var prevRT = prevBtnGO.AddComponent<RectTransform>();
-            prevRT.anchoredPosition = new Vector2(-430, -290);
+            prevRT.anchoredPosition = new Vector2(-445, -225);
             prevRT.sizeDelta = new Vector2(30, 42);
             var prevImg = prevBtnGO.AddComponent<Image>();
             prevImg.sprite = arrowLeftSpr;
@@ -322,11 +322,11 @@ namespace LogiPack.Editor
             cuadernoCtrl.PrevPageButton = prevBtnGO.AddComponent<Button>();
             cuadernoCtrl.PrevPageButton.targetGraphic = prevImg;
 
-            // Flecha Derecha (Esquina inferior exterior derecha)
+            // Flecha Derecha (Recuadro verde lateral derecho, alineado con VOLVER)
             GameObject nextBtnGO = new GameObject("Button_NextPage");
             nextBtnGO.transform.SetParent(pagesContainerGO.transform, false);
             var nextRT = nextBtnGO.AddComponent<RectTransform>();
-            nextRT.anchoredPosition = new Vector2(430, -290);
+            nextRT.anchoredPosition = new Vector2(445, -225);
             nextRT.sizeDelta = new Vector2(30, 42);
             var nextImg = nextBtnGO.AddComponent<Image>();
             nextImg.sprite = arrowRightSpr;
