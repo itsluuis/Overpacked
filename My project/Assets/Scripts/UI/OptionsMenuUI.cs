@@ -39,6 +39,11 @@ namespace LogiPack.UI
 
         private void Awake()
         {
+            if (ContentPanel != null)
+            {
+                ContentPanel.SetActive(false);
+            }
+
             if (ScreenPauseButton != null)
             {
                 ScreenPauseButton.onClick.AddListener(OpenOptions);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -12,6 +13,7 @@ using LogiPack.Logic;
 using LogiPack.Managers;
 using LogiPack.Tutorial;
 using LogiPack.UI;
+using LogiPack.Checkout;
 
 namespace LogiPack.Editor
 {
@@ -482,120 +484,9 @@ namespace LogiPack.Editor
             var nbBtn = notebookBtnGO.AddComponent<Button>();
             nbBtn.targetGraphic = nbImg;
 
-            // Modal Desacoplado: Cuaderno Abierto en Pantalla Completa (1450x945, 100% opaco)
-            GameObject nbModalRootGO = new GameObject("Notebook_Modal_Root");
-            nbModalRootGO.transform.SetParent(canvasGO.transform, false);
-            var nbModalRT = nbModalRootGO.AddComponent<RectTransform>();
-            nbModalRT.anchorMin = Vector2.zero;
-            nbModalRT.anchorMax = Vector2.one;
-            nbModalRT.sizeDelta = Vector2.zero;
-            nbModalRT.anchoredPosition = Vector2.zero;
-
-            // Overlay Oscuro de fondo (bloqueador de clics en gameplay)
-            GameObject nbDarkOverlay = new GameObject("DarkOverlay");
-            nbDarkOverlay.transform.SetParent(nbModalRootGO.transform, false);
-            var nbDarkRT = nbDarkOverlay.AddComponent<RectTransform>();
-            nbDarkRT.anchorMin = Vector2.zero;
-            nbDarkRT.anchorMax = Vector2.one;
-            nbDarkRT.sizeDelta = Vector2.zero;
-            var nbDarkImg = nbDarkOverlay.AddComponent<Image>();
-            nbDarkImg.color = new Color(0, 0, 0, 0.75f);
-            var overlayCloseBtn = nbDarkOverlay.AddComponent<Button>();
-
-            // Ventana Principal del Cuaderno Abierto (6x más grande que el icono original, 100% opaco)
-            GameObject nbWindowGO = new GameObject("Notebook_Window");
-            nbWindowGO.transform.SetParent(nbModalRootGO.transform, false);
-            var nbWindowRT = nbWindowGO.AddComponent<RectTransform>();
-            nbWindowRT.anchorMin = new Vector2(0.5f, 0.5f);
-            nbWindowRT.anchorMax = new Vector2(0.5f, 0.5f);
-            nbWindowRT.pivot = new Vector2(0.5f, 0.5f);
-            nbWindowRT.anchoredPosition = Vector2.zero;
-            nbWindowRT.sizeDelta = new Vector2(1450, 945);
-
-            var nbWindowImg = nbWindowGO.AddComponent<Image>();
-            nbWindowImg.sprite = notebookOpenSprite;
-            nbWindowImg.color = Color.white; // 100% sólido, sin transparencia
-            nbWindowImg.preserveAspect = true;
-
-            // Página Izquierda: Lógica Simbólica
-            GameObject leftPageTextGO = new GameObject("LeftPageText");
-            leftPageTextGO.transform.SetParent(nbWindowGO.transform, false);
-            var lpRT = leftPageTextGO.AddComponent<RectTransform>();
-            lpRT.anchorMin = new Vector2(0.5f, 0.5f);
-            lpRT.anchorMax = new Vector2(0.5f, 0.5f);
-            lpRT.pivot = new Vector2(0.5f, 0.5f);
-            lpRT.anchoredPosition = new Vector2(-360, 15);
-            lpRT.sizeDelta = new Vector2(530, 680);
-            var lpText = leftPageTextGO.AddComponent<Text>();
-            lpText.font = fredokaBold;
-            lpText.fontSize = 28;
-            lpText.color = new Color(0.12f, 0.12f, 0.12f);
-            lpText.lineSpacing = 1.2f;
-            lpText.text = "<b>LÓGICA PROPOSICIONAL</b>\n\n" +
-                          "<b>∧ : Conjunción (y)</b>\nVerdadero si ambos cumplen.\n\n" +
-                          "<b>∨ : Disyunción (o)</b>\nVerdadero si al menos uno cumple.\n\n" +
-                          "<b>→ : Condicional</b>\n'Si A entonces B'.\n\n" +
-                          "<b>↔ : Bicondicional</b>\n'A si y solo si B'.\n\n" +
-                          "<b>~ : Negación (no)</b>\nInvierte el valor de verdad.";
-
-            // Página Derecha: Catálogo de Ítems
-            GameObject rightPageTextGO = new GameObject("RightPageText");
-            rightPageTextGO.transform.SetParent(nbWindowGO.transform, false);
-            var rpRT = rightPageTextGO.AddComponent<RectTransform>();
-            rpRT.anchorMin = new Vector2(0.5f, 0.5f);
-            rpRT.anchorMax = new Vector2(0.5f, 0.5f);
-            rpRT.pivot = new Vector2(0.5f, 0.5f);
-            rpRT.anchoredPosition = new Vector2(360, 30);
-            rpRT.sizeDelta = new Vector2(530, 640);
-            var rpText = rightPageTextGO.AddComponent<Text>();
-            rpText.font = fredokaBold;
-            rpText.fontSize = 26;
-            rpText.color = new Color(0.12f, 0.12f, 0.12f);
-            rpText.lineSpacing = 1.2f;
-            rpText.text = "<b>CATÁLOGO DE PROPOSICIONES</b>\n\n" +
-                          "<b>p</b>: Perno Titanio  |  <b>~p</b>: Tornillo\n" +
-                          "<b>q</b>: Batería Litio  |  <b>~q</b>: Cable\n" +
-                          "<b>s</b>: Cristal Lab.   |  <b>~s</b>: Vidrio\n" +
-                          "<b>r</b>: Ignífugo       |  <b>~r</b>: Algodón\n\n" +
-                          "<i>Tip: Ranura 1 es término directo.\nRanura 3 es término negado (~).</i>";
-
-            // Botón Cerrar Cuaderno
+            // 12. Modal Desacoplado: Cuaderno de Teoría y Tablas de Verdad (Multihopágina)
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
-            GameObject closeNbBtnGO = new GameObject("CloseNotebookBtn");
-            closeNbBtnGO.transform.SetParent(nbWindowGO.transform, false);
-            var cnbRT = closeNbBtnGO.AddComponent<RectTransform>();
-            cnbRT.anchorMin = new Vector2(0.5f, 0.5f);
-            cnbRT.anchorMax = new Vector2(0.5f, 0.5f);
-            cnbRT.pivot = new Vector2(0.5f, 0.5f);
-            cnbRT.anchoredPosition = new Vector2(360, -370);
-            cnbRT.sizeDelta = new Vector2(220, 56);
-            var cnbImg = closeNbBtnGO.AddComponent<Image>();
-            cnbImg.sprite = yellowBtnSprite;
-            var cnbBtn = closeNbBtnGO.AddComponent<Button>();
-            cnbBtn.targetGraphic = cnbImg;
-
-            GameObject closeNbTextGO = new GameObject("Text");
-            closeNbTextGO.transform.SetParent(closeNbBtnGO.transform, false);
-            var cnbTextRT = closeNbTextGO.AddComponent<RectTransform>();
-            cnbTextRT.sizeDelta = cnbRT.sizeDelta;
-            var cnbText = closeNbTextGO.AddComponent<Text>();
-            cnbText.text = "CERRAR";
-            cnbText.alignment = TextAnchor.MiddleCenter;
-            cnbText.fontSize = 24;
-            cnbText.font = fredokaBold;
-            cnbText.color = new Color(0.1f, 0.1f, 0.1f);
-
-            var guideUI = notebookBtnGO.AddComponent<GameplayNotebookGuideUI>();
-            guideUI.TriggerButton = nbBtn;
-            guideUI.ModalRoot = nbModalRootGO;
-            guideUI.NotebookWindowRect = nbWindowRT;
-            guideUI.NotebookWindowImage = nbWindowImg;
-            guideUI.CloseButton = cnbBtn;
-            guideUI.OverlayCloseButton = overlayCloseBtn;
-            guideUI.CuadernoAbierto = notebookOpenSprite;
-            guideUI.AbrirFrames = abrirFrames;
-
-            nbModalRootGO.SetActive(false);
+            var guideUI = BuildGameplayNotebookModal(canvasGO.transform, nbBtn, fredokaBold, yellowBtnSprite, notebookOpenSprite, abrirFrames);
 
             // 13. Modal de Opciones / Pausa de Gameplay
             Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");
@@ -1088,116 +979,9 @@ namespace LogiPack.Editor
             var nbBtn = notebookBtnGO.AddComponent<Button>();
             nbBtn.targetGraphic = nbImg;
 
-            // Modal del Cuaderno
-            GameObject nbModalRootGO = new GameObject("Notebook_Modal_Root");
-            nbModalRootGO.transform.SetParent(canvasGO.transform, false);
-            var nbModalRT = nbModalRootGO.AddComponent<RectTransform>();
-            nbModalRT.anchorMin = Vector2.zero;
-            nbModalRT.anchorMax = Vector2.one;
-            nbModalRT.offsetMin = Vector2.zero;
-            nbModalRT.offsetMax = Vector2.zero;
-
-            GameObject nbDarkOverlay = new GameObject("DarkOverlay");
-            nbDarkOverlay.transform.SetParent(nbModalRootGO.transform, false);
-            var nbDarkRT = nbDarkOverlay.AddComponent<RectTransform>();
-            nbDarkRT.anchorMin = Vector2.zero;
-            nbDarkRT.anchorMax = Vector2.one;
-            nbDarkRT.offsetMin = Vector2.zero;
-            nbDarkRT.offsetMax = Vector2.zero;
-            var nbDarkImg = nbDarkOverlay.AddComponent<Image>();
-            nbDarkImg.color = new Color(0, 0, 0, 0.75f);
-            var overlayCloseBtn = nbDarkOverlay.AddComponent<Button>();
-
-            GameObject nbWindowGO = new GameObject("Notebook_Window");
-            nbWindowGO.transform.SetParent(nbModalRootGO.transform, false);
-            var nbWindowRT = nbWindowGO.AddComponent<RectTransform>();
-            nbWindowRT.anchorMin = new Vector2(0.5f, 0.5f);
-            nbWindowRT.anchorMax = new Vector2(0.5f, 0.5f);
-            nbWindowRT.pivot = new Vector2(0.5f, 0.5f);
-            nbWindowRT.anchoredPosition = Vector2.zero;
-            nbWindowRT.sizeDelta = new Vector2(1450, 945);
-
-            var nbWindowImg = nbWindowGO.AddComponent<Image>();
-            nbWindowImg.sprite = notebookOpenSprite;
-            nbWindowImg.color = Color.white;
-            nbWindowImg.preserveAspect = true;
-
-            GameObject leftPageTextGO = new GameObject("LeftPageText");
-            leftPageTextGO.transform.SetParent(nbWindowGO.transform, false);
-            var lpRT = leftPageTextGO.AddComponent<RectTransform>();
-            lpRT.anchorMin = new Vector2(0.5f, 0.5f);
-            lpRT.anchorMax = new Vector2(0.5f, 0.5f);
-            lpRT.pivot = new Vector2(0.5f, 0.5f);
-            lpRT.anchoredPosition = new Vector2(-360, 15);
-            lpRT.sizeDelta = new Vector2(530, 680);
-            var lpText = leftPageTextGO.AddComponent<Text>();
-            lpText.font = fredokaBold;
-            lpText.fontSize = 28;
-            lpText.color = new Color(0.12f, 0.12f, 0.12f);
-            lpText.lineSpacing = 1.2f;
-            lpText.text = "<b>LÓGICA PROPOSICIONAL</b>\n\n" +
-                          "<b>∧ : Conjunción (y)</b>\nVerdadero si ambos cumplen.\n\n" +
-                          "<b>∨ : Disyunción (o)</b>\nVerdadero si al menos uno cumple.\n\n" +
-                          "<b>→ : Condicional</b>\n'Si A entonces B'.\n\n" +
-                          "<b>↔ : Bicondicional</b>\n'A si y solo si B'.\n\n" +
-                          "<b>~ : Negación (no)</b>\nInvierte el valor de verdad.";
-
-            GameObject rightPageTextGO = new GameObject("RightPageText");
-            rightPageTextGO.transform.SetParent(nbWindowGO.transform, false);
-            var rpRT = rightPageTextGO.AddComponent<RectTransform>();
-            rpRT.anchorMin = new Vector2(0.5f, 0.5f);
-            rpRT.anchorMax = new Vector2(0.5f, 0.5f);
-            rpRT.pivot = new Vector2(0.5f, 0.5f);
-            rpRT.anchoredPosition = new Vector2(360, 30);
-            rpRT.sizeDelta = new Vector2(530, 640);
-            var rpText = rightPageTextGO.AddComponent<Text>();
-            rpText.font = fredokaBold;
-            rpText.fontSize = 26;
-            rpText.color = new Color(0.12f, 0.12f, 0.12f);
-            rpText.lineSpacing = 1.2f;
-            rpText.text = "<b>CATÁLOGO DE PROPOSICIONES</b>\n\n" +
-                          "<b>p</b>: Perno Titanio  |  <b>~p</b>: Tornillo\n" +
-                          "<b>q</b>: Batería Litio  |  <b>~q</b>: Cable\n" +
-                          "<b>s</b>: Cristal Lab.   |  <b>~s</b>: Vidrio\n" +
-                          "<b>r</b>: Ignífugo       |  <b>~r</b>: Algodón\n\n" +
-                          "<i>Tip: Ranura 1 es término directo.\nRanura 3 es término negado (~).</i>";
-
+            // 12. Modal Desacoplado: Cuaderno de Teoría y Tablas de Verdad (Multihopágina)
             Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
-            GameObject closeNbBtnGO = new GameObject("CloseNotebookBtn");
-            closeNbBtnGO.transform.SetParent(nbWindowGO.transform, false);
-            var cnbRT = closeNbBtnGO.AddComponent<RectTransform>();
-            cnbRT.anchorMin = new Vector2(0.5f, 0.5f);
-            cnbRT.anchorMax = new Vector2(0.5f, 0.5f);
-            cnbRT.pivot = new Vector2(0.5f, 0.5f);
-            cnbRT.anchoredPosition = new Vector2(360, -370);
-            cnbRT.sizeDelta = new Vector2(220, 56);
-            var cnbImg = closeNbBtnGO.AddComponent<Image>();
-            cnbImg.sprite = yellowBtnSprite;
-            var cnbBtn = closeNbBtnGO.AddComponent<Button>();
-            cnbBtn.targetGraphic = cnbImg;
-
-            GameObject closeNbTextGO = new GameObject("Text");
-            closeNbTextGO.transform.SetParent(closeNbBtnGO.transform, false);
-            var cnbTextRT = closeNbTextGO.AddComponent<RectTransform>();
-            cnbTextRT.sizeDelta = cnbRT.sizeDelta;
-            var cnbText = closeNbTextGO.AddComponent<Text>();
-            cnbText.text = "CERRAR";
-            cnbText.alignment = TextAnchor.MiddleCenter;
-            cnbText.fontSize = 24;
-            cnbText.font = fredokaBold;
-            cnbText.color = new Color(0.1f, 0.1f, 0.1f);
-
-            var guideUI = notebookBtnGO.AddComponent<GameplayNotebookGuideUI>();
-            guideUI.TriggerButton = nbBtn;
-            guideUI.ModalRoot = nbModalRootGO;
-            guideUI.NotebookWindowRect = nbWindowRT;
-            guideUI.NotebookWindowImage = nbWindowImg;
-            guideUI.CloseButton = cnbBtn;
-            guideUI.OverlayCloseButton = overlayCloseBtn;
-            guideUI.CuadernoAbierto = notebookOpenSprite;
-            guideUI.AbrirFrames = abrirFrames;
-
-            nbModalRootGO.SetActive(false);
+            var guideUI = BuildGameplayNotebookModal(canvasGO.transform, nbBtn, fredokaBold, yellowBtnSprite, notebookOpenSprite, abrirFrames);
 
             // 13. Modal de Opciones / Pausa de Gameplay
             Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");
@@ -1469,6 +1253,715 @@ namespace LogiPack.Editor
             Debug.Log("<color=green><b>[LogiPack] ¡Escena TutorialScene.unity 100% construida e integrada con éxito!</b></color>");
         }
 
+        #region Cuaderno de Teoría Multihopágina (Lógica y Tablas de Verdad)
+
+        public static GameplayNotebookGuideUI BuildGameplayNotebookModal(
+            Transform canvasTransform,
+            Button triggerBtn,
+            Font fredokaBold,
+            Sprite yellowBtnSprite,
+            Sprite notebookOpenSprite,
+            Sprite[] abrirFrames)
+        {
+            GameObject nbModalRootGO = new GameObject("Notebook_Modal_Root");
+            nbModalRootGO.transform.SetParent(canvasTransform, false);
+            var nbModalRT = nbModalRootGO.AddComponent<RectTransform>();
+            nbModalRT.anchorMin = Vector2.zero;
+            nbModalRT.anchorMax = Vector2.one;
+            nbModalRT.sizeDelta = Vector2.zero;
+            nbModalRT.anchoredPosition = Vector2.zero;
+
+            GameObject nbDarkOverlay = new GameObject("DarkOverlay");
+            nbDarkOverlay.transform.SetParent(nbModalRootGO.transform, false);
+            var nbDarkRT = nbDarkOverlay.AddComponent<RectTransform>();
+            nbDarkRT.anchorMin = Vector2.zero;
+            nbDarkRT.anchorMax = Vector2.one;
+            nbDarkRT.sizeDelta = Vector2.zero;
+            var nbDarkImg = nbDarkOverlay.AddComponent<Image>();
+            nbDarkImg.color = new Color(0, 0, 0, 0.75f);
+            var overlayCloseBtn = nbDarkOverlay.AddComponent<Button>();
+
+            GameObject nbWindowGO = new GameObject("Notebook_Window");
+            nbWindowGO.transform.SetParent(nbModalRootGO.transform, false);
+            var nbWindowRT = nbWindowGO.AddComponent<RectTransform>();
+            nbWindowRT.anchorMin = new Vector2(0.5f, 0.5f);
+            nbWindowRT.anchorMax = new Vector2(0.5f, 0.5f);
+            nbWindowRT.pivot = new Vector2(0.5f, 0.5f);
+            nbWindowRT.anchoredPosition = Vector2.zero;
+            nbWindowRT.sizeDelta = new Vector2(1450, 945);
+
+            var nbWindowImg = nbWindowGO.AddComponent<Image>();
+            nbWindowImg.sprite = notebookOpenSprite;
+            nbWindowImg.color = Color.white;
+            nbWindowImg.preserveAspect = true;
+
+            // HOJA 0: Lógica Proposicional y Catálogo
+            GameObject page0GO = new GameObject("Page_0_Basics");
+            page0GO.transform.SetParent(nbWindowGO.transform, false);
+            var p0RT = page0GO.AddComponent<RectTransform>();
+            p0RT.anchorMin = Vector2.zero; p0RT.anchorMax = Vector2.one;
+            p0RT.sizeDelta = Vector2.zero;
+
+            GameObject left0TextGO = new GameObject("LeftPageText");
+            left0TextGO.transform.SetParent(page0GO.transform, false);
+            var lp0RT = left0TextGO.AddComponent<RectTransform>();
+            lp0RT.anchorMin = new Vector2(0.5f, 0.5f); lp0RT.anchorMax = new Vector2(0.5f, 0.5f);
+            lp0RT.pivot = new Vector2(0.5f, 0.5f);
+            lp0RT.anchoredPosition = new Vector2(-360, 15);
+            lp0RT.sizeDelta = new Vector2(530, 680);
+            var lp0Text = left0TextGO.AddComponent<Text>();
+            lp0Text.font = fredokaBold;
+            lp0Text.fontSize = 28;
+            lp0Text.color = new Color(0.12f, 0.12f, 0.12f);
+            lp0Text.lineSpacing = 1.2f;
+            lp0Text.text = "<b>LÓGICA PROPOSICIONAL</b>\n\n" +
+                          "<b>∧ : Conjunción (y)</b>\nVerdadero si ambos cumplen.\n\n" +
+                          "<b>∨ : Disyunción (o)</b>\nVerdadero si al menos uno cumple.\n\n" +
+                          "<b>→ : Condicional</b>\n'Si A entonces B'.\n\n" +
+                          "<b>↔ : Bicondicional</b>\n'A si y solo si B'.\n\n" +
+                          "<b>~ : Negación (no)</b>\nInvierte el valor de verdad.";
+
+            GameObject right0TextGO = new GameObject("RightPageText");
+            right0TextGO.transform.SetParent(page0GO.transform, false);
+            var rp0RT = right0TextGO.AddComponent<RectTransform>();
+            rp0RT.anchorMin = new Vector2(0.5f, 0.5f); rp0RT.anchorMax = new Vector2(0.5f, 0.5f);
+            rp0RT.pivot = new Vector2(0.5f, 0.5f);
+            rp0RT.anchoredPosition = new Vector2(360, 30);
+            rp0RT.sizeDelta = new Vector2(530, 640);
+            var rp0Text = right0TextGO.AddComponent<Text>();
+            rp0Text.font = fredokaBold;
+            rp0Text.fontSize = 26;
+            rp0Text.color = new Color(0.12f, 0.12f, 0.12f);
+            rp0Text.lineSpacing = 1.2f;
+            rp0Text.text = "<b>CATÁLOGO DE PROPOSICIONES</b>\n\n" +
+                          "<b>p</b>: Perno Titanio  |  <b>~p</b>: Tornillo\n" +
+                          "<b>q</b>: Batería Litio  |  <b>~q</b>: Cable\n" +
+                          "<b>s</b>: Cristal Lab.   |  <b>~s</b>: Vidrio\n" +
+                          "<b>r</b>: Ignífugo       |  <b>~r</b>: Algodón\n\n" +
+                          "<i>Tip: Ranura 1 es término directo.\nRanura 3 es término negado (~).</i>";
+
+            // HOJA 1: Tablas de Verdad (Auditoría)
+            GameObject page1GO = new GameObject("Page_1_TruthTables");
+            page1GO.transform.SetParent(nbWindowGO.transform, false);
+            var p1RT = page1GO.AddComponent<RectTransform>();
+            p1RT.anchorMin = Vector2.zero; p1RT.anchorMax = Vector2.one;
+            p1RT.sizeDelta = Vector2.zero;
+
+            GameObject left1TextGO = new GameObject("LeftPageText_TT");
+            left1TextGO.transform.SetParent(page1GO.transform, false);
+            var lp1RT = left1TextGO.AddComponent<RectTransform>();
+            lp1RT.anchorMin = new Vector2(0.5f, 0.5f); lp1RT.anchorMax = new Vector2(0.5f, 0.5f);
+            lp1RT.pivot = new Vector2(0.5f, 0.5f);
+            lp1RT.anchoredPosition = new Vector2(-360, 20);
+            lp1RT.sizeDelta = new Vector2(530, 680);
+            var lp1Text = left1TextGO.AddComponent<Text>();
+            lp1Text.font = fredokaBold;
+            lp1Text.fontSize = 23;
+            lp1Text.color = new Color(0.12f, 0.12f, 0.12f);
+            lp1Text.lineSpacing = 1.18f;
+            lp1Text.text = "<b>TABLAS DE VERDAD</b>\n\n" +
+                          "Evalúan la verdad (V/F) de una fórmula en cada combinación posible de sus variables.\n\n" +
+                          "<b>✓ TAUTOLOGÍA (T):</b>\n" +
+                          "Fórmula que resulta <b>SIEMPRE VERDADERA (V)</b> en todas las filas de su tabla, sin excepción.\n" +
+                          "<i>Ej: p ∨ ~p (\"O llueve o no llueve\").\n" +
+                          "(p ∧ q) → p (\"Si llueve y hace frío, llueve\").</i>\n\n" +
+                          "<b>✗ CONTRADICCIÓN (⊥):</b>\n" +
+                          "Fórmula que resulta <b>SIEMPRE FALSA (F)</b> en todas las filas de su tabla, sin excepción.\n" +
+                          "<i>Ej: p ∧ ~p (\"Llueve y no llueve a la vez\").\n" +
+                          "p ↔ ~p (\"Llueve si y solo si no llueve\").</i>";
+
+            GameObject right1TextGO = new GameObject("RightPageText_TT");
+            right1TextGO.transform.SetParent(page1GO.transform, false);
+            var rp1RT = right1TextGO.AddComponent<RectTransform>();
+            rp1RT.anchorMin = new Vector2(0.5f, 0.5f); rp1RT.anchorMax = new Vector2(0.5f, 0.5f);
+            rp1RT.pivot = new Vector2(0.5f, 0.5f);
+            rp1RT.anchoredPosition = new Vector2(360, 30);
+            rp1RT.sizeDelta = new Vector2(530, 640);
+            var rp1Text = right1TextGO.AddComponent<Text>();
+            rp1Text.font = fredokaBold;
+            rp1Text.fontSize = 23;
+            rp1Text.color = new Color(0.12f, 0.12f, 0.12f);
+            rp1Text.lineSpacing = 1.18f;
+            rp1Text.text = "<b>CONTINGENCIA Y AUDITORÍA</b>\n\n" +
+                          "<b>⚡ CONTINGENCIA (C):</b>\n" +
+                          "Fórmula cuyo valor depende de las condiciones: es <b>Verdadera en algunos casos y Falsa en otros</b> (mezcla de V y F).\n" +
+                          "<i>Ej: p ∧ q (\"Llueve y hace frío\").\n" +
+                          "p → q (\"Si llueve, uso abrigo\").</i>\n\n" +
+                          "<b>GUÍA RÁPIDA DE DESPACHO:</b>\n" +
+                          "• <b>Todo V</b> → Sello <b>TAUTOLOGÍA</b>\n" +
+                          "• <b>Todo F</b> → Sello <b>CONTRADICCIÓN</b>\n" +
+                          "• <b>V y F mixtos</b> → Sello <b>CONTINGENCIA</b>\n\n" +
+                          "<i>Atajos: 1 (Tautología), 2 (Contradicción), 3 (Contingencia).</i>";
+
+            Sprite arrowLeftSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Arrows/ArrowBrownOuline22.png");
+            Sprite arrowRightSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/CozyUI/Arrows/ArrowBrownOuline23.png");
+
+            GameObject prevBtnGO = new GameObject("Button_PrevPage");
+            prevBtnGO.transform.SetParent(nbWindowGO.transform, false);
+            var prevRT = prevBtnGO.AddComponent<RectTransform>();
+            prevRT.anchoredPosition = new Vector2(-540, -370);
+            prevRT.sizeDelta = new Vector2(30, 42);
+            var prevImg = prevBtnGO.AddComponent<Image>();
+            prevImg.sprite = arrowLeftSpr;
+            prevImg.preserveAspect = true;
+            var prevBtn = prevBtnGO.AddComponent<Button>();
+            prevBtn.targetGraphic = prevImg;
+
+            GameObject nextBtnGO = new GameObject("Button_NextPage");
+            nextBtnGO.transform.SetParent(nbWindowGO.transform, false);
+            var nextRT = nextBtnGO.AddComponent<RectTransform>();
+            nextRT.anchoredPosition = new Vector2(540, -370);
+            nextRT.sizeDelta = new Vector2(30, 42);
+            var nextImg = nextBtnGO.AddComponent<Image>();
+            nextImg.sprite = arrowRightSpr;
+            nextImg.preserveAspect = true;
+            var nextBtn = nextBtnGO.AddComponent<Button>();
+            nextBtn.targetGraphic = nextImg;
+
+            GameObject closeNbBtnGO = new GameObject("CloseNotebookBtn");
+            closeNbBtnGO.transform.SetParent(nbWindowGO.transform, false);
+            var cnbRT = closeNbBtnGO.AddComponent<RectTransform>();
+            cnbRT.anchorMin = new Vector2(0.5f, 0.5f);
+            cnbRT.anchorMax = new Vector2(0.5f, 0.5f);
+            cnbRT.pivot = new Vector2(0.5f, 0.5f);
+            cnbRT.anchoredPosition = new Vector2(360, -370);
+            cnbRT.sizeDelta = new Vector2(220, 56);
+            var cnbImg = closeNbBtnGO.AddComponent<Image>();
+            cnbImg.sprite = yellowBtnSprite;
+            var cnbBtn = closeNbBtnGO.AddComponent<Button>();
+            cnbBtn.targetGraphic = cnbImg;
+
+            GameObject closeNbTextGO = new GameObject("Text");
+            closeNbTextGO.transform.SetParent(closeNbBtnGO.transform, false);
+            var cnbTextRT = closeNbTextGO.AddComponent<RectTransform>();
+            cnbTextRT.sizeDelta = cnbRT.sizeDelta;
+            var cnbText = closeNbTextGO.AddComponent<Text>();
+            cnbText.text = "CERRAR";
+            cnbText.alignment = TextAnchor.MiddleCenter;
+            cnbText.fontSize = 24;
+            cnbText.font = fredokaBold;
+            cnbText.color = new Color(0.1f, 0.1f, 0.1f);
+
+            var guideUI = triggerBtn.gameObject.AddComponent<GameplayNotebookGuideUI>();
+            guideUI.TriggerButton = triggerBtn;
+            guideUI.ModalRoot = nbModalRootGO;
+            guideUI.NotebookWindowRect = nbWindowRT;
+            guideUI.NotebookWindowImage = nbWindowImg;
+            guideUI.CloseButton = cnbBtn;
+            guideUI.OverlayCloseButton = overlayCloseBtn;
+            guideUI.PageBasics = page0GO;
+            guideUI.PageTruthTables = page1GO;
+            guideUI.NextPageButton = nextBtn;
+            guideUI.PrevPageButton = prevBtn;
+            guideUI.CuadernoAbierto = notebookOpenSprite;
+            guideUI.AbrirFrames = abrirFrames;
+
+            nbModalRootGO.SetActive(false);
+            return guideUI;
+        }
+
+        #endregion
+
+        #region Construcción de CheckoutScene (Modo de Auditoría y Tablas de Verdad)
+
+        [MenuItem("LogiPack/Construir Escena de Check-out")]
+        public static void BuildCheckoutScene()
+        {
+            string scenePath = "Assets/Scenes/CheckoutScene.unity";
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+            // 0. Servicios Persistentes Centrales
+            MenuSetupTools.EnsureAppCoreServices();
+
+            // Fuente oficial Fredoka
+            Font fredokaBold = AssetDatabase.LoadAssetAtPath<Font>("Assets/Art/Font/static/Fredoka-Bold.ttf");
+            if (fredokaBold == null) fredokaBold = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+            // 1. Configurar Cámara
+            Camera mainCam = Camera.main;
+            if (mainCam != null)
+            {
+                mainCam.orthographic = true;
+                mainCam.orthographicSize = 5.4f;
+                mainCam.transform.position = new Vector3(0, 0, -10);
+                mainCam.backgroundColor = new Color(0.10f, 0.12f, 0.15f);
+                mainCam.clearFlags = CameraClearFlags.SolidColor;
+            }
+
+            // 2. EventSystem (Unity 6 New Input System)
+            GameObject eventSystemGO = new GameObject("EventSystem");
+            eventSystemGO.AddComponent<EventSystem>();
+            eventSystemGO.AddComponent<InputSystemUIInputModule>();
+
+            // 3. Fondo de Mesa de Metal Limpia (Sin reloj ni marco de dinero)
+            Sprite cleanDeskSprite = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Maps/mesa_trabajo_metal_limpia.png")
+                .OfType<Sprite>()
+                .FirstOrDefault();
+            if (cleanDeskSprite == null) cleanDeskSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps/mesa_trabajo_metal_limpia.png");
+            if (cleanDeskSprite == null) cleanDeskSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Maps/mesa_trabajo.png");
+
+            GameObject deskGO = new GameObject("Background_CleanMetalDesk");
+            deskGO.transform.position = Vector3.zero;
+            var deskSR = deskGO.AddComponent<SpriteRenderer>();
+            deskSR.sprite = cleanDeskSprite;
+            deskSR.sortingOrder = 0;
+
+            // 4. Canvas UI Principal
+            GameObject canvasGO = new GameObject("CheckoutCanvas");
+            var canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+            canvasGO.AddComponent<GraphicRaycaster>();
+
+            // Sprites
+            Sprite yellowBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_amarillo_rectangular.png");
+            Sprite greenBtnSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/boton_verde_rectangular.png");
+            Sprite cardSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/pantalla_fin_jornada.png");
+            Sprite notebookClosedSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites_sheets/cuaderno_cerrado.png");
+            Sprite notebookOpenSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Sprites_sheets/cuaderno_abierto.png");
+            var abrirFrames = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Sprites_sheets/cuaderno_abrir.png")
+                .OfType<Sprite>()
+                .OrderBy(s => s.name)
+                .ToArray();
+
+            // 5. Director General
+            GameObject directorGO = new GameObject("CheckoutDirector");
+            var director = directorGO.AddComponent<CheckoutDirector>();
+
+            // 6. HUD Superior Izquierdo
+            GameObject hudGO = new GameObject("HUD_TopLeft");
+            hudGO.transform.SetParent(canvasGO.transform, false);
+            var hudRT = hudGO.AddComponent<RectTransform>();
+            hudRT.anchorMin = new Vector2(0f, 1f);
+            hudRT.anchorMax = new Vector2(0f, 1f);
+            hudRT.pivot = new Vector2(0f, 1f);
+            hudRT.anchoredPosition = new Vector2(50, -40);
+            hudRT.sizeDelta = new Vector2(400, 100);
+
+            GameObject roundGO = new GameObject("RoundText");
+            roundGO.transform.SetParent(hudGO.transform, false);
+            var rRT = roundGO.AddComponent<RectTransform>();
+            rRT.anchorMin = new Vector2(0f, 1f); rRT.anchorMax = new Vector2(0f, 1f);
+            rRT.pivot = new Vector2(0f, 1f);
+            rRT.anchoredPosition = new Vector2(0, 0);
+            rRT.sizeDelta = new Vector2(380, 40);
+            var rText = roundGO.AddComponent<Text>();
+            rText.font = fredokaBold;
+            rText.fontSize = 28;
+            rText.color = Color.white;
+            rText.alignment = TextAnchor.MiddleLeft;
+            var rShadow = roundGO.AddComponent<Shadow>();
+            rShadow.effectColor = new Color(0, 0, 0, 0.7f);
+            rShadow.effectDistance = new Vector2(1, -1);
+            director.RoundText = rText;
+
+            GameObject progGO = new GameObject("ProgressText");
+            progGO.transform.SetParent(hudGO.transform, false);
+            var pRT = progGO.AddComponent<RectTransform>();
+            pRT.anchorMin = new Vector2(0f, 1f); pRT.anchorMax = new Vector2(0f, 1f);
+            pRT.pivot = new Vector2(0f, 1f);
+            pRT.anchoredPosition = new Vector2(0, -42);
+            pRT.sizeDelta = new Vector2(380, 30);
+            var pText = progGO.AddComponent<Text>();
+            pText.font = fredokaBold;
+            pText.fontSize = 20;
+            pText.color = new Color(0.90f, 0.66f, 0.14f);
+            pText.alignment = TextAnchor.MiddleLeft;
+            var pShadow = progGO.AddComponent<Shadow>();
+            pShadow.effectColor = new Color(0, 0, 0, 0.7f);
+            pShadow.effectDistance = new Vector2(1, -1);
+            director.SheetProgressText = pText;
+
+            // 7. Botones Superiores Derechos
+            GameObject pauseBtnGO = new GameObject("Button_Pause");
+            pauseBtnGO.transform.SetParent(canvasGO.transform, false);
+            var pauseRT = pauseBtnGO.AddComponent<RectTransform>();
+            pauseRT.anchorMin = new Vector2(1f, 1f); pauseRT.anchorMax = new Vector2(1f, 1f);
+            pauseRT.pivot = new Vector2(1f, 1f);
+            pauseRT.anchoredPosition = new Vector2(-40, -35);
+            pauseRT.sizeDelta = new Vector2(65, 65);
+            var pauseImg = pauseBtnGO.AddComponent<Image>();
+            pauseImg.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Buttoms/selector_cuadrado.png");
+            var pauseBtn = pauseBtnGO.AddComponent<Button>();
+            pauseBtn.targetGraphic = pauseImg;
+
+            GameObject pauseTxtGO = new GameObject("Icon");
+            pauseTxtGO.transform.SetParent(pauseBtnGO.transform, false);
+            var ptxtRT = pauseTxtGO.AddComponent<RectTransform>();
+            ptxtRT.sizeDelta = pauseRT.sizeDelta;
+            var ptxt = pauseTxtGO.AddComponent<Text>();
+            ptxt.font = fredokaBold;
+            ptxt.fontSize = 28;
+            ptxt.text = "II";
+            ptxt.color = new Color(0.15f, 0.15f, 0.15f);
+            ptxt.alignment = TextAnchor.MiddleCenter;
+
+            GameObject nbBtnGO = new GameObject("Button_NotebookGuide");
+            nbBtnGO.transform.SetParent(canvasGO.transform, false);
+            var nbRT = nbBtnGO.AddComponent<RectTransform>();
+            nbRT.anchorMin = new Vector2(1f, 1f); nbRT.anchorMax = new Vector2(1f, 1f);
+            nbRT.pivot = new Vector2(1f, 1f);
+            nbRT.anchoredPosition = new Vector2(-120, -35);
+            nbRT.sizeDelta = new Vector2(65, 65);
+            var nbImg = nbBtnGO.AddComponent<Image>();
+            nbImg.sprite = notebookClosedSprite;
+            nbImg.preserveAspect = true;
+            var nbBtn = nbBtnGO.AddComponent<Button>();
+            nbBtn.targetGraphic = nbImg;
+
+            var optionsUI = MenuSetupTools.BuildOptionsMenuHierarchy(canvasGO.transform, fredokaBold, cardSprite, yellowBtnSprite, greenBtnSprite, isGameplay: true);
+            optionsUI.ScreenPauseButton = pauseBtn;
+            pauseBtn.onClick.AddListener(optionsUI.OpenOptions);
+
+            BuildGameplayNotebookModal(canvasGO.transform, nbBtn, fredokaBold, yellowBtnSprite, notebookOpenSprite, abrirFrames);
+
+            // 8. Tríptico de Expedientes
+            GameObject tripticoGO = new GameObject("TripticoContainer");
+            tripticoGO.transform.SetParent(canvasGO.transform, false);
+            var tripRT = tripticoGO.AddComponent<RectTransform>();
+            tripRT.anchorMin = new Vector2(0.5f, 0.5f);
+            tripRT.anchorMax = new Vector2(0.5f, 0.5f);
+            tripRT.pivot = new Vector2(0.5f, 0.5f);
+            tripRT.anchoredPosition = new Vector2(0, 45);
+            tripRT.sizeDelta = new Vector2(1100, 500);
+
+            float[] sheetX = new float[] { -360f, 0f, 360f };
+            director.Sheets = new CheckoutSheetUI[3];
+            for (int i = 0; i < 3; i++)
+            {
+                director.Sheets[i] = CreateCheckoutSheetCard(tripticoGO.transform, $"Sheet_{i + 1}", new Vector2(sheetX[i], 0), fredokaBold);
+            }
+
+            // 9. Botones de Clasificación Inferiores
+            GameObject buttonsGO = new GameObject("DecisionButtonsContainer");
+            buttonsGO.transform.SetParent(canvasGO.transform, false);
+            var btnsRT = buttonsGO.AddComponent<RectTransform>();
+            btnsRT.anchorMin = new Vector2(0.5f, 0f);
+            btnsRT.anchorMax = new Vector2(0.5f, 0f);
+            btnsRT.pivot = new Vector2(0.5f, 0f);
+            btnsRT.anchoredPosition = new Vector2(0, 80);
+            btnsRT.sizeDelta = new Vector2(1100, 120);
+
+            director.TautologyButton = CreateDecisionButton(buttonsGO.transform, "Btn_Tautology", new Vector2(-360, 0), new Vector2(290, 70), greenBtnSprite, "TAUTOLOGÍA [1]", fredokaBold, 22);
+            director.ContradictionButton = CreateDecisionButton(buttonsGO.transform, "Btn_Contradiction", new Vector2(0, 0), new Vector2(290, 70), yellowBtnSprite, "CONTRADICCIÓN [2]", fredokaBold, 22);
+            director.ContingencyButton = CreateDecisionButton(buttonsGO.transform, "Btn_Contingency", new Vector2(360, 0), new Vector2(290, 70), yellowBtnSprite, "CONTINGENCIA [3]", fredokaBold, 22);
+
+            GameObject hintsGO = new GameObject("KeyboardHints");
+            hintsGO.transform.SetParent(buttonsGO.transform, false);
+            var hRT = hintsGO.AddComponent<RectTransform>();
+            hRT.anchoredPosition = new Vector2(0, -50);
+            hRT.sizeDelta = new Vector2(900, 30);
+            var hText = hintsGO.AddComponent<Text>();
+            hText.font = fredokaBold;
+            hText.fontSize = 17;
+            hText.color = new Color(0.70f, 0.72f, 0.75f);
+            hText.alignment = TextAnchor.MiddleCenter;
+            hText.text = "Atajos: [1 / Q] Tautología  •  [2 / W] Contradicción  •  [3 / E] Contingencia";
+
+            // 10. Modal de Resumen y Calificación Final
+            director.SummaryUI = CreateCheckoutSummaryModal(canvasGO.transform, fredokaBold, cardSprite, greenBtnSprite, yellowBtnSprite);
+
+            // Guardar Escena
+            EditorSceneManager.SaveScene(scene, scenePath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log("<color=green><b>[SceneSetupTools] ¡CheckoutScene construida con éxito en Assets/Scenes/CheckoutScene.unity!</b></color>");
+        }
+
+        private static CheckoutSheetUI CreateCheckoutSheetCard(Transform parent, string name, Vector2 position, Font font)
+        {
+            GameObject sheetGO = new GameObject(name);
+            sheetGO.transform.SetParent(parent, false);
+            var rt = sheetGO.AddComponent<RectTransform>();
+            rt.anchoredPosition = position;
+            rt.sizeDelta = new Vector2(320, 460);
+            var cg = sheetGO.AddComponent<CanvasGroup>();
+
+            var sheetUI = sheetGO.AddComponent<CheckoutSheetUI>();
+            sheetUI.RootRectTransform = rt;
+            sheetUI.SheetCanvasGroup = cg;
+
+            GameObject focusGO = new GameObject("FocusHighlight");
+            focusGO.transform.SetParent(sheetGO.transform, false);
+            var fRT = focusGO.AddComponent<RectTransform>();
+            fRT.sizeDelta = new Vector2(334, 474);
+            var fImg = focusGO.AddComponent<Image>();
+            fImg.color = new Color(0.90f, 0.66f, 0.14f, 0.85f);
+            sheetUI.HighlightBorder = focusGO;
+            focusGO.SetActive(false);
+
+            GameObject paperGO = new GameObject("PaperBackground");
+            paperGO.transform.SetParent(sheetGO.transform, false);
+            var pRT = paperGO.AddComponent<RectTransform>();
+            pRT.sizeDelta = new Vector2(320, 460);
+            var pImg = paperGO.AddComponent<Image>();
+            pImg.color = new Color(0.98f, 0.97f, 0.95f, 1.0f);
+
+            var pOutline = paperGO.AddComponent<Outline>();
+            pOutline.effectColor = new Color(0.82f, 0.79f, 0.75f, 0.9f);
+            pOutline.effectDistance = new Vector2(2, -2);
+
+            GameObject headerGO = new GameObject("Header");
+            headerGO.transform.SetParent(sheetGO.transform, false);
+            var hRT = headerGO.AddComponent<RectTransform>();
+            hRT.anchoredPosition = new Vector2(0, 185);
+            hRT.sizeDelta = new Vector2(280, 35);
+            var hText = headerGO.AddComponent<Text>();
+            hText.font = font;
+            hText.fontSize = 20;
+            hText.color = new Color(0.43f, 0.41f, 0.38f);
+            hText.alignment = TextAnchor.MiddleCenter;
+            sheetUI.HeaderText = hText;
+
+            MenuSetupTools.CreateDividerLine(sheetGO.transform, new Vector2(0, 160), 280f, 1.5f, new Color(0.83f, 0.81f, 0.77f, 0.85f));
+
+            GameObject fbfLabelGO = new GameObject("FBFLabel");
+            fbfLabelGO.transform.SetParent(sheetGO.transform, false);
+            var flRT = fbfLabelGO.AddComponent<RectTransform>();
+            flRT.anchoredPosition = new Vector2(0, 130);
+            flRT.sizeDelta = new Vector2(280, 25);
+            var flText = fbfLabelGO.AddComponent<Text>();
+            flText.font = font;
+            flText.fontSize = 13;
+            flText.color = new Color(0.55f, 0.52f, 0.48f);
+            flText.alignment = TextAnchor.MiddleCenter;
+            flText.text = "FÓRMULA BIEN FORMADA";
+
+            GameObject fbfGO = new GameObject("FormulaText");
+            fbfGO.transform.SetParent(sheetGO.transform, false);
+            var fRT2 = fbfGO.AddComponent<RectTransform>();
+            fRT2.anchoredPosition = new Vector2(0, 65);
+            fRT2.sizeDelta = new Vector2(290, 90);
+            var fText = fbfGO.AddComponent<Text>();
+            fText.font = font;
+            fText.fontSize = 32;
+            fText.color = new Color(0.11f, 0.11f, 0.11f);
+            fText.alignment = TextAnchor.MiddleCenter;
+            sheetUI.FormulaText = fText;
+
+            MenuSetupTools.CreateDividerLine(sheetGO.transform, new Vector2(0, 0), 280f, 1.5f, new Color(0.83f, 0.81f, 0.77f, 0.85f));
+
+            GameObject nlLabelGO = new GameObject("NaturalLanguageLabel");
+            nlLabelGO.transform.SetParent(sheetGO.transform, false);
+            var nlRT = nlLabelGO.AddComponent<RectTransform>();
+            nlRT.anchoredPosition = new Vector2(0, -30);
+            nlRT.sizeDelta = new Vector2(280, 25);
+            var nlText = nlLabelGO.AddComponent<Text>();
+            nlText.font = font;
+            nlText.fontSize = 13;
+            nlText.color = new Color(0.55f, 0.52f, 0.48f);
+            nlText.alignment = TextAnchor.MiddleCenter;
+            nlText.text = "INTERPRETACIÓN EN LENGUAJE NATURAL";
+
+            GameObject nlGO = new GameObject("NaturalLanguageText");
+            nlGO.transform.SetParent(sheetGO.transform, false);
+            var nlRT2 = nlGO.AddComponent<RectTransform>();
+            nlRT2.anchoredPosition = new Vector2(0, -95);
+            nlRT2.sizeDelta = new Vector2(280, 95);
+            var nlText2 = nlGO.AddComponent<Text>();
+            nlText2.font = font;
+            nlText2.fontStyle = FontStyle.Italic;
+            nlText2.fontSize = 17;
+            nlText2.color = new Color(0.24f, 0.22f, 0.20f);
+            nlText2.alignment = TextAnchor.MiddleCenter;
+            nlText2.lineSpacing = 1.25f;
+            sheetUI.NaturalLanguageText = nlText2;
+
+            GameObject footerGO = new GameObject("Footer");
+            footerGO.transform.SetParent(sheetGO.transform, false);
+            var ftRT = footerGO.AddComponent<RectTransform>();
+            ftRT.anchoredPosition = new Vector2(0, -195);
+            ftRT.sizeDelta = new Vector2(280, 25);
+            var ftText = footerGO.AddComponent<Text>();
+            ftText.font = font;
+            ftText.fontSize = 12;
+            ftText.color = new Color(0.63f, 0.60f, 0.56f);
+            ftText.alignment = TextAnchor.MiddleCenter;
+            ftText.text = "AUDITORÍA DE DESPACHO • LOGIPACK";
+
+            GameObject stampGO = new GameObject("StampContainer");
+            stampGO.transform.SetParent(sheetGO.transform, false);
+            var sRT = stampGO.AddComponent<RectTransform>();
+            sRT.anchoredPosition = new Vector2(0, 10);
+            sRT.sizeDelta = new Vector2(280, 85);
+            sheetUI.StampContainer = stampGO;
+            sheetUI.StampRectTransform = sRT;
+
+            var stampBorderImg = stampGO.AddComponent<Image>();
+            stampBorderImg.color = new Color(0.11f, 0.50f, 0.20f, 0.95f);
+            sheetUI.StampBorderImage = stampBorderImg;
+
+            GameObject stampInnerGO = new GameObject("StampInner");
+            stampInnerGO.transform.SetParent(stampGO.transform, false);
+            var siRT = stampInnerGO.AddComponent<RectTransform>();
+            siRT.sizeDelta = new Vector2(272, 77);
+            var siImg = stampInnerGO.AddComponent<Image>();
+            siImg.color = new Color(1f, 1f, 1f, 0.92f);
+
+            GameObject stampTxtGO = new GameObject("StampText");
+            stampTxtGO.transform.SetParent(stampInnerGO.transform, false);
+            var stRT = stampTxtGO.AddComponent<RectTransform>();
+            stRT.sizeDelta = siRT.sizeDelta;
+            var stText = stampTxtGO.AddComponent<Text>();
+            stText.font = font;
+            stText.fontSize = 25;
+            stText.fontStyle = FontStyle.Bold;
+            stText.alignment = TextAnchor.MiddleCenter;
+            stText.color = new Color(0.11f, 0.50f, 0.20f, 0.95f);
+            stText.text = "✓ DESPACHADO";
+            sheetUI.StampText = stText;
+
+            stampGO.SetActive(false);
+
+            return sheetUI;
+        }
+
+        private static Button CreateDecisionButton(Transform parent, string name, Vector2 position, Vector2 size, Sprite btnSprite, string label, Font font, int fontSize)
+        {
+            GameObject btnGO = new GameObject(name);
+            btnGO.transform.SetParent(parent, false);
+            var rt = btnGO.AddComponent<RectTransform>();
+            rt.anchoredPosition = position;
+            rt.sizeDelta = size;
+
+            var img = btnGO.AddComponent<Image>();
+            img.sprite = btnSprite;
+            img.type = Image.Type.Sliced;
+
+            var btn = btnGO.AddComponent<Button>();
+            btn.targetGraphic = img;
+
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(btnGO.transform, false);
+            var txtRT = textGO.AddComponent<RectTransform>();
+            txtRT.sizeDelta = size;
+
+            var txt = textGO.AddComponent<Text>();
+            txt.font = font;
+            txt.fontSize = fontSize;
+            txt.fontStyle = FontStyle.Bold;
+            txt.alignment = TextAnchor.MiddleCenter;
+            txt.color = new Color(0.10f, 0.10f, 0.10f);
+            txt.text = label;
+
+            return btn;
+        }
+
+        private static CheckoutSummaryUI CreateCheckoutSummaryModal(Transform parent, Font font, Sprite cardSprite, Sprite greenBtn, Sprite yellowBtn)
+        {
+            GameObject modalRootGO = new GameObject("CheckoutSummaryModal");
+            modalRootGO.transform.SetParent(parent, false);
+            var mRT = modalRootGO.AddComponent<RectTransform>();
+            mRT.anchorMin = Vector2.zero; mRT.anchorMax = Vector2.one;
+            mRT.sizeDelta = Vector2.zero;
+            mRT.anchoredPosition = Vector2.zero;
+
+            var cg = modalRootGO.AddComponent<CanvasGroup>();
+            var summaryUI = modalRootGO.AddComponent<CheckoutSummaryUI>();
+            summaryUI.ModalRoot = modalRootGO;
+            summaryUI.ModalCanvasGroup = cg;
+
+            GameObject darkOverlay = new GameObject("DarkOverlay");
+            darkOverlay.transform.SetParent(modalRootGO.transform, false);
+            var doRT = darkOverlay.AddComponent<RectTransform>();
+            doRT.anchorMin = Vector2.zero; doRT.anchorMax = Vector2.one;
+            doRT.sizeDelta = Vector2.zero;
+            var doImg = darkOverlay.AddComponent<Image>();
+            doImg.color = new Color(0, 0, 0, 0.78f);
+
+            GameObject cardGO = new GameObject("SummaryCard");
+            cardGO.transform.SetParent(modalRootGO.transform, false);
+            var cRT = cardGO.AddComponent<RectTransform>();
+            cRT.anchoredPosition = Vector2.zero;
+            cRT.sizeDelta = new Vector2(760, 580);
+            var cImg = cardGO.AddComponent<Image>();
+            cImg.sprite = cardSprite;
+            cImg.type = Image.Type.Sliced;
+            cImg.color = Color.white;
+
+            GameObject titleGO = new GameObject("TitleText");
+            titleGO.transform.SetParent(cardGO.transform, false);
+            var tRT = titleGO.AddComponent<RectTransform>();
+            tRT.anchoredPosition = new Vector2(0, 220);
+            tRT.sizeDelta = new Vector2(650, 50);
+            var tText = titleGO.AddComponent<Text>();
+            tText.font = font;
+            tText.fontSize = 32;
+            tText.fontStyle = FontStyle.Bold;
+            tText.alignment = TextAnchor.MiddleCenter;
+            tText.color = new Color(0.13f, 0.13f, 0.13f);
+            tText.text = "REPORTE DE AUDITORÍA";
+            summaryUI.TitleText = tText;
+
+            GameObject starsGO = new GameObject("StarsText");
+            starsGO.transform.SetParent(cardGO.transform, false);
+            var sRT = starsGO.AddComponent<RectTransform>();
+            sRT.anchoredPosition = new Vector2(0, 160);
+            sRT.sizeDelta = new Vector2(400, 55);
+            var sText = starsGO.AddComponent<Text>();
+            sText.font = font;
+            sText.fontSize = 42;
+            sText.fontStyle = FontStyle.Bold;
+            sText.alignment = TextAnchor.MiddleCenter;
+            sText.color = new Color(0.90f, 0.66f, 0.14f);
+            sText.text = "★ ★ ★";
+            summaryUI.StarsText = sText;
+
+            GameObject rankGO = new GameObject("RankTitleText");
+            rankGO.transform.SetParent(cardGO.transform, false);
+            var rRT = rankGO.AddComponent<RectTransform>();
+            rRT.anchoredPosition = new Vector2(0, 105);
+            rRT.sizeDelta = new Vector2(650, 40);
+            var rText = rankGO.AddComponent<Text>();
+            rText.font = font;
+            rText.fontSize = 24;
+            rText.fontStyle = FontStyle.Bold;
+            rText.alignment = TextAnchor.MiddleCenter;
+            rText.color = new Color(0.15f, 0.15f, 0.15f);
+            rText.text = "AUDITOR LÓGICO EXPERTO";
+            summaryUI.RankTitleText = rText;
+
+            MenuSetupTools.CreateDividerLine(cardGO.transform, new Vector2(0, 75), 550f, 1.5f, new Color(0.83f, 0.81f, 0.77f, 0.85f));
+
+            GameObject hitsGO = new GameObject("HitsSummaryText");
+            hitsGO.transform.SetParent(cardGO.transform, false);
+            var hRT = hitsGO.AddComponent<RectTransform>();
+            hRT.anchoredPosition = new Vector2(0, 40);
+            hRT.sizeDelta = new Vector2(650, 35);
+            var hText = hitsGO.AddComponent<Text>();
+            hText.font = font;
+            hText.fontSize = 21;
+            hText.alignment = TextAnchor.MiddleCenter;
+            hText.color = new Color(0.25f, 0.25f, 0.25f);
+            hText.text = "8 / 9 Expedientes Correctos (89% de Precisión)";
+            summaryUI.HitsSummaryText = hText;
+
+            GameObject breakGO = new GameObject("RoundBreakdownText");
+            breakGO.transform.SetParent(cardGO.transform, false);
+            var bRT = breakGO.AddComponent<RectTransform>();
+            bRT.anchoredPosition = new Vector2(0, -45);
+            bRT.sizeDelta = new Vector2(450, 100);
+            var bText = breakGO.AddComponent<Text>();
+            bText.font = font;
+            bText.fontSize = 19;
+            bText.alignment = TextAnchor.MiddleCenter;
+            bText.lineSpacing = 1.35f;
+            bText.color = new Color(0.43f, 0.41f, 0.38f);
+            bText.text = "• Ronda 1:  3 / 3 aciertos\n• Ronda 2:  3 / 3 aciertos\n• Ronda 3:  2 / 3 aciertos";
+            summaryUI.RoundBreakdownText = bText;
+
+            summaryUI.RetryButton = CreateDecisionButton(cardGO.transform, "Btn_Retry", new Vector2(-155, -195), new Vector2(250, 60), greenBtn, "REINTENTAR", font, 20);
+            summaryUI.MainMenuButton = CreateDecisionButton(cardGO.transform, "Btn_MainMenu", new Vector2(155, -195), new Vector2(250, 60), yellowBtn, "MENÚ PRINCIPAL", font, 20);
+
+            modalRootGO.SetActive(false);
+            return summaryUI;
+        }
+
+        #endregion
+
         private static Text CreateModalText(Transform parent, string name, Vector2 pos, Vector2 size, int fontSize, Font font, Color color, TextAnchor alignment)
         {
             GameObject go = new GameObject(name);
@@ -1512,5 +2005,83 @@ namespace LogiPack.Editor
 
             return slotGO;
         }
+
+        #region Métodos de Test en PlayMode
+
+        [MenuItem("LogiPack/Test/Checkout/Abrir Cuaderno Teoria")]
+        public static void TestCheckoutOpenTheory()
+        {
+            var guide = Object.FindAnyObjectByType<GameplayNotebookGuideUI>();
+            if (guide != null) guide.OpenGuide();
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Siguiente Pagina Teoria")]
+        public static void TestCheckoutNextTheory()
+        {
+            var guide = Object.FindAnyObjectByType<GameplayNotebookGuideUI>();
+            if (guide != null) guide.NextPage();
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Anterior Pagina Teoria")]
+        public static void TestCheckoutPrevTheory()
+        {
+            var guide = Object.FindAnyObjectByType<GameplayNotebookGuideUI>();
+            if (guide != null) guide.PrevPage();
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Cerrar Cuaderno Teoria")]
+        public static void TestCheckoutCloseTheory()
+        {
+            var guide = Object.FindAnyObjectByType<GameplayNotebookGuideUI>();
+            if (guide != null) guide.CloseGuide();
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Clasificar Tautologia")]
+        public static void TestCheckoutClassifyTautology()
+        {
+            if (CheckoutDirector.Instance != null)
+                CheckoutDirector.Instance.OnSubmitClassification(PropositionEvaluation.Tautology);
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Clasificar Contradiccion")]
+        public static void TestCheckoutClassifyContradiction()
+        {
+            if (CheckoutDirector.Instance != null)
+                CheckoutDirector.Instance.OnSubmitClassification(PropositionEvaluation.Contradiction);
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Clasificar Contingencia")]
+        public static void TestCheckoutClassifyContingency()
+        {
+            if (CheckoutDirector.Instance != null)
+                CheckoutDirector.Instance.OnSubmitClassification(PropositionEvaluation.Contingency);
+        }
+
+        [MenuItem("LogiPack/Test/Checkout/Diagnosticar Jerarquia")]
+        public static void TestDiagnoseHierarchy()
+        {
+            var canvas = Object.FindAnyObjectByType<Canvas>();
+            if (canvas == null)
+            {
+                Debug.Log("[Diagnostico] No se encontró Canvas");
+                return;
+            }
+            Debug.Log($"[Diagnostico] Canvas: {canvas.name}");
+            PrintHierarchy(canvas.transform, 0);
+        }
+
+        private static void PrintHierarchy(Transform t, int indent)
+        {
+            string pad = new string('-', indent * 2);
+            var img = t.GetComponent<Image>();
+            string imgInfo = img != null ? $" [Image active={img.enabled}, color={img.color}, sprite={(img.sprite != null ? img.sprite.name : "null")}]" : "";
+            Debug.Log($"{pad} {t.name} (activeSelf={t.gameObject.activeSelf}, activeInHierarchy={t.gameObject.activeInHierarchy}){imgInfo}");
+            for (int i = 0; i < t.childCount; i++)
+            {
+                PrintHierarchy(t.GetChild(i), indent + 1);
+            }
+        }
+
+        #endregion
     }
 }

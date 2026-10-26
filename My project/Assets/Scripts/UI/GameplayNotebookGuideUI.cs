@@ -16,6 +16,12 @@ namespace LogiPack.UI
         public Button OverlayCloseButton;
         public Button TriggerButton;
 
+        [Header("Páginas de Contenido")]
+        public GameObject PageBasics;
+        public GameObject PageTruthTables;
+        public Button NextPageButton;
+        public Button PrevPageButton;
+
         [Header("Sprites")]
         public Sprite CuadernoAbierto;
         public Sprite[] AbrirFrames;
@@ -23,6 +29,7 @@ namespace LogiPack.UI
         private bool _isOpen;
         private bool _isAnimating;
         private Coroutine _currentAnim;
+        private int _currentPage = 0; // 0: Lógica y Catálogo, 1: Tablas de Verdad
 
         private void Awake()
         {
@@ -44,6 +51,18 @@ namespace LogiPack.UI
                 OverlayCloseButton.onClick.AddListener(CloseGuide);
             }
 
+            if (NextPageButton != null)
+            {
+                NextPageButton.onClick.RemoveAllListeners();
+                NextPageButton.onClick.AddListener(NextPage);
+            }
+
+            if (PrevPageButton != null)
+            {
+                PrevPageButton.onClick.RemoveAllListeners();
+                PrevPageButton.onClick.AddListener(PrevPage);
+            }
+
             if (ModalRoot != null)
             {
                 ModalRoot.SetActive(false);
@@ -53,8 +72,39 @@ namespace LogiPack.UI
         public void OpenGuide()
         {
             if (_isOpen || _isAnimating) return;
+            // Si estamos en Checkout, abrir directamente en la página de Tablas de Verdad
+            _currentPage = GameModeManager.IsCheckoutMode ? 1 : 0;
+            UpdatePageNavigation();
+
             if (_currentAnim != null) StopCoroutine(_currentAnim);
             _currentAnim = StartCoroutine(AnimateOpen());
+        }
+
+        public void NextPage()
+        {
+            if (_currentPage < 1)
+            {
+                _currentPage++;
+                UpdatePageNavigation();
+            }
+        }
+
+        public void PrevPage()
+        {
+            if (_currentPage > 0)
+            {
+                _currentPage--;
+                UpdatePageNavigation();
+            }
+        }
+
+        private void UpdatePageNavigation()
+        {
+            if (PageBasics != null) PageBasics.SetActive(_currentPage == 0);
+            if (PageTruthTables != null) PageTruthTables.SetActive(_currentPage == 1);
+
+            if (PrevPageButton != null) PrevPageButton.gameObject.SetActive(_currentPage > 0);
+            if (NextPageButton != null) NextPageButton.gameObject.SetActive(_currentPage < 1);
         }
 
         public void CloseGuide()

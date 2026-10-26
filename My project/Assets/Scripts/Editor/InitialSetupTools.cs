@@ -18,7 +18,23 @@ namespace LogiPack.Editor
             MenuSetupTools.BuildMainMenuScene();
             SceneSetupTools.BuildGameplayScene();
             SceneSetupTools.BuildTutorialScene();
-            Debug.Log("<color=green><b>[LogiPack] ¡Todo construido, validado e integrado con éxito (Menú, Gameplay y Tutorial)!</b></color>");
+            SceneSetupTools.BuildCheckoutScene();
+            RegisterScenesInBuild();
+            Debug.Log("<color=green><b>[LogiPack] ¡Todo construido, validado e integrado con éxito (Menú, Gameplay, Tutorial y Check-out)!</b></color>");
+        }
+
+        [MenuItem("LogiPack/Registrar Escenas en Build Settings")]
+        public static void RegisterScenesInBuild()
+        {
+            var scenes = new EditorBuildSettingsScene[]
+            {
+                new EditorBuildSettingsScene("Assets/Scenes/MainMenuScene.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/GameplayScene.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/TutorialScene.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/CheckoutScene.unity", true)
+            };
+            EditorBuildSettings.scenes = scenes;
+            Debug.Log("<color=green><b>[LogiPack] EditorBuildSettings actualizado con las 4 escenas (MainMenu, Gameplay, Tutorial, Checkout).</b></color>");
         }
 
         [MenuItem("LogiPack/Crear Items y Escena de Prueba")]

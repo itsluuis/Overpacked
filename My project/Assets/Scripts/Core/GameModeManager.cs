@@ -7,7 +7,8 @@ namespace LogiPack.Core
     {
         Tutorial,   // Modo inducción con Mochi Miles en TutorialScene.unity
         NormalDay,  // Jornada Normal (06:00 a 22:00 en GameplayScene)
-        Infinite    // Modo arcade contrarreloj (GameplayScene)
+        Infinite,   // Modo arcade contrarreloj (GameplayScene)
+        Checkout    // Modo auditoría de tablas de verdad en CheckoutScene.unity
     }
 
     /// <summary>
@@ -20,6 +21,7 @@ namespace LogiPack.Core
         public static bool IsInfiniteMode => ActiveMode == GameSessionMode.Infinite;
         public static bool IsTutorialMode => ActiveMode == GameSessionMode.Tutorial;
         public static bool IsNormalDayMode => ActiveMode == GameSessionMode.NormalDay;
+        public static bool IsCheckoutMode => ActiveMode == GameSessionMode.Checkout;
 
         /// <summary>
         /// Congela el avance del reloj, clima, spawn y caducidad de pedidos

@@ -32,6 +32,21 @@ namespace LogiPack.Core
         public List<InfiniteRecord> Records = new List<InfiniteRecord>();
     }
 
+    [Serializable]
+    public class CheckoutRecord
+    {
+        public int Hits;        // e.g. 8
+        public int Total;       // e.g. 9
+        public int Stars;       // 0 to 3
+        public string Timestamp;
+    }
+
+    [Serializable]
+    public class CheckoutRankingContainer
+    {
+        public List<CheckoutRecord> Records = new List<CheckoutRecord>();
+    }
+
     /// <summary>
     /// Gestor persistente y desacoplado del sistema de rankings (Top 5) y estado del tutorial.
     /// Almacena datos localmente mediante PlayerPrefs y JsonUtility.
@@ -40,6 +55,7 @@ namespace LogiPack.Core
     {
         private const string PREF_KEY_NORMAL = "LogiPack_Ranking_NormalDay_Top5";
         private const string PREF_KEY_INFINITE = "LogiPack_Ranking_Infinite_Top5";
+        private const string PREF_KEY_CHECKOUT = "LogiPack_Ranking_Checkout_Top5";
         private const string PREF_KEY_TUTORIAL_COMPLETED = "LogiPack_Tutorial_Completed";
 
         #region Registro de Puntuaciones
@@ -122,6 +138,45 @@ namespace LogiPack.Core
             Debug.Log($"[RankingManager] Guardado récord Jornada Infinita: Ronda {roundsCleared} - ${totalMoney}");
         }
 
+        /// <summary>
+        /// Registra una partida de Auditoría Check-out (Tablas de Verdad) en el Top 5.
+        /// Criterio de ordenación: Mayor cantidad de aciertos, desempate por estrellas.
+        /// </summary>
+        public static void RecordCheckoutScore(int hits, int total, int stars)
+        {
+            var records = GetCheckoutTop5();
+
+            var newRecord = new CheckoutRecord
+            {
+                Hits = hits,
+                Total = total,
+                Stars = Mathf.Clamp(stars, 0, 3),
+                Timestamp = DateTime.Now.ToString("dd/MM HH:mm")
+            };
+
+            records.Add(newRecord);
+
+            // Ordenar: primero por Hits desc, luego por Stars desc
+            records.Sort((a, b) =>
+            {
+                int cmp = b.Hits.CompareTo(a.Hits);
+                if (cmp != 0) return cmp;
+                return b.Stars.CompareTo(a.Stars);
+            });
+
+            if (records.Count > 5)
+            {
+                records = records.GetRange(0, 5);
+            }
+
+            var container = new CheckoutRankingContainer { Records = records };
+            string json = JsonUtility.ToJson(container);
+            PlayerPrefs.SetString(PREF_KEY_CHECKOUT, json);
+            PlayerPrefs.Save();
+
+            Debug.Log($"[RankingManager] Guardado récord Check-out: {hits}/{total} aciertos ({stars}★)");
+        }
+
         #endregion
 
         #region Consulta de Rankings
@@ -175,6 +230,32 @@ namespace LogiPack.Core
             {
                 Debug.LogWarning($"[RankingManager] Error al parsear ranking infinito: {ex.Message}");
                 return new List<InfiniteRecord>();
+            }
+        }
+
+        /// <summary>
+        /// Retorna la lista con los 5 mejores récords de Auditoría Check-out.
+        /// Siempre devuelve una lista no nula.
+        /// </summary>
+        public static List<CheckoutRecord> GetCheckoutTop5()
+        {
+            if (!PlayerPrefs.HasKey(PREF_KEY_CHECKOUT))
+            {
+                return new List<CheckoutRecord>();
+            }
+
+            try
+            {
+                string json = PlayerPrefs.GetString(PREF_KEY_CHECKOUT, "");
+                if (string.IsNullOrEmpty(json)) return new List<CheckoutRecord>();
+
+                var container = JsonUtility.FromJson<CheckoutRankingContainer>(json);
+                return container != null && container.Records != null ? container.Records : new List<CheckoutRecord>();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[RankingManager] Error al parsear ranking checkout: {ex.Message}");
+                return new List<CheckoutRecord>();
             }
         }
 
