@@ -52,7 +52,7 @@ namespace LogiPack.Gameplay
         private void OnMouseDown()
         {
             if (UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
-            var wb = FindAnyObjectByType<AssemblyWorkbenchManager>();
+            var wb = AssemblyWorkbenchManager.Instance ?? FindAnyObjectByType<AssemblyWorkbenchManager>();
             if (wb != null && wb.IsInteractionsBlocked) return;
 
             if (_mainCamera == null) _mainCamera = Camera.main;

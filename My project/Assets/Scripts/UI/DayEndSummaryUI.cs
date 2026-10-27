@@ -14,7 +14,6 @@ namespace LogiPack.UI
         [Header("Referencias a Managers")]
         public EnvironmentManager Environment;
         public EconomyManager Economy;
-        public OrderManager Orders;
 
         [Header("Contenedor Principal")]
         public GameObject ContentPanel;
@@ -368,11 +367,6 @@ namespace LogiPack.UI
             if (Economy != null)
             {
                 Economy.ResetForNewDay();
-            }
-
-            if (Orders != null)
-            {
-                Orders.ClearAllOrders();
             }
 
             if (Environment != null)

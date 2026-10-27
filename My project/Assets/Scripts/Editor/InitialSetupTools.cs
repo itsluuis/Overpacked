@@ -172,44 +172,30 @@ namespace LogiPack.Editor
             );
             var compItems = compRule.ResolveValidItems(universe);
 
-            // 6. Probar validación de orden con O(1) y selección flexible
-            var testOrder = new Order(
-                "EMP-TEST",
-                "Ferretería Pim Pom Pim",
-                unionRule,
-                unionItems,
-                3,
-                new EnvironmentalCondition(),
-                75f,
-                140,
-                40
-            );
-
+            // 6. Probar validación de conjuntos con O(1) y pertenencia lógica
             ItemData tornillo = universe.Find(i => i.ItemId == "item_f1_t1");
             ItemData tela = universe.Find(i => i.ItemId == "item_f4_t1");
             ItemData cable = universe.Find(i => i.ItemId == "item_f2_t1");
 
             if (tornillo != null && tela != null && cable != null)
             {
-                var validPacked = new Dictionary<ItemData, int> { { tornillo, 2 }, { tela, 1 } };
-                bool passValid = testOrder.MatchesItems(validPacked);
+                bool passUnion = unionItems.Contains(tornillo) && unionItems.Contains(tela) && !unionItems.Contains(cable);
+                bool passInter = true;
+                foreach (var x in interItems) { if (!interRule.Matches(x)) passInter = false; }
 
-                var repeatPacked = new Dictionary<ItemData, int> { { tornillo, 3 } };
-                bool passRepeat = testOrder.MatchesItems(repeatPacked);
+                bool passDiff = true;
+                foreach (var x in diffItems) { if (!diffRule.Matches(x) || x.HasAttribute(ItemAttributes.Fragile)) passDiff = false; }
 
-                var illegalPacked = new Dictionary<ItemData, int> { { tornillo, 1 }, { tela, 1 }, { cable, 1 } };
-                bool passRejectIllegal = !testOrder.MatchesItems(illegalPacked);
+                bool passComp = true;
+                foreach (var x in compItems) { if (!compRule.Matches(x) || (x.FamilyName != null && x.FamilyName.Contains("Metales"))) passComp = false; }
 
-                var wrongCount = new Dictionary<ItemData, int> { { tornillo, 2 } };
-                bool passRejectCount = !testOrder.MatchesItems(wrongCount);
-
-                if (passValid && passRepeat && passRejectIllegal && passRejectCount)
+                if (passUnion && passInter && passDiff && passComp)
                 {
                     Debug.Log("<color=green><b>[LogiPack] ¡Validación de Teoría de Conjuntos: 100% EXITOSA (Unión, Intersección, Diferencia, Complemento, Cardinalidad O(1))!</b></color>");
                 }
                 else
                 {
-                    Debug.LogError("[LogiPack] Falló alguna prueba de validación de orden de empresa.");
+                    Debug.LogError("[LogiPack] Falló alguna prueba de validación de reglas de conjuntos.");
                 }
             }
         }

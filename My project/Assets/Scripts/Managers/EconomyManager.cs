@@ -133,16 +133,6 @@ namespace LogiPack.Managers
         }
 
         /// <summary>
-        /// Método de compatibilidad previo.
-        /// </summary>
-        public int CalculateDailyRating(out float extraBonusPercent)
-        {
-            var summary = CalculateDailySummary();
-            extraBonusPercent = summary.ExtraBonusPercent;
-            return summary.Stars;
-        }
-
-        /// <summary>
         /// Reinicia las métricas financieras para el inicio de una nueva jornada laboral.
         /// </summary>
         public void ResetForNewDay()
