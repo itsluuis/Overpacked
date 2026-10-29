@@ -228,12 +228,12 @@ flowchart TD
     node_infinite_mode["Infinite Mode<br/>[InfiniteModeController.cs]"]
   end
 
-  node_item_source -->|Drag & Drop de Ítems| node_slot
-  node_operator_drawer -->|Abre cajón 1x4| node_operator
-  node_slot -->|Operandos Izq / Der| node_workbench
-  node_operator -->|Operador Lógico Seleccionado| node_workbench
-  node_workbench -->|Construye Árbol Binario y Empaca| node_proposition_box
-  node_infinite_mode -.->|Escala Presión y Tiempos| node_workbench
+  node_item_source -->|"Drag and Drop de Ítems"| node_slot
+  node_operator_drawer -->|"Abre cajón 1x4"| node_operator
+  node_slot -->|"Operandos Izq / Der"| node_workbench
+  node_operator -->|"Operador Lógico Seleccionado"| node_workbench
+  node_workbench -->|"Construye Árbol Binario y Empaca"| node_proposition_box
+  node_infinite_mode -.->|"Escala Presión y Tiempos"| node_workbench
 
   click node_workbench "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Gameplay/AssemblyWorkbenchManager.cs"
   click node_slot "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Gameplay/AssemblySlotDraggable.cs"
@@ -282,13 +282,13 @@ flowchart TD
     node_order_manager["Order Manager<br/>[PropositionalOrderManager.cs]"]
   end
 
-  node_environment_state -->|Variables p, q según Clima| node_order_generator
-  node_item_data -->|Universo U e Ítems Base| node_order_generator
-  node_set_rules -->|Operaciones A∪B, A∩B, A-B, Aᶜ| node_order_generator
-  node_propositional_operator -->|Semántica Booleana| node_propositional_node
-  node_propositional_node -->|Árbol AST y Firma 16-bit| node_order
-  node_order_generator -->|Instancia Pedido Válido| node_order
-  node_order -->|Encola en Barra de Tareas| node_order_manager
+  node_environment_state -->|"Variables p, q según Clima"| node_order_generator
+  node_item_data -->|"Universo U e Ítems Base"| node_order_generator
+  node_set_rules -->|"Operaciones A∪B, A∩B, A-B, Aᶜ"| node_order_generator
+  node_propositional_operator -->|"Semántica Booleana"| node_propositional_node
+  node_propositional_node -->|"Árbol AST y Firma 16-bit"| node_order
+  node_order_generator -->|"Instancia Pedido Válido"| node_order
+  node_order -->|"Encola en Barra de Tareas"| node_order_manager
 
   click node_order_generator "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Orders/OrderGenerator.cs"
   click node_order "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Orders/PropositionalOrder.cs"
@@ -338,11 +338,11 @@ flowchart TD
     node_checkout_summary["Checkout Summary<br/>[CheckoutSummaryUI.cs]"]
   end
 
-  node_checkout_formula -->|Banco Curado de 30+ FBF| node_checkout_sheet
-  node_checkout_sheet -->|Expediente Activo en Pantalla| node_checkout_director
-  node_checkout_director -->|Entrada del Jugador (1/2/3 o Clic)| node_proposition_evaluation
-  node_proposition_evaluation -->|Estampa TAUTOLOGÍA / CONTRADICCIÓN / CONTINGENCIA| node_checkout_sheet
-  node_checkout_director -->|Cierre de 3 Rondas (9 Expedientes)| node_checkout_summary
+  node_checkout_formula -->|"Banco Curado de 30+ FBF"| node_checkout_sheet
+  node_checkout_sheet -->|"Expediente Activo en Pantalla"| node_checkout_director
+  node_checkout_director -->|"Entrada del Jugador: Teclas 1, 2, 3 o Clic"| node_proposition_evaluation
+  node_proposition_evaluation -->|"Estampa Tautología / Contradicción / Contingencia"| node_checkout_sheet
+  node_checkout_director -->|"Cierre de 3 Rondas: 9 Expedientes"| node_checkout_summary
 
   click node_checkout_director "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Checkout/CheckoutDirector.cs"
   click node_checkout_formula "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Checkout/CheckoutFormula.cs"
@@ -395,15 +395,16 @@ flowchart TD
     node_ranking["Ranking<br/>[RankingManager.cs]"]
   end
 
-  node_main_menu -->|Apertura Animada de Hojas| node_notebook
-  node_notebook -->|Selección: Tutorial / Normal / Infinita| node_game_mode
-  node_game_mode -->|Cortina de Transición Horizontal| node_scene_transition
-  node_game_mode -->|Inicia Turno y Música Específica| node_audio
-  node_game_mode -->|Activa Ciclo Meteorológico| node_environment_manager
-  node_tutorial -->|Guía Paso a Paso del Supervisor| node_tutorial_dialogue
-  node_environment_manager & node_economy -->|Actualiza Reloj, Monedas y Clima| node_hud
-  node_game_mode -->|Fin de Turno (22:00) o Fallo Cuota| node_day_end
-  node_day_end -->|Guarda Registro Atómico Top 5| node_ranking
+  node_main_menu -->|"Apertura Animada de Hojas"| node_notebook
+  node_notebook -->|"Selección: Tutorial / Normal / Infinita"| node_game_mode
+  node_game_mode -->|"Cortina de Transición Horizontal"| node_scene_transition
+  node_game_mode -->|"Inicia Turno y Música Específica"| node_audio
+  node_game_mode -->|"Activa Ciclo Meteorológico"| node_environment_manager
+  node_tutorial -->|"Guía Paso a Paso del Supervisor"| node_tutorial_dialogue
+  node_environment_manager -->|"Actualiza Reloj y Clima"| node_hud
+  node_economy -->|"Actualiza Monedas y Balance"| node_hud
+  node_game_mode -->|"Fin de Turno a las 22:00 o Fallo de Cuota"| node_day_end
+  node_day_end -->|"Guarda Registro Atómico Top 5"| node_ranking
 
   click node_tutorial "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Tutorial/TutorialDirector.cs"
   click node_tutorial_dialogue "https://github.com/itsluuis/overpacked/blob/main/My%20project/Assets/Scripts/Tutorial/TutorialDialogueUI.cs"
