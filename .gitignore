@@ -8,6 +8,8 @@
 speech_contexto_proyecto.md
 GUIA_CONTINUIDAD_PROYECTO.md
 CONTINUIDAD_SESIONES.md
+docs/plans/
+plans/
 *.log
 *.tmp
 scratch/
